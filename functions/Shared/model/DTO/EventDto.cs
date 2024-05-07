@@ -9,7 +9,7 @@ public class EventDto
 {
     public DateTime startTime { get; set; }
     public DateTime endTime { get; set; }
-    //public Boolean? isAllDay{ get; set; } = false;
+    public Boolean? isAllDay{ get; set; } = false;
     public string? color { get; set; }
     public string? startTimeZone { get; set; }
     public string? endTimeZone { get; set; }
