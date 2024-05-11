@@ -11,14 +11,11 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddLogging();
     })
-    
     .Build();
     
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
      Formatting = Formatting.Indented,
      ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 };
-
-
 
 host.Run();

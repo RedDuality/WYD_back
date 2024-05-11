@@ -14,6 +14,8 @@ public class User
     public int Id { get; set;}
     public string? mail { get; set; }
     public string? username { get ; set; }
+
+    [JsonIgnore]
     public virtual List<Event> Events {get; set;} = [];
     public virtual List<UserEvent> UserEvents {get; set;} = [];
 }

@@ -1,7 +1,6 @@
 using Model;
 using Database;
 using AutoMapper;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -40,19 +39,33 @@ public class EventController
 
     public Event Create(Event ev, User user)
     {
+        var transaction = db.Database.BeginTransaction();
+        User uc = new UserController().Get(2);
+        ev.Id = null;
+        db.Events.Add(ev);
+        db.SaveChanges();
+        ev.OwnerId = uc.Id;
+        ev.users.Add(uc);
+        db.SaveChanges();
+        Confirm(ev, uc);
+        transaction.Commit();
+        return ev;
 
+    }
+
+    public void Confirm(Event ev, User user)
+    {
+
+        ev.UserEvents.First(ue => ue.UserId == user.Id).confirmed = true;
+        db.SaveChanges();
+    }
+
+    public void Decline(Event ev, User user)
+    {
         using (db)
         {
-            var transaction = db.Database.BeginTransaction();
-            User uc = new UserController().Get(1);
-            ev.Id = null;
-            db.Events.Add(ev);
+            ev.UserEvents.First(ue => ue.UserId == user.Id).confirmed = false;
             db.SaveChanges();
-            ev.users.Add(uc);
-            db.Events.Update(ev);
-            db.SaveChanges();
-            transaction.Commit();
-            return ev;
         }
     }
 
@@ -108,7 +121,7 @@ public class EventController
     public bool Delete(int id)
     {
         using (db)
-        {//TODO check owner
+        {//TODO check owner(may be deleted, but then not the current user anyway)
             db.Remove(db.Events.Single(e => e.Id == id));
             db.SaveChanges();
             return true;

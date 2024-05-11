@@ -14,8 +14,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "e:/Impo/Università/Magistrale/Secondo anno/SRS/WYD/functions_csh",
-      "program": "e:/Impo/Università/Magistrale/Secondo anno/SRS/WYD/functions_csh/build/Debug/outDebug",
+      "cwd": "e:/Impo/Università/Magistrale/Secondo anno/SRS/WYD_back/functions",
+      "program": "e:/Impo/Università/Magistrale/Secondo anno/SRS/WYD_back/functions/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

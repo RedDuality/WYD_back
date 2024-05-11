@@ -1,6 +1,8 @@
 using Model;
 using Database;
 using Azure.Core.GeoJson;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Tracing;
 
 
 namespace Controller;
@@ -45,7 +47,10 @@ public class UserController
     public string Delete(int id)
     {
         using(db){
-            db.Remove(db.Users.Single(u => u.Id == id));
+            User user = db.Users.Include(u => u.Events).ThenInclude(e => e.UserEvents).Single(u => u.Id == id);
+            List<Event> orphanEvents = user.Events.Where(e => e.UserEvents.Count == 1).ToList();
+            db.Remove(user);
+            db.Events.RemoveRange(orphanEvents);
             db.SaveChanges();
             return "Utente eliminato con successo";
         }

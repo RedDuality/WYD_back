@@ -30,6 +30,9 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("color")
                         .HasColumnType("nvarchar(max)");
 
