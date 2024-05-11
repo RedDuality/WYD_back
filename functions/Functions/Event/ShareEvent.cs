@@ -13,32 +13,42 @@ using Newtonsoft.Json;
 
 namespace Functions
 {
-    public class CreateEvent
+    public class ShareEvent
     {
-        private readonly ILogger<CreateEvent> _logger;
+        private readonly ILogger<ShareEvent> _logger;
         private readonly EventController _eventController;
 
-        public CreateEvent(ILogger<CreateEvent> logger)
+        public ShareEvent(ILogger<ShareEvent> logger)
         {
             _logger = logger;
             _eventController = new EventController();
         }
 
-        [Function("CreateEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
+        [Function("ShareEvent")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Share/{eventId}")] HttpRequestData req, string eventId, FunctionContext executionContext)
         {
+
+            int id;
+            try
+            {
+                id = Int32.Parse(eventId);
+            }
+            catch (FormatException)
+            {
+                return new BadRequestObjectResult("Id Format wrong");
+            }
 
             string requestBody;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            
-            var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
-            if (myevent != null)
+            var userIdList = JsonConvert.DeserializeObject<List<int>>(requestBody);
+
+            if (userIdList != null)
             {
-                User uc = new UserController().Get(1);
-                var newevent = _eventController.Create(myevent, uc);
+                
+                var newevent = _eventController.Share(id, userIdList);
                 string result = JsonConvert.SerializeObject(newevent);
                 return new OkObjectResult(result);
             }

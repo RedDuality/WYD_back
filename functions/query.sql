@@ -30,3 +30,8 @@ CREATE TABLE wyddb1.dbo.User_Event (
 
 ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_Event FOREIGN KEY ([EventId]) REFERENCES wyddb1.dbo.[Event](Id);
 ALTER TABLE wyddb1.dbo.User_Event ADD CONSTRAINT FK_User_Event_User FOREIGN KEY ([UserId]) REFERENCES wyddb1.dbo.[User](Id);
+
+
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20240421142124_InitialCreate")]
+    [Migration("20240511153831_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -73,11 +73,11 @@ namespace functions.Migrations
 
             modelBuilder.Entity("Model.User", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("mail")
                         .HasColumnType("nvarchar(max)");

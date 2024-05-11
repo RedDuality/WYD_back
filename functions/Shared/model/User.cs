@@ -11,12 +11,9 @@ public class User
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int? Id { get; set;}
+    public int Id { get; set;}
     public string? mail { get; set; }
     public string? username { get ; set; }
-    
-    [JsonIgnore]
-    public List<Event> Events {get; set;} = [];
-    [JsonIgnore]
-    public List<UserEvent> UserEvents {get; set;} = [];
+    public virtual List<Event> Events {get; set;} = [];
+    public virtual List<UserEvent> UserEvents {get; set;} = [];
 }

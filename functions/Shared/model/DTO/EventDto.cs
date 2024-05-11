@@ -9,7 +9,7 @@ public class EventDto
 {
     public DateTime startTime { get; set; }
     public DateTime endTime { get; set; }
-    public Boolean? isAllDay{ get; set; } = false;
+    public bool? isAllDay{ get; set; } = false;
     public string? color { get; set; }
     public string? startTimeZone { get; set; }
     public string? endTimeZone { get; set; }
@@ -17,8 +17,6 @@ public class EventDto
     public string? notes { get; set; }
     public string? location  { get; set; }
     public int? recurrenceId{ get; set; }
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int? Id { get; set; }
     public string? subject { get ; set; }
 

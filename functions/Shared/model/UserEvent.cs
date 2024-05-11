@@ -9,7 +9,6 @@ public class UserEvent
 {
     [JsonIgnore]
     public int EventId { get; set; }
-    [JsonIgnore]
     public int UserId { get; set; }
-    public Boolean confirmed { get ; set; } = false;
+    public bool confirmed { get ; set; } = false;
 }

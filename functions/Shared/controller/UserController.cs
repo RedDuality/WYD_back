@@ -1,5 +1,6 @@
 using Model;
 using Database;
+using Azure.Core.GeoJson;
 
 
 namespace Controller;
@@ -17,7 +18,7 @@ public class UserController
     {
         using (db)
         {
-            return db.Users.First(u => u.Id == id);
+            return db.Users.Single(u => u.Id == id);
         }
 
     }
@@ -39,5 +40,15 @@ public class UserController
         u.mail = newUser.mail;
         db.SaveChanges();
         return u;
+    }
+
+    public string Delete(int id)
+    {
+        using(db){
+            db.Remove(db.Users.Single(u => u.Id == id));
+            db.SaveChanges();
+            return "Utente eliminato con successo";
+        }
+       
     }
 }

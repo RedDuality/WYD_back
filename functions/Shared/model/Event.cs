@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Newtonsoft.Json;
 
 
@@ -10,7 +11,7 @@ public class Event
 {
     public DateTime startTime { get; set; }
     public DateTime endTime { get; set; }
-    public Boolean? isAllDay{ get; set; } = false;
+    public bool? isAllDay{ get; set; } = false;
     public string? color { get; set; }
     public string? startTimeZone { get; set; }
     public string? endTimeZone { get; set; }
@@ -27,7 +28,11 @@ public class Event
     public string? subject { get ; set; }
 
     //[JsonIgnore]
-    public List<User> Users { get; set;} = [];
+    public HashSet<User> users { get; set;} = [];
 
     public List<UserEvent> UserEvents {get; set;} = [];
+
+    public void update(Event ev){
+
+    }
 }

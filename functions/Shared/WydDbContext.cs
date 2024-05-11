@@ -13,13 +13,14 @@ public class WydDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString"));
+        optionsBuilder.UseSqlServer("Server=tcp:wydreldbserver.database.windows.net,1433;Initial Catalog=Wydreldb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        //optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Event>().HasMany(e => e.Users).WithMany(u => u.Events).UsingEntity<UserEvent>();
-
+        modelBuilder.Entity<User>().HasMany(u => u.Events).WithMany(e => e.users).UsingEntity<UserEvent>();
+        //modelBuilder.Entity<Event>().HasOne(e => e.owner).WithOne().HasForeignKey<Event>( e => e.ownerId);
         //modelBuilder.Entity<Event>().Property(p => p.Id).ValueGeneratedOnAdd().Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
         //modelBuilder.Entity<User>().ToTable("User");
         //.Property(p => p.Id).ValueGeneratedOnAdd().Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);

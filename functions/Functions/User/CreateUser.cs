@@ -1,3 +1,4 @@
+using System.Text;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,26 +25,22 @@ namespace Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req, FunctionContext executionContext)
         {
 
-            /*
+            
             string requestBody;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
             var user = JsonConvert.DeserializeObject<User>(requestBody);
-            */
 
-
-            User user = new User
+            if (user != null)
             {
-                username = "third",
-                mail = "third@mail.com"
-            };
+                User u = _userController.Create(user);
+                string result = JsonConvert.SerializeObject(u);
+                return new OkObjectResult(result);
+            }
+            return new BadRequestObjectResult("Bad Json Formatting");
 
-            User u = _userController.Create(user);
-
-            string result = JsonConvert.SerializeObject(u);
-            return new OkObjectResult(result);
         }
     }
 }
