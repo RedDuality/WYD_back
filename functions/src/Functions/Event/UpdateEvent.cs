@@ -2,9 +2,9 @@
 
 using System.Text;
 using Controller;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Newtonsoft.Json;
@@ -17,15 +17,17 @@ namespace Functions
     {
         private readonly ILogger<UpdateEvent> _logger;
         private readonly EventController _eventController;
+        private readonly AuthController _authController;
 
         public UpdateEvent(ILogger<UpdateEvent> logger)
         {
             _logger = logger;
             _eventController = new EventController();
+            _authController = new AuthController();
         }
 
         [Function("UpdateEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event")] HttpRequestData req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event")] HttpRequest req, FunctionContext executionContext)
         {
 
             string requestBody;
@@ -33,8 +35,12 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            
             var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
+            
+            User? user = _authController.VerifyRequest(req);
+            if (user == null)
+                return new ForbidResult();
+
             if (myevent != null)
             {
                 var result = _eventController.Update(myevent);

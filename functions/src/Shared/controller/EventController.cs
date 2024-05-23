@@ -2,6 +2,7 @@ using Model;
 using Database;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Google.Protobuf.WellKnownTypes;
 
 
 namespace Controller;
@@ -10,7 +11,6 @@ public class EventController
 
     WydDbContext db;
     Mapper userMapper;
-
 
     public EventController()
     {
@@ -25,6 +25,10 @@ public class EventController
         userMapper = new Mapper(userMapperConfig);
     }
 
+    public bool MethodForTesting(){
+        db = new WydDbContext();
+        return db.Database.CanConnect();
+    }
     public List<EventDto> GetEvents(int userId)
     {
         using (db)
@@ -72,7 +76,7 @@ public class EventController
     //only for fields
     public string Update(Event ev)
     {
-
+        //TODO check the user can modify it
         using (db)
         {
             Event old = db.Events.Single(e => e.Id == ev.Id);
@@ -88,6 +92,7 @@ public class EventController
 
         using (db)
         {
+            //TODO check user has the event he wants to share
             Event ev;
             try
             {
@@ -112,23 +117,27 @@ public class EventController
             Event ev = db.Events.Include(e => e.users).Single(e => e.Id == eventId);
             User u = db.Users.Single(e => e.Id == userId);
             ev.users.Remove(u);
-
+            if(ev.users.Count == 0)
+                db.Remove(ev);
             db.SaveChanges();
             return true;
         }
     }
 
-    public bool Delete(int id)
+    public bool Delete(int id, int userId)
     {
         using (db)
-        {//TODO check owner(may be deleted, but then not the current user anyway)
-            db.Remove(db.Events.Single(e => e.Id == id));
+        {
+            Event ev = db.Events.Single(e => e.Id == id);
+            if(ev.OwnerId != userId)
+                return false;
+            db.Remove(ev);
             db.SaveChanges();
             return true;
         }
     }
 
-    public List<Event> Add(List<User> users, List<Event> ev)
+    public List<Event> AddMultiple(List<User> users, List<Event> ev)
     {
         using (db)
         {

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20240511170817_InitialCreate")]
+    [Migration("20240521171720_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -82,13 +82,26 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("mail")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("username")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("mail")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

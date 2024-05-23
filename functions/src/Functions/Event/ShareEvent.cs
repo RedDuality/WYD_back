@@ -2,6 +2,7 @@
 
 using System.Text;
 using Controller;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -17,16 +18,21 @@ namespace Functions
     {
         private readonly ILogger<ShareEvent> _logger;
         private readonly EventController _eventController;
+        private readonly AuthController _authController;
 
         public ShareEvent(ILogger<ShareEvent> logger)
         {
             _logger = logger;
             _eventController = new EventController();
+            _authController = new AuthController();
         }
 
         [Function("ShareEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Share/{eventId}")] HttpRequestData req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Share/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
+            User? user = _authController.VerifyRequest(req);
+            if(user == null)
+                return new ForbidResult();
 
             int id;
             try
@@ -47,10 +53,8 @@ namespace Functions
 
             if (userIdList != null)
             {
-                
                 var newevent = _eventController.Share(id, userIdList);
-                string result = JsonConvert.SerializeObject(newevent);
-                return new OkObjectResult(result);
+                return new OkObjectResult(newevent);
             }
             return new BadRequestObjectResult("Bad Json Formatting");
 

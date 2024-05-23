@@ -41,8 +41,10 @@ namespace functions.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    mail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    username = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    mail = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,6 +80,12 @@ namespace functions.Migrations
                 name: "IX_User_Event_UserId",
                 table: "User_Event",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_mail",
+                table: "Users",
+                column: "mail",
+                unique: true);
         }
 
         /// <inheritdoc />

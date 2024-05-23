@@ -2,6 +2,7 @@
 
 using System.Text;
 using Controller;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -17,28 +18,33 @@ namespace Functions
     {
         private readonly ILogger<DeleteEventForAll> _logger;
         private readonly EventController _eventController;
+        private readonly AuthController _authController;
 
         public DeleteEventForAll(ILogger<DeleteEventForAll> logger)
         {
             _logger = logger;
             _eventController = new EventController();
+            _authController = new AuthController();
         }
 
         [Function("DeleteEventForAll")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/ForAll/{eventId}")] HttpRequestData req, string eventId, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/ForAll/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             int id;
             try
             {
-                id = Int32.Parse(eventId);
+                id = int.Parse(eventId);
             }
             catch (FormatException)
             {
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            var result = _eventController.Delete(id);
-            return new OkObjectResult(result);
+            User? user = _authController.VerifyRequest(req);
+            if (user == null)
+                return new ForbidResult();
+
+            return _eventController.Delete(id, user.Id) ? new OkObjectResult("") : new BadRequestResult();
 
         }
     }

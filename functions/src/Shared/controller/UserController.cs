@@ -1,9 +1,6 @@
 using Model;
 using Database;
-using Azure.Core.GeoJson;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Tracing;
-
 
 namespace Controller;
 public class UserController
@@ -25,10 +22,21 @@ public class UserController
 
     }
 
-    public User Create(User user)
+    public User RetrieveByMail(string mail)
     {
         using (db)
         {
+            return db.Users.Single(u => u.mail.Equals(mail));
+        }
+
+    }
+
+    //TODO make private
+    public User Create(User user)
+    {
+        using (db)
+        {   
+            //TODO add control over unique mail
             db.Users.Add(user);
             db.SaveChanges();
             return user;
@@ -46,7 +54,8 @@ public class UserController
 
     public string Delete(int id)
     {
-        using(db){
+        using (db)
+        {
             User user = db.Users.Include(u => u.Events).ThenInclude(e => e.UserEvents).Single(u => u.Id == id);
             List<Event> orphanEvents = user.Events.Where(e => e.UserEvents.Count == 1).ToList();
             db.Remove(user);
@@ -54,6 +63,6 @@ public class UserController
             db.SaveChanges();
             return "Utente eliminato con successo";
         }
-       
+
     }
 }
