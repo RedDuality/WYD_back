@@ -32,7 +32,7 @@ public class Event
     [JsonIgnore]
     public virtual HashSet<User> users { get; set;} = [];
 
-    public List<UserEvent> UserEvents {get; set;} = [];
+    public virtual List<UserEvent> UserEvents {get; set;} = [];
 
     public void update(Event ev){
         startTime = ev.startTime;

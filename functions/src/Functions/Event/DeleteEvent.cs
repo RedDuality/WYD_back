@@ -21,11 +21,11 @@ namespace Functions
 
         private readonly AuthController _authController;
 
-        public DeleteEvent(ILogger<DeleteEvent> logger)
+        public DeleteEvent(ILogger<DeleteEvent> logger, EventController eventController, AuthController authController)
         {
             _logger = logger;
-            _eventController = new EventController();
-            _authController = new AuthController();
+            _eventController = eventController;
+            _authController = authController;
         }
 
         [Function("DeleteEvent")]
@@ -40,10 +40,10 @@ namespace Functions
             {
                 return new BadRequestObjectResult("Id Format wrong");
             }
-
-            User? user = _authController.VerifyRequest(req);
-            if(user == null)
-                return new ForbidResult();
+            User user;
+            try{
+                user = _authController.VerifyRequest(req);
+            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             var result = _eventController.DeleteForUser(id, user.Id);
             return new OkObjectResult(result);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Controller;
 using Microsoft.Extensions.Configuration;
+using Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -12,7 +13,10 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddLogging();
+        services.AddScoped<WydDbContext>();
         services.AddTransient<AuthController>();
+        services.AddTransient<EventController>();
+        services.AddTransient<UserController>();
     })
     .Build();
     

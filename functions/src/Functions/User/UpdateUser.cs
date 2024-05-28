@@ -13,21 +13,21 @@ using Newtonsoft.Json;
 
 namespace Functions
 {
-    public class UpdateEvent
+    public class UpdateUser
     {
-        private readonly ILogger<UpdateEvent> _logger;
-        private readonly EventController _eventController;
+        private readonly ILogger<UpdateUser> _logger;
+        private readonly UserController _userController;
         private readonly AuthController _authController;
 
-        public UpdateEvent(ILogger<UpdateEvent> logger, EventController eventController, AuthController authController)
+        public UpdateUser(ILogger<UpdateUser> logger, AuthController authController, UserController userController)
         {
             _logger = logger;
-            _eventController = eventController;
+            _userController = userController;
             _authController = authController;
         }
 
-        [Function("UpdateEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event")] HttpRequest req, FunctionContext executionContext)
+        [Function("UpdateUser")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "User")] HttpRequest req, FunctionContext executionContext)
         {
 
             string requestBody;
@@ -35,16 +35,16 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
+            var myuser = JsonConvert.DeserializeObject<User>(requestBody);
             
             User user;
             try{
                 user = _authController.VerifyRequest(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
-            if (myevent != null)
+            if (myuser != null)
             {
-                var result = _eventController.Update(myevent);
+                var result = _userController.Update(user, myuser);
                 return new OkObjectResult(result);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

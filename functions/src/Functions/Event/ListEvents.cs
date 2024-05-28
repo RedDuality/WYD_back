@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
@@ -16,22 +17,24 @@ namespace Functions
         private readonly EventController _eventController;
         private readonly AuthController _authController;
 
-        public ListEvents(ILogger<ListEvents> logger)
+        public ListEvents(ILogger<ListEvents> logger, EventController eventController, AuthController authController)
         {
             _logger = logger;
-            _eventController = new EventController();
-            _authController = new AuthController();
+            _eventController = eventController;
+            _authController = authController;
         }
 
         [Function("ListEvents")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEvents")] HttpRequest req, FunctionContext executionContext)
         {
+            User user;
+            try{
+                user = _authController.VerifyRequest(req);
+            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            
+                
 
-            User? user = _authController.VerifyRequest(req);
-            if(user == null)
-                return new ForbidResult();
-
-            var eventi = _eventController.GetEvents(user.Id);
+            var eventi = user.Events;
             string result = JsonSerializer.Serialize(eventi);
 
             return new OkObjectResult(result);

@@ -1,6 +1,7 @@
 using Model;
 using Database;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Controller;
 public class UserController
@@ -8,44 +9,46 @@ public class UserController
 
     WydDbContext db;
 
-    public UserController()
+    public UserController(WydDbContext wydDbContext)
     {
-        db = new WydDbContext();
+        db = wydDbContext;
     }
 
     public User Get(int id)
     {
-        using (db)
-        {
-            return db.Users.Single(u => u.Id == id);
-        }
+
+        return db.Users.Single(u => u.Id == id);
+
 
     }
 
     public User RetrieveByMail(string mail)
     {
-        using (db)
+
+        try
         {
             return db.Users.Single(u => u.mail.Equals(mail));
         }
+        catch (Exception)
+        {
+            throw new NullReferenceException("Utente non trovato");
+        }
+
 
     }
 
     //TODO make private
     public User Create(User user)
     {
-        using (db)
-        {   
-            //TODO add control over unique mail
-            db.Users.Add(user);
-            db.SaveChanges();
-            return user;
-        }
+        //TODO add control over unique mail
+        db.Users.Add(user);
+        db.SaveChanges();
+        return user;
+
     }
 
-    public User Update(int id, User newUser)
+    public User Update(User u, User newUser)
     {
-        User u = Get(id);
         u.username = newUser.username;
         u.mail = newUser.mail;
         db.SaveChanges();
@@ -54,15 +57,13 @@ public class UserController
 
     public string Delete(int id)
     {
-        using (db)
-        {
-            User user = db.Users.Include(u => u.Events).ThenInclude(e => e.UserEvents).Single(u => u.Id == id);
-            List<Event> orphanEvents = user.Events.Where(e => e.UserEvents.Count == 1).ToList();
-            db.Remove(user);
-            db.Events.RemoveRange(orphanEvents);
-            db.SaveChanges();
-            return "Utente eliminato con successo";
-        }
+
+        User user = db.Users.Include(u => u.Events).ThenInclude(e => e.UserEvents).Single(u => u.Id == id);
+        List<Event> orphanEvents = user.Events.Where(e => e.UserEvents.Count == 1).ToList();
+        db.Remove(user);
+        db.Events.RemoveRange(orphanEvents);
+        db.SaveChanges();
+        return "Utente eliminato con successo";
 
     }
 }

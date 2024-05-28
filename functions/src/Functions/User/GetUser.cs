@@ -14,10 +14,10 @@ namespace Functions
 
         private readonly UserController _userController;
 
-        public GetUser(ILogger<GetUser> logger)
+        public GetUser(ILogger<GetUser> logger, UserController userController)
         {
             _logger = logger;
-            _userController = new UserController();
+            _userController = userController;
         }
 
         [Function("GetUser")]

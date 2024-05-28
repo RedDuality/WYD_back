@@ -8,11 +8,8 @@ public class UserEventController
 
     WydDbContext db;
 
-    public UserEventController(WydDbContext? wydDbContext){
-        if(wydDbContext == null)
-            db = new WydDbContext();
-        else
-            db = wydDbContext;
+    public UserEventController(WydDbContext wydDbContext){
+        db = new WydDbContext();
     }
 
     public List<UserEvent> GetUserEvent(User user )

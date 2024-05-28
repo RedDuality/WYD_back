@@ -15,10 +15,10 @@ namespace Functions
 
         private readonly UserController _userController;
 
-        public DeleteUser(ILogger<DeleteUser> logger)
+        public DeleteUser(ILogger<DeleteUser> logger, UserController userController)
         {
             _logger = logger;
-            _userController = new UserController();
+            _userController = userController;
         }
 
         [Function("DeleteUser")]

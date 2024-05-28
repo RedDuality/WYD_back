@@ -18,21 +18,23 @@ namespace Functions
         private readonly ILogger<CreateEvent> _logger;
         private readonly EventController _eventController;
         private readonly AuthController _authController;
+        private readonly UserController _userController;
 
-        public CreateEvent(ILogger<CreateEvent> logger)
+        public CreateEvent(ILogger<CreateEvent> logger, AuthController authController, EventController eventController, UserController userController)
         {
             _logger = logger;
-            _authController = new AuthController();
-            _eventController = new EventController();
+            _authController = authController;
+            _eventController = eventController;
+            _userController = userController;
         }
 
         [Function("CreateEvent")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, FunctionContext executionContext)
         {
-
-            User? user = _authController.VerifyRequest(req);
-            if(user == null)
-                return new ForbidResult();
+            User user;
+            try{
+                user = _authController.VerifyRequest(req);
+            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             string requestBody;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -44,7 +46,7 @@ namespace Functions
 
             if (myevent != null)
             {
-                User uc = new UserController().Get(user.Id);
+                User uc = _userController.Get(user.Id);
                 var newevent = _eventController.Create(myevent, uc);
                 string result = JsonConvert.SerializeObject(newevent);
                 return new OkObjectResult(result);

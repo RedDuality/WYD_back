@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Controller;
 public class AuthController
@@ -15,8 +16,8 @@ public class AuthController
 
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthController(){
-        _userController = new UserController();
+    public AuthController(UserController userController){
+        _userController = userController;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
@@ -87,13 +88,13 @@ public class AuthController
     }
 
 
-    public User? VerifyRequest(HttpRequest req){
+    public User VerifyRequest(HttpRequest req){
 
         var authorization = req.Headers.Authorization;
 
         if (string.IsNullOrEmpty(authorization) || !authorization.ToString().StartsWith("Bearer "))
         {
-            return null;
+            throw new NullReferenceException("No token in the request");
         }
 
         string token = authorization.ToString().Substring("Bearer ".Length).Trim();
@@ -108,8 +109,7 @@ public class AuthController
             var mail = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
             if(mail == null)
-                return null;
-            
+                throw new Exception("Mail non valida");
 
             // You can process the claims or return them as needed
             return _userController.RetrieveByMail(mail.Value);
@@ -117,7 +117,7 @@ public class AuthController
         else
         {
             // Token is invalid
-            return null;
+            throw new SecurityTokenValidationException("Invalid Token");
         }
     }
 

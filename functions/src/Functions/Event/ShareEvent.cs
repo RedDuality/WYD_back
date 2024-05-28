@@ -20,19 +20,20 @@ namespace Functions
         private readonly EventController _eventController;
         private readonly AuthController _authController;
 
-        public ShareEvent(ILogger<ShareEvent> logger)
+        public ShareEvent(ILogger<ShareEvent> logger, EventController eventController, AuthController authController)
         {
             _logger = logger;
-            _eventController = new EventController();
-            _authController = new AuthController();
+            _eventController = eventController;
+            _authController = authController;
         }
 
         [Function("ShareEvent")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Share/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
-            User? user = _authController.VerifyRequest(req);
-            if(user == null)
-                return new ForbidResult();
+            User user;
+            try{
+                user = _authController.VerifyRequest(req);
+            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             int id;
             try
