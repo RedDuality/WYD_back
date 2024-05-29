@@ -2,11 +2,8 @@ using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace Functions

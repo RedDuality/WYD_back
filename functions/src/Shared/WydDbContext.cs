@@ -3,6 +3,7 @@ using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Azure.Security.KeyVault.Secrets;
+using System.Text.RegularExpressions;
 
 namespace Database;
 public class WydDbContext : DbContext
@@ -12,6 +13,7 @@ public class WydDbContext : DbContext
     public DbSet<Event> Events { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserEvent> UserEvents { get; set; }
+    public DbSet<Community> Communities { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -33,5 +35,6 @@ public class WydDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasMany(u => u.Events).WithMany(e => e.users).UsingEntity<UserEvent>();
+        modelBuilder.Entity<User>(). HasMany(u => u.Communities).WithMany(c => c.Users);
     }
 }

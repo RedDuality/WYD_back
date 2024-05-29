@@ -24,9 +24,10 @@ public class User
     public byte[] PasswordSalt { get; set; } = [];
 
 
-
-
     [JsonIgnore]
     public virtual List<Event> Events { get; set; } = [];
+    [JsonIgnore]
     public virtual List<UserEvent> UserEvents { get; set; } = [];
+    [JsonIgnore]
+    public virtual List<Community> Communities { get; set; } = [];
 }

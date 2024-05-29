@@ -19,21 +19,12 @@ public class UserController
 
         return db.Users.Single(u => u.Id == id);
 
-
     }
 
     public User RetrieveByMail(string mail)
     {
 
-        try
-        {
-            return db.Users.Single(u => u.mail.Equals(mail));
-        }
-        catch (Exception)
-        {
-            throw new NullReferenceException("Utente non trovato");
-        }
-
+        return db.Users.Single(u => u.mail.Equals(mail));
 
     }
 

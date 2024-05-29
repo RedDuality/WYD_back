@@ -17,6 +17,7 @@ var host = new HostBuilder()
         services.AddTransient<AuthController>();
         services.AddTransient<EventController>();
         services.AddTransient<UserController>();
+        services.AddTransient<CommunityController>();
     })
     .Build();
     
