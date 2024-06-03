@@ -2,8 +2,6 @@ using Model;
 using Database;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Tracing;
-
 
 namespace Controller;
 public class EventController
@@ -50,6 +48,7 @@ public class EventController
         db.SaveChanges();
         ev.OwnerId = user.Id;
         ev.users.Add(user);
+        db.SaveChanges();
         ConfirmEvent(ev.Id, user);
         transaction.Commit();
         return ev;
