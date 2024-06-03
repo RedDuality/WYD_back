@@ -11,26 +11,24 @@ namespace Functions
     public class ListEvents
     {
         private readonly ILogger<ListEvents> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
 
-        public ListEvents(ILogger<ListEvents> logger, EventController eventController, AuthController authController)
+        public ListEvents(ILogger<ListEvents> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventController;
-            _authController = authController;
+            _eventController = eventService;
+            _authController = authService;
         }
 
         [Function("ListEvents")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ListEvents")] HttpRequest req, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Events")] HttpRequest req, FunctionContext executionContext)
         {
             User user;
             try{
                 user = _authController.VerifyRequest(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
             
-                
-
             var eventi = user.Events;
             string result = JsonSerializer.Serialize(eventi);
 

@@ -7,15 +7,15 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 
 namespace Controller;
-public class AuthController
+public class AuthService
 {
 
-    private UserController _userController;
+    private UserService _userController;
 
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthController(UserController userController){
-        _userController = userController;
+    public AuthService(UserService userService){
+        _userController = userService;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));

@@ -4,13 +4,13 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Controller;
-public class EventController
+public class EventService
 {
 
     WydDbContext db;
     Mapper userMapper;
 
-    public EventController(WydDbContext context)
+    public EventService(WydDbContext context)
     {
         db = context;
         var userMapperConfig = new MapperConfiguration(cfg =>
@@ -29,17 +29,12 @@ public class EventController
         return db.Database.CanConnect();
     }
 
-    
-    public List<EventDto> GetEvents(int userId)
+   /* 
+    public List<EventDto> GetEvents(User user)
     {
-        var user = userMapper.ProjectTo<UserDto>(db.Users, null).Single(u => u.Id == userId);
-        //var user = db.Users.Include(u => u.Events).Single(u => u.Id == userId);
         return user.Events;
-
-        throw new Exception("Error while fetching event data");
-
     }
-
+*/
     public Event Create(Event ev, User user)
     {
         var transaction = db.Database.BeginTransaction();

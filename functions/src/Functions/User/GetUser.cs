@@ -1,10 +1,10 @@
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 namespace Functions
 {
@@ -12,12 +12,12 @@ namespace Functions
     {
         private readonly ILogger<GetUser> _logger;
 
-        private readonly UserController _userController;
+        private readonly UserService _userController;
 
-        public GetUser(ILogger<GetUser> logger, UserController userController)
+        public GetUser(ILogger<GetUser> logger, UserService userService)
         {
             _logger = logger;
-            _userController = userController;
+            _userController = userService;
         }
 
         [Function("GetUser")]
@@ -32,7 +32,7 @@ namespace Functions
 
             try {
                 User u = _userController.Get(userId);
-                string result = JsonConvert.SerializeObject(u);
+                string result = JsonSerializer.Serialize(u);
                 return new OkObjectResult(result);
             }
             catch (InvalidOperationException)

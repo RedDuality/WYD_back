@@ -14,14 +14,14 @@ namespace Functions
     public class DeclineEvent
     {
         private readonly ILogger<DeclineEvent> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
 
-        public DeclineEvent(ILogger<DeclineEvent> logger, EventController eventController, AuthController authController)
+        public DeclineEvent(ILogger<DeclineEvent> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventController;
-            _authController = authController;
+            _eventController = eventService;
+            _authController = authService;
         }
 
         [Function("DeclineEvent")]

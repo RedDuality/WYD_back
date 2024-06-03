@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Model;
-using Newtonsoft.Json;
 
 namespace Functions
 {
@@ -13,12 +11,12 @@ namespace Functions
     {
         private readonly ILogger<DeleteUser> _logger;
 
-        private readonly UserController _userController;
+        private readonly UserService _userController;
 
-        public DeleteUser(ILogger<DeleteUser> logger, UserController userController)
+        public DeleteUser(ILogger<DeleteUser> logger, UserService userService)
         {
             _logger = logger;
-            _userController = userController;
+            _userController = userService;
         }
 
         [Function("DeleteUser")]

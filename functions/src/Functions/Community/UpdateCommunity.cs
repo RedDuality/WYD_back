@@ -1,6 +1,7 @@
 
 
 using System.Text;
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
-
 
 
 namespace Functions.Community
@@ -17,14 +16,14 @@ namespace Functions.Community
     public class UpdateCommunity
     {
         private readonly ILogger<UpdateCommunity> _logger;
-        private readonly CommunityController _communityController;
-        private readonly AuthController _authController;
+        private readonly CommunityService _communityController;
+        private readonly AuthService _authController;
 
-        public UpdateCommunity(ILogger<UpdateCommunity> logger, CommunityController communityController, AuthController authController)
+        public UpdateCommunity(ILogger<UpdateCommunity> logger, CommunityService communityService, AuthService authService)
         {
             _logger = logger;
-            _communityController = communityController;
-            _authController = authController;
+            _communityController = communityService;
+            _authController = authService;
         }
 
         [Function("UpdateCommunity")]
@@ -52,7 +51,7 @@ namespace Functions.Community
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var newCommunity = JsonConvert.DeserializeObject<Model.Community>(requestBody);
+            var newCommunity = JsonSerializer.Deserialize<Model.Community>(requestBody);
 
             if (newCommunity != null)
             {

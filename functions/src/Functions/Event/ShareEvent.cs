@@ -1,13 +1,13 @@
 
 
 using System.Text;
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 
 
@@ -16,14 +16,14 @@ namespace Functions
     public class ShareEvent
     {
         private readonly ILogger<ShareEvent> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
 
-        public ShareEvent(ILogger<ShareEvent> logger, EventController eventController, AuthController authController)
+        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventController;
-            _authController = authController;
+            _eventController = eventService;
+            _authController = authService;
         }
 
         [Function("ShareEvent")]
@@ -49,7 +49,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var userIdList = JsonConvert.DeserializeObject<List<int>>(requestBody);
+            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody);
 
             if (userIdList != null)
             {

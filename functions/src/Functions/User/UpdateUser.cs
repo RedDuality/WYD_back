@@ -1,13 +1,13 @@
 
 
 using System.Text;
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 
 
@@ -16,14 +16,14 @@ namespace Functions
     public class UpdateUser
     {
         private readonly ILogger<UpdateUser> _logger;
-        private readonly UserController _userController;
-        private readonly AuthController _authController;
+        private readonly UserService _userController;
+        private readonly AuthService _authController;
 
-        public UpdateUser(ILogger<UpdateUser> logger, AuthController authController, UserController userController)
+        public UpdateUser(ILogger<UpdateUser> logger, AuthService authService, UserService userService)
         {
             _logger = logger;
-            _userController = userController;
-            _authController = authController;
+            _userController = userService;
+            _authController = authService;
         }
 
         [Function("UpdateUser")]
@@ -35,7 +35,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myuser = JsonConvert.DeserializeObject<User>(requestBody);
+            var myuser = JsonSerializer.Deserialize<User>(requestBody);
             
             User user;
             try{

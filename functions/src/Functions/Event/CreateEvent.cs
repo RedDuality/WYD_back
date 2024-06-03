@@ -1,13 +1,13 @@
 
 
 using System.Text;
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 
 
@@ -16,16 +16,16 @@ namespace Functions
     public class CreateEvent
     {
         private readonly ILogger<CreateEvent> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
-        private readonly UserController _userController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
+        private readonly UserService _userController;
 
-        public CreateEvent(ILogger<CreateEvent> logger, AuthController authController, EventController eventController, UserController userController)
+        public CreateEvent(ILogger<CreateEvent> logger, AuthService authService, EventService eventService, UserService userService)
         {
             _logger = logger;
-            _authController = authController;
-            _eventController = eventController;
-            _userController = userController;
+            _authController = authService;
+            _eventController = eventService;
+            _userController = userService;
         }
 
         [Function("CreateEvent")]
@@ -41,14 +41,14 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
+            var myevent = JsonSerializer.Deserialize<Event>(requestBody);
 
 
             if (myevent != null)
             {
                 User uc = _userController.Get(user.Id);
                 var newevent = _eventController.Create(myevent, uc);
-                string result = JsonConvert.SerializeObject(newevent);
+                string result = JsonSerializer.Serialize(newevent);
                 return new OkObjectResult(result);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

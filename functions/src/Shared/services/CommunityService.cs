@@ -1,16 +1,14 @@
 using Model;
 using Database;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Configuration;
 
 namespace Controller;
-public class CommunityController
+public class CommunityService
 {
 
     WydDbContext db;
 
-    public CommunityController(WydDbContext wydDbContext)
+    public CommunityService(WydDbContext wydDbContext)
     {
         db = wydDbContext;
     }

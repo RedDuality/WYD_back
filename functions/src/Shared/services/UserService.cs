@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Controller;
-public class UserController
+public class UserService
 {
 
     WydDbContext db;
 
-    public UserController(WydDbContext wydDbContext)
+    public UserService(WydDbContext wydDbContext)
     {
         db = wydDbContext;
     }

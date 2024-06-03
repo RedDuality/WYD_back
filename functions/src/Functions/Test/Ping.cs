@@ -25,7 +25,6 @@ namespace Functions.Test
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Ping")] HttpRequest req, FunctionContext executionContext)
         {
 
-            
             return new OkObjectResult(db.Database.CanConnect());
         }
     }

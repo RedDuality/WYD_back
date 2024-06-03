@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Model;
-//using Newtonsoft.Json;
-
 
 
 namespace Functions
@@ -17,12 +14,12 @@ namespace Functions
     public class Register
     {
         private readonly ILogger<Register> _logger;
-        private readonly AuthController _authController;
+        private readonly AuthService _authController;
 
-        public Register(ILogger<Register> logger, AuthController authController)
+        public Register(ILogger<Register> logger, AuthService authService)
         {
             _logger = logger;
-            _authController = authController;
+            _authController = authService;
         }
 
         [Function("Register")]

@@ -8,7 +8,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 
 
@@ -17,14 +16,14 @@ namespace Functions
     public class DeleteEventForAll
     {
         private readonly ILogger<DeleteEventForAll> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
 
-        public DeleteEventForAll(ILogger<DeleteEventForAll> logger, EventController eventController, AuthController authController)
+        public DeleteEventForAll(ILogger<DeleteEventForAll> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventController;
-            _authController = authController;
+            _eventController = eventService;
+            _authController = authService;
         }
 
         [Function("DeleteEventForAll")]

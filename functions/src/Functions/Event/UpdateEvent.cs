@@ -1,13 +1,13 @@
 
 
 using System.Text;
+using System.Text.Json;
 using Controller;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Newtonsoft.Json;
 
 
 
@@ -16,26 +16,28 @@ namespace Functions
     public class UpdateEvent
     {
         private readonly ILogger<UpdateEvent> _logger;
-        private readonly EventController _eventController;
-        private readonly AuthController _authController;
+        private readonly EventService _eventController;
+        private readonly AuthService _authController;
 
-        public UpdateEvent(ILogger<UpdateEvent> logger, EventController eventController, AuthController authController)
+        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventController;
-            _authController = authController;
+            _eventController = eventService;
+            _authController = authService;
         }
 
         [Function("UpdateEvent")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event")] HttpRequest req, FunctionContext executionContext)
         {
 
+            
             string requestBody;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myevent = JsonConvert.DeserializeObject<Event>(requestBody);
+            var myevent = JsonSerializer.Deserialize<Event>(requestBody);
+
             
             User user;
             try{

@@ -16,12 +16,12 @@ namespace Functions
     public class Login
     {
         private readonly ILogger<Login> _logger;
-        private readonly AuthController _authController;
+        private readonly AuthService _authController;
 
-        public Login(ILogger<Login> logger, AuthController authController)
+        public Login(ILogger<Login> logger, AuthService authService)
         {
             _logger = logger;
-            _authController = authController;
+            _authController = authService;
         }
 
         [Function("Login")]
