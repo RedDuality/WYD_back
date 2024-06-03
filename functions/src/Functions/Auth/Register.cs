@@ -23,7 +23,7 @@ namespace Functions
         }
 
         [Function("Register")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Register")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Auth/Register")] HttpRequest req, FunctionContext executionContext)
         {
 
             //LoginDto ciao = new LoginDto{UserName = "antonio", Password= "password"};

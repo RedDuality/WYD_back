@@ -25,7 +25,7 @@ namespace Functions
         }
 
         [Function("Login")]
-        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Login")] HttpRequest req, FunctionContext executionContext)
+        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Auth/Login")] HttpRequest req, FunctionContext executionContext)
         {
 
             LoginDto? loginDto = await JsonSerializer.DeserializeAsync<LoginDto>(req.Body);

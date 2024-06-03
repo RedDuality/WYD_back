@@ -45,7 +45,6 @@ namespace Functions
             _eventController.ConfirmEvent(id, user);
             return new OkObjectResult("");
 
-
         }
     }
 }
