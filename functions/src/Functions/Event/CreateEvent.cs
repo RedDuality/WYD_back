@@ -29,7 +29,7 @@ namespace Functions
         }
 
         [Function("CreateEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Create")] HttpRequest req, FunctionContext executionContext)
         {
             User user;
             try{

@@ -20,7 +20,7 @@ namespace Functions
         }
 
         [Function("DeleteUser")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "User/{userId}")] HttpRequest req, string userId, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "User/Delete/{userId}")] HttpRequest req, string userId, FunctionContext executionContext)
         {
 
             int id;

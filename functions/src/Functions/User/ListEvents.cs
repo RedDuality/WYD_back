@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using System.Text.Json;
 
 namespace Functions
 {
@@ -30,9 +29,8 @@ namespace Functions
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
             
             var eventi = user.Events;
-            string result = JsonSerializer.Serialize(eventi);
 
-            return new OkObjectResult(result);
+            return new OkObjectResult(eventi);
             
         }
     }

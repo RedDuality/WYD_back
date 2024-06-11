@@ -26,7 +26,7 @@ namespace Functions.Community
         }
 
         [Function("CreateCommunity")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Community/Create/{name}")] HttpRequest req, string name, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create/{name}")] HttpRequest req, string name, FunctionContext executionContext)
         {
             User user;
             try{

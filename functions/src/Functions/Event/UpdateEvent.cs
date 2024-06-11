@@ -27,7 +27,7 @@ namespace Functions
         }
 
         [Function("UpdateEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Update")] HttpRequest req, FunctionContext executionContext)
         {
 
             

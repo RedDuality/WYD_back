@@ -8,19 +8,19 @@ public class EventService
 {
 
     WydDbContext db;
-    Mapper userMapper;
+    //Mapper userMapper;
 
     public EventService(WydDbContext context)
     {
         db = context;
+        /*
         var userMapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.CreateProjection<User, UserDto>();
             cfg.CreateProjection<Event, EventDto>();
             cfg.CreateProjection<UserEvent, UserEventDto>();
         });
 
-        userMapper = new Mapper(userMapperConfig);
+        userMapper = new Mapper(userMapperConfig);*/
     }
 
     public bool MethodForTesting()

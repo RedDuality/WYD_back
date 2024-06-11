@@ -8,20 +8,20 @@ using System.Text.Json;
 
 namespace Functions
 {
-    public class GetCommunities
+    public class RetrieveCommunities
     {
-        private readonly ILogger<GetCommunities> _logger;
+        private readonly ILogger<RetrieveCommunities> _logger;
         private readonly EventService _eventController;
         private readonly AuthService _authController;
 
-        public GetCommunities(ILogger<GetCommunities> logger, EventService eventService, AuthService authService)
+        public RetrieveCommunities(ILogger<RetrieveCommunities> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
             _eventController = eventService;
             _authController = authService;
         }
 
-        [Function("GetCommunities")]
+        [Function("RetrieveCommunities")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Communities")] HttpRequest req, FunctionContext executionContext)
         {
             User user;

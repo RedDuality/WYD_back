@@ -8,29 +8,33 @@ using Model;
 
 namespace Functions
 {
-    public class GetUser
+    public class RetrieveById
     {
-        private readonly ILogger<GetUser> _logger;
+        private readonly ILogger<RetrieveById> _logger;
 
         private readonly UserService _userController;
 
-        public GetUser(ILogger<GetUser> logger, UserService userService)
+        public RetrieveById(ILogger<RetrieveById> logger, UserService userService)
         {
             _logger = logger;
             _userController = userService;
         }
 
-        [Function("GetUser")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "GetUser/{id}")] HttpRequest req, string id)
+        [Function("RetrieveById")]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "User/RetrieveById/{id}")] HttpRequest req, string id)
         {
             int userId;
-            try {
+            try
+            {
                 userId = Int32.Parse(id);
-            }catch(FormatException){
+            }
+            catch (FormatException)
+            {
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            try {
+            try
+            {
                 User u = _userController.Get(userId);
                 string result = JsonSerializer.Serialize(u);
                 return new OkObjectResult(result);

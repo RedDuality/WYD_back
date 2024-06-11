@@ -27,7 +27,7 @@ namespace Functions
         }
 
         [Function("DeleteEventForAll")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/ForAll/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/DeleteForAll/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             int id;
             try

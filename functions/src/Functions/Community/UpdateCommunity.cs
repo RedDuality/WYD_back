@@ -27,7 +27,7 @@ namespace Functions.Community
         }
 
         [Function("UpdateCommunity")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Community/Update/{communityId}")] HttpRequest req, string communityId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Update/{communityId}")] HttpRequest req, string communityId, FunctionContext executionContext)
         {
             User user;
             try

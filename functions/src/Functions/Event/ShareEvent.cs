@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 
 
-
 namespace Functions
 {
     public class ShareEvent
@@ -27,7 +26,7 @@ namespace Functions
         }
 
         [Function("ShareEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Share/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
             try{
