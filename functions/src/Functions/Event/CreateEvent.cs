@@ -53,8 +53,7 @@ namespace Functions
             {
                 User uc = _userController.Get(user.Id);
                 var newevent = _eventController.Create(myevent, uc);
-                string result = JsonSerializer.Serialize(newevent);
-                return new OkObjectResult(result);
+                return new OkObjectResult(newevent);
             }
             return new BadRequestObjectResult("Bad Json Formatting");
 

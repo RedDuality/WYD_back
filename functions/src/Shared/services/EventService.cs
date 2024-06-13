@@ -51,7 +51,6 @@ public class EventService
 
     public void ConfirmEvent(int? eventId, User user)
     {
-        var events = user.Events;
         var userEvent = user.UserEvents.Find(ue => ue.EventId == eventId);
         if (userEvent == null)
             throw new Exception("Event not found");

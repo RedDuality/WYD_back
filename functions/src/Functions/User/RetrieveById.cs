@@ -35,9 +35,8 @@ namespace Functions
 
             try
             {
-                User u = _userController.Get(userId);
-                string result = JsonSerializer.Serialize(u);
-                return new OkObjectResult(result);
+                User user = _userController.Get(userId);
+                return new OkObjectResult(user);
             }
             catch (InvalidOperationException)
             {

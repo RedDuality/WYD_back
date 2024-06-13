@@ -26,11 +26,7 @@ public class Event
     public string? Notes { get; set; }
     public string? Location  { get; set; }
     public int? RecurrenceId{ get; set; }
-
-    [NotMapped]
-    public string? Link { get; set; }
     public string? Subject { get ; set; }
-
 
     [JsonIgnore]
     public virtual HashSet<User> Users { get; set;} = [];
