@@ -17,18 +17,20 @@ namespace Functions
     {
         private readonly ILogger<Login> _logger;
         private readonly AuthService _authController;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public Login(ILogger<Login> logger, AuthService authService)
+        public Login(ILogger<Login> logger, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("Login")]
         public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Auth/Login")] HttpRequest req, FunctionContext executionContext)
         {
 
-            LoginDto? loginDto = await JsonSerializer.DeserializeAsync<LoginDto>(req.Body);
+            LoginDto? loginDto = await JsonSerializer.DeserializeAsync<LoginDto>(req.Body, _jsonSerializerOptions);
             if (loginDto != null)
             {
                 try

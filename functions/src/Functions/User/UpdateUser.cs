@@ -18,12 +18,14 @@ namespace Functions
         private readonly ILogger<UpdateUser> _logger;
         private readonly UserService _userController;
         private readonly AuthService _authController;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public UpdateUser(ILogger<UpdateUser> logger, AuthService authService, UserService userService)
+        public UpdateUser(ILogger<UpdateUser> logger, AuthService authService, UserService userService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _userController = userService;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("UpdateUser")]
@@ -35,7 +37,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myuser = JsonSerializer.Deserialize<User>(requestBody);
+            var myuser = JsonSerializer.Deserialize<User>(requestBody, _jsonSerializerOptions);
             
             User user;
             try{

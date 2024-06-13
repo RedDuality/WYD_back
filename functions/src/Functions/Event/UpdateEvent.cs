@@ -18,12 +18,14 @@ namespace Functions
         private readonly ILogger<UpdateEvent> _logger;
         private readonly EventService _eventController;
         private readonly AuthService _authController;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthService authService)
+        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _eventController = eventService;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("UpdateEvent")]
@@ -36,7 +38,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myevent = JsonSerializer.Deserialize<Event>(requestBody);
+            var myevent = JsonSerializer.Deserialize<Event>(requestBody, _jsonSerializerOptions);
 
             
             User user;

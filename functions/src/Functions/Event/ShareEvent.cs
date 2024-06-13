@@ -17,12 +17,13 @@ namespace Functions
         private readonly ILogger<ShareEvent> _logger;
         private readonly EventService _eventController;
         private readonly AuthService _authController;
-
-        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService)
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _eventController = eventService;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("ShareEvent")]
@@ -48,7 +49,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody);
+            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody, _jsonSerializerOptions);
 
             if (userIdList != null)
             {

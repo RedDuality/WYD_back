@@ -15,8 +15,8 @@ public class UserDto
     public UserDto(User user)
     {
         Id = user.Id;
-        Mail = user.mail;
-        Username = user.username;
+        Mail = user.Mail;
+        Username = user.Username;
         Communities = user.Communities;
         Events = user.Events;
     }

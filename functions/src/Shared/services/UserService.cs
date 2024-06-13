@@ -24,7 +24,7 @@ public class UserService
     public User RetrieveByMail(string mail)
     {
 
-        return db.Users.Single(u => u.mail.Equals(mail));
+        return db.Users.Single(u => u.Mail.Equals(mail));
 
     }
 
@@ -40,8 +40,8 @@ public class UserService
 
     public User Update(User u, User newUser)
     {
-        u.username = newUser.username;
-        u.mail = newUser.mail;
+        u.Username = newUser.Username;
+        u.Mail = newUser.Mail;
         db.SaveChanges();
         return u;
     }

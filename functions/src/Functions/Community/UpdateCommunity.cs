@@ -18,12 +18,14 @@ namespace Functions.Community
         private readonly ILogger<UpdateCommunity> _logger;
         private readonly CommunityService _communityController;
         private readonly AuthService _authController;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public UpdateCommunity(ILogger<UpdateCommunity> logger, CommunityService communityService, AuthService authService)
+        public UpdateCommunity(ILogger<UpdateCommunity> logger, CommunityService communityService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _communityController = communityService;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("UpdateCommunity")]
@@ -51,7 +53,7 @@ namespace Functions.Community
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var newCommunity = JsonSerializer.Deserialize<Model.Community>(requestBody);
+            var newCommunity = JsonSerializer.Deserialize<Model.Community>(requestBody, _jsonSerializerOptions);
 
             if (newCommunity != null)
             {

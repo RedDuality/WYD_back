@@ -34,7 +34,7 @@ public class WydDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasMany(u => u.Events).WithMany(e => e.users).UsingEntity<UserEvent>();
+        modelBuilder.Entity<User>().HasMany(u => u.Events).WithMany(e => e.Users).UsingEntity<UserEvent>();
         modelBuilder.Entity<User>(). HasMany(u => u.Communities).WithMany(c => c.Users);
     }
 }

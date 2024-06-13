@@ -4,10 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Controller;
 using Microsoft.Extensions.Configuration;
 using Database;
+using System.Text.Json;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-    .ConfigureServices(static services => {
+    .ConfigureServices(static services =>
+    {
         services.AddAuthentication();
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
@@ -17,6 +19,10 @@ var host = new HostBuilder()
         services.AddTransient<EventService>();
         services.AddTransient<UserService>();
         services.AddTransient<CommunityService>();
+        services.AddTransient<UtilService>();
+
+
+        services.AddSingleton(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     })
     .Build();
 

@@ -42,7 +42,7 @@ public class EventService
         db.Events.Add(ev);
         db.SaveChanges();
         ev.OwnerId = user.Id;
-        ev.users.Add(user);
+        ev.Users.Add(user);
         db.SaveChanges();
         ConfirmEvent(ev.Id, user);
         transaction.Commit();
@@ -56,7 +56,7 @@ public class EventService
         if (userEvent == null)
             throw new Exception("Event not found");
         
-        userEvent.confirmed = true;
+        userEvent.Confirmed = true;
 
         db.SaveChanges();
     }
@@ -69,7 +69,7 @@ public class EventService
         if (userEvent == null)
             throw new Exception("Event not found");
         
-        userEvent.confirmed = false;
+        userEvent.Confirmed = false;
 
         db.SaveChanges();
 
@@ -96,14 +96,14 @@ public class EventService
         Event ev;
         try
         {
-            ev = db.Events.Include(e => e.users).Single(e => e.Id == eventId);
+            ev = db.Events.Include(e => e.Users).Single(e => e.Id == eventId);
         }
         catch (InvalidOperationException)
         {
             throw new Exception("Evento non trovato");
         }
         var users = db.Users.Where(u => usersId.Contains(u.Id)).ToList();
-        ev.users.UnionWith(users);
+        ev.Users.UnionWith(users);
         db.SaveChanges();
         return ev;
 
@@ -113,10 +113,10 @@ public class EventService
     public bool DeleteForUser(int eventId, int userId)
     {
 
-        Event ev = db.Events.Include(e => e.users).Single(e => e.Id == eventId);
+        Event ev = db.Events.Include(e => e.Users).Single(e => e.Id == eventId);
         User u = db.Users.Single(e => e.Id == userId);
-        ev.users.Remove(u);
-        if (ev.users.Count == 0)
+        ev.Users.Remove(u);
+        if (ev.Users.Count == 0)
             db.Remove(ev);
         db.SaveChanges();
         return true;
@@ -143,7 +143,7 @@ public class EventService
 
         db.Events.AddRange(ev);
         db.SaveChanges();
-        ev.ForEach(e => e.users.UnionWith(users));
+        ev.ForEach(e => e.Users.UnionWith(users));
         db.Events.UpdateRange(ev);
         db.SaveChanges();
 

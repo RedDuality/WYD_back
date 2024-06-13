@@ -8,14 +8,14 @@ namespace Model;
 
 
 [Table("Users")]
-[Index(nameof(mail), IsUnique = true)]
+[Index(nameof(Mail), IsUnique = true)]
 public class User
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public string mail { get; set; } = string.Empty;
-    public string username { get; set; } = string.Empty;
+    public string Mail { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
 
     [JsonIgnore]
     public byte[] PasswordHash { get; set; } = [];

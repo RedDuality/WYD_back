@@ -21,7 +21,7 @@ public class CommunityService
     }
 
     //TODO make private
-    public string Create(User user, string name, List<int> userIdList)
+    public string Create(string name, List<int> userIdList)
     {
         //TODO add control over unique mail
         

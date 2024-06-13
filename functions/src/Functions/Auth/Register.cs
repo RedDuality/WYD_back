@@ -15,11 +15,13 @@ namespace Functions
     {
         private readonly ILogger<Register> _logger;
         private readonly AuthService _authController;
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public Register(ILogger<Register> logger, AuthService authService)
+        public Register(ILogger<Register> logger, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("Register")]
@@ -32,7 +34,7 @@ namespace Functions
             //_logger.LogInformation(JsonConvert.SerializeObject(ciao));
             //_logger.LogInformation(JsonConvert.SerializeObject(registerDto));
 
-            LoginDto? registerData = await JsonSerializer.DeserializeAsync<LoginDto>(req.Body);
+            LoginDto? registerData = await JsonSerializer.DeserializeAsync<LoginDto>(req.Body, _jsonSerializerOptions);
             if (registerData != null)
             {
                 try

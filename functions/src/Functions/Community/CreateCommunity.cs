@@ -18,20 +18,25 @@ namespace Functions.Community
         private readonly CommunityService _communityController;
         private readonly AuthService _authController;
 
-        public CreateCommunity(ILogger<CreateCommunity> logger, CommunityService communityService, AuthService authService)
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
+
+        public CreateCommunity(ILogger<CreateCommunity> logger, CommunityService communityService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _communityController = communityService;
             _authController = authService;
+            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("CreateCommunity")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create/{name}")] HttpRequest req, string name, FunctionContext executionContext)
         {
             User user;
-            try{
+            try
+            {
                 user = _authController.VerifyRequest(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            }
+            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
 
             string requestBody;
@@ -39,11 +44,11 @@ namespace Functions.Community
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody);
+            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody, _jsonSerializerOptions);
 
             if (userIdList != null)
             {
-                var newcommunity = _communityController.Create(user, name, userIdList);
+                var newcommunity = _communityController.Create(name, userIdList);
                 return new OkObjectResult(newcommunity);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

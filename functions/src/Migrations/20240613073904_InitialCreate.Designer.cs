@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20240521171720_InitialCreate")]
+    [Migration("20240613073904_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,10 +20,45 @@ namespace functions.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CommunityUser", b =>
+                {
+                    b.Property<int>("CommunitiesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommunitiesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("CommunityUser");
+                });
+
+            modelBuilder.Entity("Model.Community", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Community");
+                });
 
             modelBuilder.Entity("Model.Event", b =>
                 {
@@ -33,43 +68,49 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
+                    b.Property<string>("Color")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EndTimeZone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Hash")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsAllDay")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("color")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("endTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("endTimeZone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("isAllDay")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("recurrenceId")
+                    b.Property<int?>("RecurrenceId")
                         .HasColumnType("int");
 
-                    b.Property<string>("recurrenceRule")
+                    b.Property<string>("RecurrenceRule")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("startTime")
+                    b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("startTimeZone")
+                    b.Property<string>("StartTimeZone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("subject")
+                    b.Property<string>("Subject")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
 
                     b.ToTable("Events");
                 });
@@ -82,6 +123,10 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Mail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -90,17 +135,13 @@ namespace functions.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("mail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("username")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("mail")
+                    b.HasIndex("Mail")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -114,7 +155,7 @@ namespace functions.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("confirmed")
+                    b.Property<bool>("Confirmed")
                         .HasColumnType("bit");
 
                     b.HasKey("EventId", "UserId");
@@ -122,6 +163,21 @@ namespace functions.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("User_Event");
+                });
+
+            modelBuilder.Entity("CommunityUser", b =>
+                {
+                    b.HasOne("Model.Community", null)
+                        .WithMany()
+                        .HasForeignKey("CommunitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Model.UserEvent", b =>

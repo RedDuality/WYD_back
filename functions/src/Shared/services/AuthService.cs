@@ -26,8 +26,9 @@ public class AuthService
         CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
         User user = new User
         {
-            username = registerDto.Username,
-            mail = registerDto.Mail,
+            
+            Username = registerDto.Username,
+            Mail = registerDto.Mail,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt
         };
@@ -71,7 +72,7 @@ public class AuthService
     {
         List<Claim> claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email,user.mail),
+            new Claim(ClaimTypes.Email, user.Mail),
             new Claim(ClaimTypes.Role,"User")
         };
         
