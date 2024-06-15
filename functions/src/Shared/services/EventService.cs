@@ -49,6 +49,11 @@ public class EventService
         return ev;
     }
 
+    public Event? RetrieveFromHash(string eventHash)
+    {
+        return db.Events.FirstOrDefault(e => e.Hash == Int32.Parse(eventHash));
+    }
+
     public void ConfirmEvent(int? eventId, User user)
     {
         var userEvent = user.UserEvents.Find(ue => ue.EventId == eventId);
