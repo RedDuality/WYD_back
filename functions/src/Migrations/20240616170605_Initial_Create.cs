@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace functions.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial_Create : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,7 @@ namespace functions.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Hash = table.Column<int>(type: "int", nullable: false),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     OwnerId = table.Column<int>(type: "int", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -123,7 +123,8 @@ namespace functions.Migrations
                 name: "IX_Events_Hash",
                 table: "Events",
                 column: "Hash",
-                unique: true);
+                unique: true,
+                filter: "[Hash] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Event_UserId",

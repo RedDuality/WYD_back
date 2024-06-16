@@ -74,8 +74,8 @@ namespace functions.Migrations
                     b.Property<string>("EndTimeZone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("Hash")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Hash")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("IsAllDay")
                         .HasColumnType("bit");

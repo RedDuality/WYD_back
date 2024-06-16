@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20240613073904_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240616170605_Initial_Create")]
+    partial class Initial_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,8 +77,8 @@ namespace functions.Migrations
                     b.Property<string>("EndTimeZone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Hash")
-                        .HasColumnType("int");
+                    b.Property<string>("Hash")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool?>("IsAllDay")
                         .HasColumnType("bit");
@@ -110,7 +110,8 @@ namespace functions.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Hash")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Hash] IS NOT NULL");
 
                     b.ToTable("Events");
                 });

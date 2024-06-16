@@ -36,12 +36,6 @@ namespace Functions
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
-            long hash;
-            try
-            {
-                hash = Int64.Parse(eventHash);
-            }
-            catch (FormatException) { return new BadRequestObjectResult("Id Format wrong"); }
 
             string requestBody;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -53,7 +47,7 @@ namespace Functions
 
             try
             {
-                var result = _eventController.ConfirmFromHash(user, hash, confirmed);
+                var result = _eventController.ConfirmFromHash(user, eventHash, confirmed);
                 return new OkObjectResult("");
             }
             catch (Exception e) { return new BadRequestObjectResult(e.ToString()); }

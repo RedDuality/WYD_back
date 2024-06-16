@@ -65,7 +65,7 @@ public class EventService
 
     public Event? RetrieveFromHash(string eventHash)
     {
-        return db.Events.FirstOrDefault(e => e.Hash == Int64.Parse(eventHash));
+        return db.Events.FirstOrDefault(e => e.Hash == eventHash);
     }
 
     public void ConfirmEvent(Event ev, User user)
@@ -119,7 +119,7 @@ public class EventService
 
     }
 
-    public Event ConfirmFromHash(User user, long eventHash, bool confirm)
+    public Event ConfirmFromHash(User user, string eventHash, bool confirm)
     {
 
         Event ev;
