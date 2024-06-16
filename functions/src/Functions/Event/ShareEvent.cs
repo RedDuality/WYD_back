@@ -27,7 +27,7 @@ namespace Functions
         }
 
         [Function("ShareEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Community/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
             try{

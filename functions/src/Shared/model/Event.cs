@@ -14,7 +14,7 @@ public class Event
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int? Id { get; set; }
 
-    public int? Hash {get; set;} = (DateTime.Now.Nanosecond + new Random().Next()).GetHashCode();
+    public long? Hash {get; set;} = DateTime.Now.GetHashCode() + new Random().NextInt64();
     public int? OwnerId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }

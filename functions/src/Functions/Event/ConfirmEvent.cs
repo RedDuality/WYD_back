@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Model;
 
 
@@ -41,8 +42,14 @@ namespace Functions
             {
                 return new BadRequestObjectResult("Id Format wrong");
             }
-
-            _eventController.ConfirmEvent(id, user);
+            
+            Event ev;
+            try {
+                ev = _eventController.Retrieve(id);
+            } catch (Exception e) {
+                return new NotFoundObjectResult(e.ToString());
+            }
+            _eventController.ConfirmEvent(ev, user);
             return new OkObjectResult("");
 
         }

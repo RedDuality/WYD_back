@@ -29,12 +29,26 @@ public class EventService
         return db.Database.CanConnect();
     }
 
-   /* 
-    public List<EventDto> GetEvents(User user)
+    public Event Retrieve(int eventId)
     {
-        return user.Events;
+        Event ev;
+        try
+        {
+            ev = db.Events.Single(e => e.Id == eventId);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new Exception("Evento non trovato");
+        }
+        return ev;
     }
-*/
+
+    /* 
+     public List<EventDto> GetEvents(User user)
+     {
+         return user.Events;
+     }
+ */
     public Event Create(Event ev, User user)
     {
         var transaction = db.Database.BeginTransaction();
@@ -44,22 +58,22 @@ public class EventService
         ev.OwnerId = user.Id;
         ev.Users.Add(user);
         db.SaveChanges();
-        ConfirmEvent(ev.Id, user);
+        ConfirmEvent(ev, user);
         transaction.Commit();
         return ev;
     }
 
     public Event? RetrieveFromHash(string eventHash)
     {
-        return db.Events.FirstOrDefault(e => e.Hash == Int32.Parse(eventHash));
+        return db.Events.FirstOrDefault(e => e.Hash == Int64.Parse(eventHash));
     }
 
-    public void ConfirmEvent(int? eventId, User user)
+    public void ConfirmEvent(Event ev, User user)
     {
-        var userEvent = user.UserEvents.Find(ue => ue.EventId == eventId);
+        var userEvent = user.UserEvents.Find(ue => ue.EventId == ev.Id);
         if (userEvent == null)
             throw new Exception("Event not found");
-        
+
         userEvent.Confirmed = true;
 
         db.SaveChanges();
@@ -72,7 +86,7 @@ public class EventService
         var userEvent = user.UserEvents.Find(ue => ue.EventId == eventId);
         if (userEvent == null)
             throw new Exception("Event not found");
-        
+
         userEvent.Confirmed = false;
 
         db.SaveChanges();
@@ -95,24 +109,40 @@ public class EventService
     public Event Share(int eventId, List<int> usersId)
     {
 
-
         //TODO check user has the event he wants to share
-        Event ev;
-        try
-        {
-            ev = db.Events.Include(e => e.Users).Single(e => e.Id == eventId);
-        }
-        catch (InvalidOperationException)
-        {
-            throw new Exception("Evento non trovato");
-        }
+        Event ev = Retrieve(eventId);
+
         var users = db.Users.Where(u => usersId.Contains(u.Id)).ToList();
         ev.Users.UnionWith(users);
         db.SaveChanges();
         return ev;
 
+    }
+
+    public Event ConfirmFromHash(User user, long eventHash, bool confirm)
+    {
+
+        Event ev;
+        try
+        {
+            ev = db.Events.Single(e => e.Hash == eventHash);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new Exception("Evento non trovato");
+        }
+        var transaction = db.Database.BeginTransaction();
+        ev.Users.Add(user);
+        db.SaveChanges();
+        if (confirm)
+            ConfirmEvent(ev, user);
+
+        transaction.Commit();
+
+        return ev;
 
     }
+
 
     public bool DeleteForUser(int eventId, int userId)
     {
