@@ -1,9 +1,5 @@
-
-using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Model;
-using Azure.Security.KeyVault.Secrets;
-using System.Text.RegularExpressions;
 
 namespace Database;
 public class WydDbContext : DbContext
@@ -18,16 +14,8 @@ public class WydDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
-/*
-        const string secretName = "mySecret";
-        var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME") == null ? "wyddbkey" :  Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
-        var kvUri = $"https://{keyVaultName}.vault.azure.net";
-
-        var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
-        var secret = await client.GetSecretAsync("");
-*/
-        //Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wydreldbserver.database.windows.net,1433;Initial Catalog=Wydreldb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
-        Console.WriteLine(Environment.GetEnvironmentVariable("SqlConnectionString"));
+        //Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddbserver.database.windows.net,1433;Initial Catalog=WYD-p-db;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        //Console.WriteLine("ConnectionString "+ Environment.GetEnvironmentVariable("SqlConnectionString"));
         
         optionsBuilder.UseLazyLoadingProxies().UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString"));
     }

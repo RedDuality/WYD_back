@@ -1,5 +1,3 @@
-
-using Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -13,18 +11,16 @@ namespace Functions.Test
     {
         private readonly ILogger<Ping> _logger;
 
-        private readonly WydDbContext db;
 
-        public Ping(ILogger<Ping> logger, WydDbContext dbContext)
+        public Ping(ILogger<Ping> logger)
         {
             _logger = logger;
-            db = dbContext;
         }
 
         [Function("Ping")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Ping")] HttpRequest req, FunctionContext executionContext)
         {
-            return new OkObjectResult(db.Database.CanConnect());
+            return new OkObjectResult("I'm Here");
         }
     }
 }

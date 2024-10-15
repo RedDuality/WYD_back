@@ -1,6 +1,5 @@
 using Model;
 using Database;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Controller;

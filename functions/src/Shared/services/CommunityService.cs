@@ -1,6 +1,7 @@
 using Model;
 using Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 
 namespace Controller;
 public class CommunityService
@@ -16,6 +17,7 @@ public class CommunityService
     public Community Get(int id)
     {
 
+
         return db.Communities.Single(c => c.Id == id);
 
     }
@@ -24,9 +26,9 @@ public class CommunityService
     public string Create(string name, List<int> userIdList)
     {
         //TODO add control over unique mail
-        
+
         var users = db.Users.Where(u => userIdList.Contains(u.Id));
-        db.Communities.Add(new Community {Name = name, Users = users.ToList() });
+        db.Communities.Add(new Community { Name = name, Users = users.ToList() });
         db.SaveChanges();
 
         return "gruppo creato con successo";
