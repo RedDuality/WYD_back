@@ -5,6 +5,10 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
+using System.Text;
 
 namespace Controller;
 public class AuthService
@@ -14,19 +18,60 @@ public class AuthService
 
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthService(UserService userService){
+    public AuthService(UserService userService)
+    {
         _userController = userService;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
+
+
+        if (FirebaseApp.DefaultInstance == null)
+        {
+            var googleCredentialsJson = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIALS");
+
+            if (string.IsNullOrEmpty(googleCredentialsJson))
+            {
+                throw new Exception("Google credentials not found in the environment variable");
+            }
+
+            GoogleCredential credential;
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(googleCredentialsJson)))
+            {
+                credential = GoogleCredential.FromStream(stream);
+            }
+
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = credential,
+                ProjectId = "wydaccounts",
+            });
+        }
     }
+
+
+    public async Task<string> CheckFirebaseTokenAsync(String token)
+    {
+        FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+        string uid = decodedToken.Uid;
+        return uid;
+    }
+
+
+    public async Task<UserRecord> retrieveFirebaseUser(String uid)
+    {
+        UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+        return user;
+    }
+
+
 
     public string Register(LoginDto registerDto)
     {
         CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
         User user = new User
         {
-            
+
             Username = registerDto.Username,
             Mail = registerDto.Mail,
             PasswordHash = passwordHash,
@@ -75,7 +120,7 @@ public class AuthService
             new Claim(ClaimTypes.Email, user.Mail),
             new Claim(ClaimTypes.Role,"User")
         };
-        
+
         var cred = new SigningCredentials(_secretKey, SecurityAlgorithms.HmacSha512Signature);
         var token = new JwtSecurityToken(
                                claims: claims,
@@ -87,7 +132,8 @@ public class AuthService
     }
 
 
-    public User VerifyRequest(HttpRequest req){
+    public User VerifyRequest(HttpRequest req)
+    {
 
         var authorization = req.Headers.Authorization;
 
@@ -107,7 +153,7 @@ public class AuthService
 
             var mail = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
-            if(mail == null)
+            if (mail == null)
                 throw new Exception("Mail non valida");
 
             // You can process the claims or return them as needed
@@ -124,7 +170,7 @@ public class AuthService
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        
+
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -147,6 +193,6 @@ public class AuthService
         }
     }
 
-    
+
 
 }
