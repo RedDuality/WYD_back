@@ -48,7 +48,8 @@ namespace Functions
 
             if (myevent != null)
             {
-                var result = _eventController.Update(myevent);
+                //var result = _eventController.Update(myevent);
+                var result = false;
                 return new OkObjectResult(result);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

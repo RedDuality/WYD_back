@@ -33,8 +33,8 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            var response = _userController.Delete(id);
-
+            //var response = _userController.Delete(id);
+            var response = false;
             return new OkObjectResult(response);
         }
     }

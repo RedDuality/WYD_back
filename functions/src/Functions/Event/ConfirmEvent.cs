@@ -49,7 +49,7 @@ namespace Functions
             } catch (Exception e) {
                 return new NotFoundObjectResult(e.ToString());
             }
-            _eventController.ConfirmEvent(ev, user);
+            //_eventController.ConfirmEvent(ev, profile);
             return new OkObjectResult("");
 
         }

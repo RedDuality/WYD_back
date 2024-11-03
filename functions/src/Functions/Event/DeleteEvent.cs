@@ -44,8 +44,8 @@ namespace Functions
                 user = _authController.VerifyRequest(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
-            var result = _eventController.DeleteForUser(id, user.Id);
-            return new OkObjectResult(result);
+            //var result = _eventController.DeleteForUser(id, user.Id);
+            return new OkObjectResult(true);
 
         }
     }

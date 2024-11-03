@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Model;
 
 
-[Table("Community")]
-public class Community
+[Table("Group")]
+public class Group
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

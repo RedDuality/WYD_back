@@ -14,13 +14,15 @@ namespace Controller;
 public class AuthService
 {
 
-    private UserService _userController;
+    private AccountService _accountService;
+    private UserService _userService;
 
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthService(UserService userService)
+    public AuthService(UserService userService, AccountService accountService)
     {
-        _userController = userService;
+        _accountService = accountService;
+        _userService = userService;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
@@ -50,13 +52,6 @@ public class AuthService
     }
 
 
-    public async Task<string> CheckFirebaseTokenAsync(String token)
-    {
-        FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
-        string uid = decodedToken.Uid;
-        return uid;
-    }
-
 
     public async Task<UserRecord> retrieveFirebaseUser(String uid)
     {
@@ -64,72 +59,39 @@ public class AuthService
         return user;
     }
 
-
-
-    public string Register(LoginDto registerDto)
+    public async Task<String> VerifyTokenAsync(String token)
     {
-        CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
-        User user = new User
-        {
+        FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+        string uid = decodedToken.Uid;
+        return uid;
+    }
 
-            Username = registerDto.Username,
-            Mail = registerDto.Mail,
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt
+    public async Task<UserRecord> VerifyTokenAndCreateAsync(String token)
+    {
+        string uid = await this.VerifyTokenAsync(token);
+        UserRecord UR = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+
+
+        User user = new ();
+        user.MainMail = UR.Email;
+
+        User savedUser = _userService.Create(user);
+       
+
+        Account account = new()
+        {
+            Mail = UR.Email,
+            Uid = UR.Uid,
+            User = savedUser
         };
 
-        var newUser = _userController.Create(user);
-        return CreateToken(newUser);
-    }
+        _accountService.Create(account);
 
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-    {
-        using (var hmac = new HMACSHA512())
-        {
-            passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-        }
-
-    }
-
-    public bool Login(LoginDto loginDto, out string token)
-    {
-        User user = _userController.RetrieveByMail(loginDto.Mail);
-        token = string.Empty;
-        if (!VerifyPasswordHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
-            return false;
-
-        token = CreateToken(user);
-        return true;
+        return UR;
     }
 
 
-    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-    {
-        using (var hmac = new HMACSHA512(passwordSalt))
-        {
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
-    }
 
-    private string CreateToken(User user)
-    {
-        List<Claim> claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Email, user.Mail),
-            new Claim(ClaimTypes.Role,"User")
-        };
-
-        var cred = new SigningCredentials(_secretKey, SecurityAlgorithms.HmacSha512Signature);
-        var token = new JwtSecurityToken(
-                               claims: claims,
-                               expires: DateTime.UtcNow.AddDays(1),
-                               signingCredentials: cred
-        );
-        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-        return jwt;
-    }
 
 
     public User VerifyRequest(HttpRequest req)
@@ -157,7 +119,8 @@ public class AuthService
                 throw new Exception("Mail non valida");
 
             // You can process the claims or return them as needed
-            return _userController.RetrieveByMail(mail.Value);
+            //return _userController.RetrieveByMail(mail.Value);
+            return null;
         }
         else
         {

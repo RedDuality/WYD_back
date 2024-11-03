@@ -48,16 +48,16 @@ public class EventService
          return user.Events;
      }
  */
-    public Event Create(Event ev, User user)
+    public Event Create(Event ev, Profile profile)
     {
         var transaction = db.Database.BeginTransaction();
         ev.Id = null;
         db.Events.Add(ev);
         db.SaveChanges();
-        ev.OwnerId = user.Id;
-        ev.Users.Add(user);
+        //ev.OwnerId = user.Id;
+        //ev.Users.Add(user);
         db.SaveChanges();
-        ConfirmEvent(ev, user);
+        ConfirmEvent(ev, profile);
         transaction.Commit();
         return ev;
     }
@@ -67,9 +67,9 @@ public class EventService
         return db.Events.FirstOrDefault(e => e.Hash == eventHash);
     }
 
-    public void ConfirmEvent(Event ev, User user)
+    public void ConfirmEvent(Event ev, Profile profile)
     {
-        var userEvent = user.UserEvents.Find(ue => ue.EventId == ev.Id);
+        var userEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (userEvent == null)
             throw new Exception("Event not found");
 
@@ -78,11 +78,11 @@ public class EventService
         db.SaveChanges();
     }
 
-    public void Decline(int eventId, User user)
+    public void Decline(int eventId, Profile profile)
     {
 
-        var events = user.Events;
-        var userEvent = user.UserEvents.Find(ue => ue.EventId == eventId);
+        var events = profile.Events;
+        var userEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == eventId);
         if (userEvent == null)
             throw new Exception("Event not found");
 
@@ -92,18 +92,7 @@ public class EventService
 
     }
 
-    //only for fields
-    public string Update(Event ev)
-    {
-        //TODO check the user can modify it
 
-        Event old = db.Events.Single(e => e.Id == ev.Id);
-        old.update(ev);
-
-        db.SaveChanges();
-        return "Evento aggiornato con successo";
-
-    }
 
     public Event Share(int eventId, List<int> usersId)
     {
@@ -111,8 +100,8 @@ public class EventService
         //TODO check user has the event he wants to share
         Event ev = Retrieve(eventId);
 
-        var users = db.Users.Where(u => usersId.Contains(u.Id)).ToList();
-        ev.Users.UnionWith(users);
+        //var users = db.Users.Where(u => usersId.Contains(u.Id)).ToList();
+        //ev.Users.UnionWith(users);
         db.SaveChanges();
         return ev;
 
@@ -131,10 +120,10 @@ public class EventService
             throw new Exception("Evento non trovato");
         }
         var transaction = db.Database.BeginTransaction();
-        ev.Users.Add(user);
+        //ev.Users.Add(user);
         db.SaveChanges();
         if (confirm)
-            ConfirmEvent(ev, user);
+            //ConfirmEvent(ev, user);
 
         transaction.Commit();
 
@@ -142,7 +131,7 @@ public class EventService
 
     }
 
-
+/*
     public bool DeleteForUser(int eventId, int userId)
     {
 
@@ -155,7 +144,8 @@ public class EventService
         return true;
 
     }
-
+*/
+/*
     public bool Delete(int id, int userId)
     {
         Event ev = db.Events.Single(e => e.Id == id);
@@ -183,5 +173,5 @@ public class EventService
         transaction.Commit();
 
         return ev;
-    }
+    }*/
 }

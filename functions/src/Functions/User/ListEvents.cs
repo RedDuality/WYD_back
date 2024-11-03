@@ -28,10 +28,10 @@ namespace Functions
                 user = _authController.VerifyRequest(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
             
-            var eventi = user.Events;
+            //var eventi = user.Events;
 
-            return new OkObjectResult(eventi);
-            
+            //return new OkObjectResult(eventi);
+             return new OkObjectResult(null);
         }
     }
 }

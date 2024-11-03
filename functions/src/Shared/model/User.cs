@@ -1,32 +1,27 @@
-using System.ComponentModel.DataAnnotations;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace Model;
 
 
 [Table("Users")]
-[Index(nameof(Mail), IsUnique = true)]
-public class User
+[Index(nameof(MainMail), IsUnique = true)]
+[Index(nameof(Tag), IsUnique = true)]
+public class User : BaseEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public string Mail { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
+    public string Uid {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
+    public string MainMail { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+    public string Tag { get; set; } = string.Empty;
 
     [JsonIgnore]
-    public byte[] PasswordHash { get; set; } = [];
+    public virtual List<Account> Accounts { get; set; } = [];
     [JsonIgnore]
-    public byte[] PasswordSalt { get; set; } = [];
-
-
+    public virtual List<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
-    public virtual List<Event> Events { get; set; } = [];
+    public virtual List<UserRole> UserRoles { get; set; } = [];
     [JsonIgnore]
-    public virtual List<UserEvent> UserEvents { get; set; } = [];
-    [JsonIgnore]
-    public virtual List<Community> Communities { get; set; } = [];
+    public virtual List<Group> Groups { get; set; } = [];
 }

@@ -43,8 +43,8 @@ namespace Functions
                 user = _authController.VerifyRequest(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
-            return _eventController.Delete(id, user.Id) ? new OkObjectResult("") : new BadRequestResult();
-
+            //return _eventController.Delete(id, user.Id) ? new OkObjectResult("") : new BadRequestResult();
+            return null;
         }
     }
 }

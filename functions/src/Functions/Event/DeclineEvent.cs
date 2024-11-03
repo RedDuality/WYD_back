@@ -42,7 +42,7 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            _eventController.Decline(id, user);
+            //_eventController.Decline(id, user);
             return new OkObjectResult("");
 
 

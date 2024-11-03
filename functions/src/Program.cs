@@ -16,8 +16,8 @@ var host = new HostBuilder()
         services.AddScoped<WydDbContext>();
         services.AddTransient<AuthService>();
         services.AddTransient<EventService>();
+        services.AddTransient<AccountService>();
         services.AddTransient<UserService>();
-        services.AddTransient<CommunityService>();
         services.AddTransient<UtilService>();
 
 

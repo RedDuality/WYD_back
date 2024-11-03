@@ -1,7 +1,5 @@
 using Model;
 using Database;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Controller;
 public class UserService
@@ -21,31 +19,25 @@ public class UserService
 
     }
 
-    public User RetrieveByMail(string mail)
-    {
 
-        return db.Users.Single(u => u.Mail.Equals(mail));
-
-    }
 
     //TODO make private
     public User Create(User user)
     {
-        //TODO add control over unique mail
         db.Users.Add(user);
         db.SaveChanges();
         return user;
-
     }
 
     public User Update(User u, User newUser)
     {
-        u.Username = newUser.Username;
-        u.Mail = newUser.Mail;
+        u.UserName = newUser.UserName;
+        u.MainMail = newUser.MainMail;
         db.SaveChanges();
         return u;
     }
 
+/*
     public string Delete(int id)
     {
 
@@ -57,4 +49,5 @@ public class UserService
         return "Utente eliminato con successo";
 
     }
+    */
 }

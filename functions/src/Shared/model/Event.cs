@@ -1,48 +1,24 @@
-using System.ComponentModel.DataAnnotations;
+
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace Model;
 
 [Table("Events")]
 [Index(nameof(Hash), IsUnique = true)]
-public class Event
+public class Event : BaseEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int? Id { get; set; }
-
-    public string? Hash {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
-    public int? OwnerId { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
-    public bool? IsAllDay{ get; set; } = false;
-    public string? Color { get; set; }
-    public string? StartTimeZone { get; set; }
-    public string? EndTimeZone { get; set; }
-    public string? RecurrenceRule { get; set; }
-    public string? Notes { get; set; }
-    public string? Location  { get; set; }
-    public int? RecurrenceId{ get; set; }
-    public string? Subject { get ; set; }
+    public string Hash {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
+    public string? Title { get ; set; }
+    public string? Description { get; set; }
+    required public DateTime StartTime { get; set; }
+    required public DateTime EndTime { get; set; }
+    [ForeignKey("GroupId")]
+    public virtual Group? Group { get; set; }
 
     [JsonIgnore]
-    public virtual HashSet<User> Users { get; set;} = [];
+    public virtual HashSet<Profile> Profiles { get; set;} = [];
+    public virtual List<ProfileEvent> ProfileEvents {get; set;} = [];
 
-    public virtual List<UserEvent> UserEvents {get; set;} = [];
-
-    public void update(Event ev){
-        StartTime = ev.StartTime;
-        EndTime = ev.EndTime;
-        IsAllDay = ev.IsAllDay;
-        Color = ev.Color;
-        StartTimeZone = ev.StartTimeZone;
-        EndTimeZone = ev.EndTimeZone;
-        RecurrenceRule = ev.RecurrenceRule;
-        Notes = ev.Notes;
-        RecurrenceId = ev.RecurrenceId;
-        Subject = ev.Subject;
-    }
 }
