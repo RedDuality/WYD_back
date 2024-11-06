@@ -17,12 +17,15 @@ public class AuthService
     private AccountService _accountService;
     private UserService _userService;
 
+    private ProfileService _profileService;
+
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthService(UserService userService, AccountService accountService)
+    public AuthService(UserService userService, AccountService accountService, ProfileService profileService)
     {
         _accountService = accountService;
         _userService = userService;
+        _profileService = profileService;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
@@ -72,6 +75,7 @@ public class AuthService
         UserRecord UR = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
 
 
+        
         User user = new ();
         user.MainMail = UR.Email;
 
@@ -86,6 +90,12 @@ public class AuthService
         };
 
         _accountService.Create(account);
+
+
+        Profile profile = new();
+        profile.Users.Add(user);
+
+        _profileService.Create(profile);
 
         return UR;
     }

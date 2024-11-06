@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Controller;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -30,8 +31,8 @@ namespace Functions
             {
                 try
                 {
-                    await _authController. VerifyTokenAndCreateAsync(TR.Token);
-                    return new OkObjectResult("");
+                    UserRecord ur = await _authController. VerifyTokenAndCreateAsync(TR.Token);
+                    return new OkObjectResult(ur);
                 } catch (Exception e) { return new BadRequestObjectResult(e.Message); }
 
             }

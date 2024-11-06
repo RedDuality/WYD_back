@@ -120,7 +120,7 @@ namespace functions.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Group");
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("Model.Profile", b =>
@@ -262,6 +262,9 @@ namespace functions.Migrations
                     b.Property<int>("ProfileId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("StartsAt")
                         .HasColumnType("datetime2");
 
@@ -269,9 +272,6 @@ namespace functions.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("role")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

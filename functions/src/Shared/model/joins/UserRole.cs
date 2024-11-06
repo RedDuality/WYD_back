@@ -2,6 +2,7 @@
 
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Model;
@@ -21,8 +22,9 @@ public class UserRole : BaseEntity
     public required virtual Profile Profile {get; set;}
     [ForeignKey("UserId")]
     public required virtual User User {get; set;}
-
-    public required Role role {get; set; } = Role.Owner;
+    
+    [NotNull]
+    public Role Role { get; set; } = Role.Owner;
 
     public DateTime? StartsAt {get; set;}
     public DateTime? EndsAt {get; set;}

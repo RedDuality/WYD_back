@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Model;
 
 
-[Table("Group")]
+[Table("Groups")]
 public class Group
 {
     [Key]

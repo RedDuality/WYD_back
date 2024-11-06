@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 
@@ -16,7 +17,8 @@ public class Profile
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public required ProfileType Type { get; init; } = ProfileType.Personal;
+    [NotNull]
+    public ProfileType Type { get; set; } = ProfileType.Personal;
 
 
     [JsonIgnore]

@@ -12,7 +12,7 @@ namespace functions.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Group",
+                name: "Groups",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -21,7 +21,7 @@ namespace functions.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Group", x => x.Id);
+                    table.PrimaryKey("PK_Groups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,9 +74,9 @@ namespace functions.Migrations
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Events_Group_GroupId",
+                        name: "FK_Events_Groups_GroupId",
                         column: x => x.GroupId,
-                        principalTable: "Group",
+                        principalTable: "Groups",
                         principalColumn: "Id");
                 });
 
@@ -120,9 +120,9 @@ namespace functions.Migrations
                 {
                     table.PrimaryKey("PK_User_Group", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_User_Group_Group_GroupId",
+                        name: "FK_User_Group_Groups_GroupId",
                         column: x => x.GroupId,
-                        principalTable: "Group",
+                        principalTable: "Groups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -141,7 +141,7 @@ namespace functions.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProfileId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    role = table.Column<int>(type: "int", nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
                     StartsAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EndsAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -294,7 +294,7 @@ namespace functions.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Group");
+                name: "Groups");
         }
     }
 }

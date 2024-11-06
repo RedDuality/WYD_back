@@ -7,7 +7,7 @@ public class WydDbContext : DbContext
     //Main Entity
     public DbSet<Account> Accounts { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<User> Profiles { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
     public DbSet<Event> Events { get; set; }
     public DbSet<Group> Groups { get; set; }
 

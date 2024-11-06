@@ -18,6 +18,7 @@ var host = new HostBuilder()
         services.AddTransient<EventService>();
         services.AddTransient<AccountService>();
         services.AddTransient<UserService>();
+        services.AddTransient<ProfileService>();
         services.AddTransient<UtilService>();
 
 

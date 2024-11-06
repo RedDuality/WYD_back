@@ -37,6 +37,17 @@ public class UserService
         return u;
     }
 
+    //should this go in Profile service?
+    public void SetRole(User user, Profile profile, Role role){
+        var userRole = user.UserRoles.Find(ur => ur.Profile == profile);
+        if (userRole == null)
+            throw new Exception("Event not found");
+
+        userRole.Role = role;
+
+        db.SaveChanges();
+    }
+
 /*
     public string Delete(int id)
     {
