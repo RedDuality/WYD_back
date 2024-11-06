@@ -28,7 +28,7 @@ namespace Functions
         }
 
         [Function("DeleteEvent")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/Delete/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Event/Delete/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             int id;
             try
@@ -41,7 +41,7 @@ namespace Functions
             }
             User user;
             try{
-                user = _authController.VerifyRequestAsync(req);
+                user = await _authController.VerifyRequestAsync(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             //var result = _eventController.DeleteForUser(id, user.Id);

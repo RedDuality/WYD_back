@@ -25,11 +25,11 @@ namespace Functions
         }
 
         [Function("RetrieveFromHash")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Retrieve/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
+        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Retrieve/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
             User user;
             try{
-                user = _authController.VerifyRequestAsync(req);
+                user = await _authController.VerifyRequestAsync(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
 

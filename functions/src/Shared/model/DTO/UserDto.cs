@@ -1,8 +1,6 @@
+using Model;
 
-
-namespace Model;
-
-
+namespace Dto;
 
 public class UserDto
 {

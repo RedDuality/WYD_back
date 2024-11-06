@@ -26,11 +26,11 @@ namespace Functions
         }
 
         [Function("ConfirmEvent")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
             try{
-                user = _authController.VerifyRequestAsync(req);
+                user = await _authController.VerifyRequestAsync(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             int id;

@@ -22,12 +22,12 @@ namespace Functions
         }
 
         [Function("TestToken")]
-        public ActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Auth/TestToken")] HttpRequest req)
+        public async Task<ActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Auth/TestToken")] HttpRequest req)
         {
             User user;
             try
             {
-                user = _authController.VerifyRequestAsync(req);
+                user = await _authController.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 

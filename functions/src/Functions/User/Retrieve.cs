@@ -29,7 +29,7 @@ namespace Functions
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
-            return new OkObjectResult(new UserDto(user));
+            return new OkObjectResult(user);
 
         }
     }

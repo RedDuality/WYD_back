@@ -1,5 +1,5 @@
 
-namespace Model;
+namespace Dto;
 
 
 public class UserEventDto
