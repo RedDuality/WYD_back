@@ -31,7 +31,4 @@ public class Profile
     [JsonIgnore]
     public virtual List<ProfileEvent> ProfileEvents { get; set; } = [];
 
-
-
-
 }

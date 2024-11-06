@@ -20,12 +20,12 @@ namespace Functions
         }
 
         [Function("Retrieve")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Retrieve")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Retrieve")] HttpRequest req, FunctionContext executionContext)
         {
             User user;
             try
             {
-                user = _authController.VerifyRequest(req);
+                user = await _authController.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 

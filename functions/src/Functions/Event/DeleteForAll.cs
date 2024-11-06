@@ -40,7 +40,7 @@ namespace Functions
             }
             User user;
             try{
-                user = _authController.VerifyRequest(req);
+                user = _authController.VerifyRequestAsync(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
 
             //return _eventController.Delete(id, user.Id) ? new OkObjectResult("") : new BadRequestResult();

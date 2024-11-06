@@ -14,5 +14,5 @@ public class Account : BaseEntity
     public string Uid { get; set; } = string.Empty;
 
     [ForeignKey("UserId")]
-    public required virtual User User {get; set;}
+    public virtual User? User { get; set;}
 }

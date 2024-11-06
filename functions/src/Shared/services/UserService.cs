@@ -1,5 +1,7 @@
 using Model;
 using Database;
+using FirebaseAdmin.Auth;
+using System.Reflection;
 
 namespace Controller;
 public class UserService
@@ -7,9 +9,15 @@ public class UserService
 
     WydDbContext db;
 
-    public UserService(WydDbContext wydDbContext)
+    private AccountService _accountService;
+    private ProfileService _profileService;
+
+    public UserService(WydDbContext wydDbContext, AccountService accountService, ProfileService profileService)
     {
         db = wydDbContext;
+        
+        _accountService = accountService;
+        _profileService = profileService;
     }
 
     public User Get(int id)
@@ -19,15 +27,51 @@ public class UserService
 
     }
 
+    public User RetrieveFromAccountUid(String uid) {
+        Account account = db.Accounts.Single(a => a.Uid == uid);
+        if(account.User == null)
+            throw new Exception("No User linked to this profile!");
+        return account.User;
+    }
 
 
-    //TODO make private
-    public User Create(User user)
+
+    public User Create(UserRecord UR)
     {
+        User user = new();
+        user.MainMail = UR.Email;
         db.Users.Add(user);
+        db.SaveChanges();
+
+        Account account = new()
+        {
+            Mail = UR.Email,
+            Uid = UR.Uid,
+            User = user
+        };
+        this.AddAccount(user, account);
+
+        Profile profile = new();
+        this.AddProfile(user, profile);
+
+        return user;
+    }
+
+
+    public User AddAccount(User user, Account account){
+        _accountService.Create(account);
+        user.Accounts.Add(account);
         db.SaveChanges();
         return user;
     }
+
+    public User AddProfile(User user, Profile profile){
+        _profileService.Create(profile);
+        user.Profiles.Add(profile);
+        db.SaveChanges();
+        return user;
+    }
+
 
     public User Update(User u, User newUser)
     {
@@ -47,6 +91,15 @@ public class UserService
 
         db.SaveChanges();
     }
+
+    //TODO make private
+    public User Retrieve(User user)
+    {
+        db.Users.Add(user);
+        db.SaveChanges();
+        return user;
+    }
+
 
 /*
     public string Delete(int id)

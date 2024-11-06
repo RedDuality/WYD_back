@@ -51,7 +51,6 @@ public class EventService
     public Event Create(Event ev, Profile profile)
     {
         var transaction = db.Database.BeginTransaction();
-        ev.Id = null;
         db.Events.Add(ev);
         db.SaveChanges();
         //ev.OwnerId = user.Id;

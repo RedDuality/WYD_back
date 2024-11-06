@@ -16,9 +16,7 @@ public class User : BaseEntity
     public string UserName { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
 
-    [JsonIgnore]
     public virtual List<Account> Accounts { get; set; } = [];
-    [JsonIgnore]
     public virtual List<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
     public virtual List<UserRole> UserRoles { get; set; } = [];

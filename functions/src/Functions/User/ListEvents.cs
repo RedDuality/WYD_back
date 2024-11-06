@@ -21,11 +21,11 @@ namespace Functions
         }
 
         [Function("ListEvents")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Events")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Events")] HttpRequest req, FunctionContext executionContext)
         {
             User user;
             try{
-                user = _authController.VerifyRequest(req);
+                user = await _authController.VerifyRequestAsync(req);
             }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
             
             //var eventi = user.Events;
