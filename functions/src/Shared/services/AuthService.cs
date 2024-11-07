@@ -13,17 +13,19 @@ namespace Controller;
 public class AuthService
 {
 
-    
-    private UserService _userService;
 
-    
+    private UserService _userService;
+    private AccountService _accountService;
+
+
 
     private readonly SymmetricSecurityKey _secretKey;
 
-    public AuthService(UserService userService)
+    public AuthService(UserService userService, AccountService accountService)
     {
-        
+
         _userService = userService;
+        _accountService = accountService;
 
         var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
         _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
@@ -52,27 +54,51 @@ public class AuthService
         }
     }
 
-    public async Task<UserRecord> retrieveFirebaseUser(String uid)
+    public async Task<UserRecord> RetrieveFirebaseUser(String uid)
     {
         UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
         return userRecord;
     }
 
-    public async Task<String> VerifyTokenAsync(String token)
+    private async Task<String> CheckFirebaseTokenAsync(String token)
     {
         FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
         string uid = decodedToken.Uid;
         return uid;
     }
 
-    public async Task<User> VerifyTokenAndCreateUserAsync(String token)
+    public async Task<User> VerifyTokenAsync(String token)
     {
-        string uid = await this.VerifyTokenAsync(token);
-        UserRecord UR = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+        String uid = "";
+        try
+        {
+            uid = await this.CheckFirebaseTokenAsync(token);
+        }
+        catch (Exception)
+        {
+            throw new SecurityTokenValidationException("Invalid Token");
+        }
 
-        User savedUser = _userService.Create(UR);
+        Account? account = _accountService.Get(uid);
+        
+        if (account == null) //registration
+        {
+            UserRecord? UR = null;
+            try
+            {
+                UR = await this.RetrieveFirebaseUser(uid);
+            }
+            catch (Exception)
+            {
+                throw new SecurityTokenValidationException("No Firebase user found");
+            }
+            return _userService.Create(UR);
+        }
 
-        return savedUser;
+        if (account.User != null) //login
+            return account.User;
+        else //should prolly create a new user without too many questions
+            throw new Exception("No user linked to the account");
     }
 
 
@@ -88,10 +114,13 @@ public class AuthService
 
         string token = authorization.ToString().Substring("Bearer ".Length).Trim();
 
-        try{
-            String uid = await this.VerifyTokenAsync(token);
+        try
+        {
+            String uid = await this.CheckFirebaseTokenAsync(token);
             return _userService.RetrieveFromAccountUid(uid);
-        } catch (Exception ) {
+        }
+        catch (Exception)
+        {
             throw new SecurityTokenValidationException("Invalid Token");
         }
     }

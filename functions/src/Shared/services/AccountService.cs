@@ -16,7 +16,12 @@ public class AccountService
 
     public Account Get(int id)
     {
-        return db.Accounts.Single(c => c.Id == id);
+        return db.Accounts.Single(a => a.Id == id);
+
+    }
+    public Account? Get(String uid)
+    {
+        return db.Accounts.SingleOrDefault(a => a.Uid == uid);
 
     }
 
