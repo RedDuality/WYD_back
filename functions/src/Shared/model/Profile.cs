@@ -12,11 +12,8 @@ public enum ProfileType {
 }
 
 [Table("Profiles")]
-public class Profile
+public class Profile : BaseEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
     [NotNull]
     public ProfileType Type { get; set; } = ProfileType.Personal;
 
