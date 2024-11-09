@@ -1,7 +1,5 @@
 using Model;
 using Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 
 namespace Controller;
 public class AccountService

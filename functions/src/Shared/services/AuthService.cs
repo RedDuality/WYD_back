@@ -1,8 +1,5 @@
 using Model;
-using System.Security.Cryptography;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
@@ -17,19 +14,10 @@ public class AuthService
     private UserService _userService;
     private AccountService _accountService;
 
-
-
-    private readonly SymmetricSecurityKey _secretKey;
-
     public AuthService(UserService userService, AccountService accountService)
     {
-
         _userService = userService;
         _accountService = accountService;
-
-        var secret = Environment.GetEnvironmentVariable("LoginTokenSecret") ?? throw new Exception();
-        _secretKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
-
 
         if (FirebaseApp.DefaultInstance == null)
         {

@@ -8,7 +8,7 @@ namespace Model;
 
 [Table("Users")]
 [Index(nameof(MainMail), IsUnique = true)]
-[Index(nameof(Tag), IsUnique = true)]
+[Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not null
 public class User : BaseEntity
 {
     public string Uid {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
@@ -17,8 +17,9 @@ public class User : BaseEntity
     public string Tag { get; set; } = string.Empty;
 
     public virtual List<Account> Accounts { get; set; } = [];
-    public virtual List<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
+    public virtual List<Profile> Profiles { get; set; } = [];
+    
     public virtual List<UserRole> UserRoles { get; set; } = [];
     [JsonIgnore]
     public virtual List<Group> Groups { get; set; } = [];

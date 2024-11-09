@@ -14,13 +14,12 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddLogging();
         services.AddScoped<WydDbContext>();
-        services.AddTransient<AuthService>();
+        services.AddScoped<AuthService>();
         services.AddTransient<EventService>();
         services.AddTransient<AccountService>();
         services.AddTransient<UserService>();
         services.AddTransient<ProfileService>();
         services.AddTransient<UtilService>();
-
 
         services.AddSingleton(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     })

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -14,5 +15,6 @@ public class Account : BaseEntity
     public string Uid { get; set; } = string.Empty;
 
     [ForeignKey("UserId")]
+    [JsonIgnore]
     public virtual User? User { get; set;}
 }

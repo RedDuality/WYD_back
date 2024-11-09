@@ -131,8 +131,14 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -204,7 +210,8 @@ namespace functions.Migrations
                         .IsUnique();
 
                     b.HasIndex("Tag")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("Tag <> ''");
 
                     b.ToTable("Users");
                 });

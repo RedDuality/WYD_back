@@ -28,6 +28,7 @@ public class WydDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //modelBuilder.Entity<User>().HasMany(u => u.Accounts);
+        modelBuilder.Entity<User>().HasIndex(u => u.Tag).IsUnique().HasFilter("Tag <> ''");
         modelBuilder.Entity<User>().HasMany(u => u.Profiles).WithMany(p => p.Users).UsingEntity<UserRole>();
         modelBuilder.Entity<User>().HasMany(u => u.Groups).WithMany(g => g.Users).UsingEntity<UserGroup>();
         modelBuilder.Entity<Profile>().HasMany(p => p.Events).WithMany(e => e.Profiles).UsingEntity<ProfileEvent>();

@@ -2,10 +2,12 @@
 
 using System.Text.Json;
 using Controller;
+using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Model;
 
 
 
@@ -32,8 +34,8 @@ namespace Functions
             {
                 try
                 {
-                    await _authController.VerifyTokenAsync(TR.Token);
-                    return new OkObjectResult("");
+                    User user = await _authController.VerifyTokenAsync(TR.Token);
+                    return new OkObjectResult(new RetrieveUserDto(user));
                 }
                 catch (Exception e) { return new BadRequestObjectResult(e.Message); }
 

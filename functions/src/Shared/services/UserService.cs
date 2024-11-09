@@ -1,6 +1,7 @@
 using Model;
 using Database;
 using FirebaseAdmin.Auth;
+using System.Linq.Expressions;
 
 namespace Controller;
 public class UserService
@@ -40,6 +41,7 @@ public class UserService
         User user = new();
         user.MainMail = UR.Email;
         db.Users.Add(user);
+        
         db.SaveChanges();
 
         Account account = new()
