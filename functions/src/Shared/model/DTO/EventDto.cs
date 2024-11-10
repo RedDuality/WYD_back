@@ -1,24 +1,18 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+
+
 using Model;
 
 namespace Dto;
 
-
-public class EventDto
+public class EventDto(Event ev)
 {
-    public DateTime startTime { get; set; }
-    public DateTime endTime { get; set; }
-    public bool? isAllDay{ get; set; } = false;
-    public string? color { get; set; }
-    public string? startTimeZone { get; set; }
-    public string? endTimeZone { get; set; }
-    public string? recurrenceRule { get; set; }
-    public string? notes { get; set; }
-    public string? location  { get; set; }
-    public int? recurrenceId{ get; set; }
-    public int? Id { get; set; }
-    public string? subject { get ; set; }
+    public int Id {get; set;} = ev.Id;
+    public string? Hash {get; set;} = ev.Hash;
+    public string? Title { get ; set; } = ev.Title;
+    public string? Description { get; set; } = ev.Description;
+    public DateTime StartTime { get; set; } = ev.StartTime;
+    public DateTime EndTime { get; set; } = ev.EndTime;
+    public int? GroupId { get; set; } = ev.Group != null ? ev.Group.Id : -1;
+    public virtual List<ProfileEventDto> ProfileEvents {get; set;} = ev.ProfileEvents.Select(pe => new ProfileEventDto(pe)).ToList();
 
-    public List<UserEventDto> UserEvents {get; set;} = [];
 }

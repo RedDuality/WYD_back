@@ -104,7 +104,7 @@ public class AuthService
 
         try
         {
-            String uid = await this.CheckFirebaseTokenAsync(token);
+            string uid = await this.CheckFirebaseTokenAsync(token);
             return _userService.RetrieveFromAccountUid(uid);
         }
         catch (Exception)

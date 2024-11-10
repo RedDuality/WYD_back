@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -16,7 +17,6 @@ public class Profile : BaseEntity
 {
     [NotNull]
     public ProfileType Type { get; set; } = ProfileType.Personal;
-
 
     [JsonIgnore]
     public virtual List<User> Users { get; set; } = [];

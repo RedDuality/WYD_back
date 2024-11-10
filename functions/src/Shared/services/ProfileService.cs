@@ -1,13 +1,12 @@
 using Model;
 using Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
+using Dto;
 
 namespace Controller;
 public class ProfileService
 {
 
-    WydDbContext db;
+    readonly WydDbContext db;
 
     public ProfileService(WydDbContext wydDbContext)
     {
@@ -27,12 +26,16 @@ public class ProfileService
         return profile;
     }
 
+    public static List<EventDto> RetrieveEvents(Profile profile){
+        return profile.Events.Select(ev => new EventDto(ev)).ToList();
+    }
+
     public void SetRole(Event ev, Profile profile, EventRole role){
         var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (profileEvent == null)
             throw new Exception("Event not found");
 
-        profileEvent.eventRole = role;
+        profileEvent.Role = role;
 
         db.SaveChanges();
     }

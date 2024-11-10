@@ -9,6 +9,8 @@ namespace Model;
 [Index(nameof(Hash), IsUnique = true)]
 public class Event : BaseEntity
 {
+    [ForeignKey("ParentId")]
+    public virtual Event? Parent {get; set;} = null;
     public string Hash {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
     public string? Title { get ; set; }
     public string? Description { get; set; }

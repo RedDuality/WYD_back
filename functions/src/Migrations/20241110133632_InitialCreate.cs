@@ -63,6 +63,7 @@ namespace functions.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
                     Hash = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -75,6 +76,11 @@ namespace functions.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Events_Events_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Events",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Events_Groups_GroupId",
                         column: x => x.GroupId,
@@ -170,15 +176,14 @@ namespace functions.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<int>(type: "int", nullable: false),
-                    ProfilesId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    eventRole = table.Column<int>(type: "int", nullable: false),
+                    ProfileId = table.Column<int>(type: "int", nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
                     Confirmed = table.Column<bool>(type: "bit", nullable: false),
                     Trusted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Profile_Event", x => new { x.EventId, x.ProfilesId });
+                    table.PrimaryKey("PK_Profile_Event", x => new { x.EventId, x.ProfileId });
                     table.ForeignKey(
                         name: "FK_Profile_Event_Events_EventId",
                         column: x => x.EventId,
@@ -186,15 +191,9 @@ namespace functions.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Profile_Event_Profiles_ProfilesId",
-                        column: x => x.ProfilesId,
+                        name: "FK_Profile_Event_Profiles_ProfileId",
+                        column: x => x.ProfileId,
                         principalTable: "Profiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Profile_Event_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -228,14 +227,14 @@ namespace functions.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Profile_Event_ProfilesId",
-                table: "Profile_Event",
-                column: "ProfilesId");
+                name: "IX_Events_ParentId",
+                table: "Events",
+                column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Profile_Event_UserId",
+                name: "IX_Profile_Event_ProfileId",
                 table: "Profile_Event",
-                column: "UserId");
+                column: "ProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Group_GroupId",

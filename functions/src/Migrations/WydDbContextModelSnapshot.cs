@@ -87,6 +87,9 @@ namespace functions.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
@@ -102,6 +105,8 @@ namespace functions.Migrations
 
                     b.HasIndex("Hash")
                         .IsUnique();
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Events");
                 });
@@ -150,26 +155,21 @@ namespace functions.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProfilesId")
+                    b.Property<int>("ProfileId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Confirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Trusted")
                         .HasColumnType("bit");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.HasKey("EventId", "ProfileId");
 
-                    b.Property<int>("eventRole")
-                        .HasColumnType("int");
-
-                    b.HasKey("EventId", "ProfilesId");
-
-                    b.HasIndex("ProfilesId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("ProfileId");
 
                     b.ToTable("Profile_Event");
                 });
@@ -305,7 +305,13 @@ namespace functions.Migrations
                         .WithMany()
                         .HasForeignKey("GroupId");
 
+                    b.HasOne("Model.Event", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
                     b.Navigation("Group");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Model.ProfileEvent", b =>
@@ -316,21 +322,15 @@ namespace functions.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Model.Profile", null)
+                    b.HasOne("Model.Profile", "Profile")
                         .WithMany("ProfileEvents")
-                        .HasForeignKey("ProfilesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Event");
 
-                    b.Navigation("User");
+                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("Model.UserGroup", b =>

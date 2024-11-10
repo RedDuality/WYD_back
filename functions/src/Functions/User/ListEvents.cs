@@ -1,4 +1,5 @@
 using Controller;
+using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -10,28 +11,29 @@ namespace Functions
     public class ListEvents
     {
         private readonly ILogger<ListEvents> _logger;
-        private readonly EventService _eventController;
         private readonly AuthService _authController;
+        private readonly UserService _userController;
 
-        public ListEvents(ILogger<ListEvents> logger, EventService eventService, AuthService authService)
+        public ListEvents(ILogger<ListEvents> logger, AuthService authService, UserService userService)
         {
             _logger = logger;
-            _eventController = eventService;
+
             _authController = authService;
+
+            _userController = userService;
         }
 
         [Function("ListEvents")]
         public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Events")] HttpRequest req, FunctionContext executionContext)
         {
             User user;
-            try{
+            try
+            {
                 user = await _authController.VerifyRequestAsync(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
-            
-            //var eventi = user.Events;
-
-            //return new OkObjectResult(eventi);
-             return new OkObjectResult(null);
+            }
+            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+            List<EventDto> eventi = await _userController.RetrieveEventsAsync(user);
+            return new OkObjectResult(eventi);
         }
     }
 }
