@@ -42,12 +42,6 @@ public class EventService
         return ev;
     }
 
-    /* 
-     public List<EventDto> GetEvents(User user)
-     {
-         return user.Events;
-     }
- */
     public Event Create(Event ev, Profile profile)
     {
         var transaction = db.Database.BeginTransaction();
