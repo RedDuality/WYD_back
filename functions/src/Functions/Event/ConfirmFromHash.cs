@@ -9,7 +9,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
 
-
+//TODO remove
 namespace Functions
 {
     public class ConfirmFromHash

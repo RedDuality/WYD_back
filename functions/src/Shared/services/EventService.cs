@@ -1,25 +1,15 @@
 using Model;
 using Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace Controller;
 public class EventService
 {
 
     WydDbContext db;
-    //Mapper userMapper;
 
     public EventService(WydDbContext context)
     {
         db = context;
-        /*
-        var userMapperConfig = new MapperConfiguration(cfg =>
-        {
-            cfg.CreateProjection<Event, EventDto>();
-            cfg.CreateProjection<UserEvent, UserEventDto>();
-        });
-
-        userMapper = new Mapper(userMapperConfig);*/
     }
 
     public bool MethodForTesting()
@@ -42,59 +32,55 @@ public class EventService
         return ev;
     }
 
-    public Event Create(Event ev, Profile profile)
-    {
-        var transaction = db.Database.BeginTransaction();
-        db.Events.Add(ev);
-        db.SaveChanges();
-        //ev.OwnerId = user.Id;
-        //ev.Users.Add(user);
-        db.SaveChanges();
-        ConfirmEvent(ev, profile);
-        transaction.Commit();
-        return ev;
-    }
-
     public Event? RetrieveFromHash(string eventHash)
     {
         return db.Events.FirstOrDefault(e => e.Hash == eventHash);
     }
 
+
+    public Event Create(Event ev, Profile profile)
+    {
+        var transaction = db.Database.BeginTransaction();
+        db.Events.Add(ev);
+        db.SaveChanges();
+        ev.Profiles.Add(profile);
+        db.SaveChanges();
+        transaction.Commit();
+        return ev;
+    }
+
+    
     public void ConfirmEvent(Event ev, Profile profile)
     {
-        var userEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
-        if (userEvent == null)
+        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
+        if (profileEvent == null)
             throw new Exception("Event not found");
 
-        userEvent.Confirmed = true;
+        profileEvent.Confirmed = true;
 
         db.SaveChanges();
     }
 
     public void Decline(int eventId, Profile profile)
     {
-
-        var events = profile.Events;
-        var userEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == eventId);
-        if (userEvent == null)
+        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == eventId);
+        if (profileEvent == null)
             throw new Exception("Event not found");
 
-        userEvent.Confirmed = false;
+        profileEvent.Confirmed = false;
 
         db.SaveChanges();
-
     }
 
 
 
-    public Event Share(int eventId, List<int> usersId)
+    public Event Share(int eventId, List<int> profileIds)
     {
 
         //TODO check user has the event he wants to share
         Event ev = Retrieve(eventId);
-
-        //var users = db.Users.Where(u => usersId.Contains(u.Id)).ToList();
-        //ev.Users.UnionWith(users);
+        ev.Profiles.UnionWith(db.Profiles.Where(p => profileIds.Contains(p.Id)));
+        //TODO check groups 
         db.SaveChanges();
         return ev;
 

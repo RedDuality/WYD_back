@@ -20,9 +20,9 @@ public class ProfileEvent
     [ForeignKey("ProfileId")]
     public required virtual Profile Profile { get; set; }
 
-    public required EventRole Role { get; set; } = EventRole.Viewer;
+    public required EventRole Role { get; set; } = EventRole.Owner;
 
-    public Boolean Confirmed { get ; set; } = false;
-    public Boolean Trusted {get; set; } = false;
+    public Boolean Confirmed { get ; set; } = true;
+    public Boolean Trusted {get; set; } = true;
 
 }

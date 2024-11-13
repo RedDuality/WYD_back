@@ -10,6 +10,8 @@ public class RetrieveUserDto
     public string? MainMail { get; set; }
     public string? UserName { get; set; }
 
+    public int MainProfileId { get; set; }
+
     public List<Account> Accounts { get; set; } = [];
     public List<UserRoleDto> UserRoles { get; set; } = [];
 
@@ -22,6 +24,7 @@ public class RetrieveUserDto
         Tag = user.Tag;
         Accounts = user.Accounts;
         UserRoles = user.UserRoles.Select(ur => new UserRoleDto(ur)).ToList();
+        MainProfileId = user.MainProfile!.Id;
     }
 
 }

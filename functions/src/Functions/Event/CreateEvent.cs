@@ -51,7 +51,7 @@ namespace Functions
 
             if (myevent != null)
             {
-                var newevent = _eventController.Create(myevent, uc);
+                var newevent = _eventController.Create(myevent, user.MainProfile!);
                 return new OkObjectResult(newevent);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

@@ -30,12 +30,25 @@ public class ProfileService
         return profile.Events.Select(ev => new EventDto(ev)).ToList();
     }
 
-    public void SetRole(Event ev, Profile profile, EventRole role){
+    public void SetEventRole(Event ev, Profile profile, EventRole role){
         var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (profileEvent == null)
             throw new Exception("Event not found");
 
         profileEvent.Role = role;
+
+        db.SaveChanges();
+    }
+
+    
+    //should this go in Profile service?
+    public void SetProfileRole(User user, Profile profile, Role role)
+    {
+        var userRole = user.UserRoles.Find(ur => ur.Profile == profile);
+        if (userRole == null)
+            throw new Exception("Event not found");
+
+        userRole.Role = role;
 
         db.SaveChanges();
     }

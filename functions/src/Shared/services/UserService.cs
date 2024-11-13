@@ -41,6 +41,8 @@ public class UserService
 
     public User Create(UserRecord UR)
     {
+        var transaction = db.Database.BeginTransaction();
+
         User user = new();
         user.MainMail = UR.Email;
         db.Users.Add(user);
@@ -56,8 +58,10 @@ public class UserService
         this.AddAccount(user, account);
 
         Profile profile = new();
+        user.MainProfile = profile;
         this.AddProfile(user, profile);
 
+        transaction.Commit();
         return user;
     }
 
@@ -87,17 +91,6 @@ public class UserService
         return u;
     }
 
-    //should this go in Profile service?
-    public void SetRole(User user, Profile profile, Role role)
-    {
-        var userRole = user.UserRoles.Find(ur => ur.Profile == profile);
-        if (userRole == null)
-            throw new Exception("Event not found");
-
-        userRole.Role = role;
-
-        db.SaveChanges();
-    }
 
     //TODO make private
     public User Retrieve(User user)

@@ -5,23 +5,23 @@ namespace Database;
 public class WydDbContext : DbContext
 {
     //Main Entity
-    public DbSet<Account> Accounts { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Profile> Profiles { get; set; }
-    public DbSet<Event> Events { get; set; }
-    public DbSet<Group> Groups { get; set; }
+    public DbSet<Account> Accounts { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Profile> Profiles { get; set; } = null!;
+    public DbSet<Event> Events { get; set; } = null!;
+    public DbSet<Group> Groups { get; set; } = null!;
 
     //joins
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<UserGroup> UserGroups { get; set; }
-    public DbSet<ProfileEvent> ProfileEvents { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; } = null!;
+    public DbSet<UserGroup> UserGroups { get; set; } = null!;
+    public DbSet<ProfileEvent> ProfileEvents { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
         Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wyddb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
         //Console.WriteLine("ConnectionString "+ Environment.GetEnvironmentVariable("SqlConnectionString"));
-        
+
         optionsBuilder.UseLazyLoadingProxies().UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString"));
     }
 
@@ -32,7 +32,7 @@ public class WydDbContext : DbContext
         modelBuilder.Entity<User>().HasMany(u => u.Profiles).WithMany(p => p.Users).UsingEntity<UserRole>();
         modelBuilder.Entity<User>().HasMany(u => u.Groups).WithMany(g => g.Users).UsingEntity<UserGroup>();
         modelBuilder.Entity<Profile>().HasMany(p => p.Events).WithMany(e => e.Profiles).UsingEntity<ProfileEvent>();
-        
+
     }
 
 
