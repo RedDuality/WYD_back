@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20241110133632_InitialCreate")]
+    [Migration("20241114103907_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -192,6 +192,9 @@ namespace functions.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("MainProfileId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Tag")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -211,6 +214,8 @@ namespace functions.Migrations
 
                     b.HasIndex("MainMail")
                         .IsUnique();
+
+                    b.HasIndex("MainProfileId");
 
                     b.HasIndex("Tag")
                         .IsUnique()
@@ -334,6 +339,15 @@ namespace functions.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Model.User", b =>
+                {
+                    b.HasOne("Model.Profile", "MainProfile")
+                        .WithMany()
+                        .HasForeignKey("MainProfileId");
+
+                    b.Navigation("MainProfile");
                 });
 
             modelBuilder.Entity("Model.UserGroup", b =>

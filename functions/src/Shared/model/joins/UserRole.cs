@@ -22,7 +22,7 @@ public class UserRole : BaseEntity
     
     [ForeignKey("ProfileId")]
     public required virtual Profile Profile {get; set;}
-    [JsonIgnore]
+
     [ForeignKey("UserId")]
     public required virtual User User { get; set; }
     
