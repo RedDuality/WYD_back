@@ -17,12 +17,15 @@ namespace Functions
         private readonly ILogger<ShareEvent> _logger;
         private readonly EventService _eventController;
         private readonly AuthService _authController;
+        private readonly ProfileService _profileService;
+
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
+        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
         {
             _logger = logger;
             _eventController = eventService;
             _authController = authService;
+            _profileService = profileService;
             _jsonSerializerOptions = jsonSerializerOptions;
         }
 
@@ -49,11 +52,13 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var userIdList = JsonSerializer.Deserialize<List<int>>(requestBody, _jsonSerializerOptions);
+            
+            var profileIdList = JsonSerializer.Deserialize<List<int>>(requestBody, _jsonSerializerOptions); 
 
-            if (userIdList != null)
+            if (profileIdList != null)
             {
-                var newevent = _eventController.Share(id, userIdList);
+                 List<Profile> profiles = _profileService.GetProfiles(profileIdList);
+                var newevent = _eventController.Share(id, profiles);
                 return new OkObjectResult(newevent);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

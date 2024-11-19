@@ -26,6 +26,10 @@ public class ProfileService
         return profile;
     }
 
+    public List<Profile> GetProfiles(List<int> profileIds){
+        return db.Profiles.Where(p => profileIds.Contains(p.Id)).ToList();
+    }
+
     public static List<EventDto> RetrieveEvents(Profile profile){
         return profile.Events.Select(ev => new EventDto(ev)).ToList();
     }
@@ -40,16 +44,4 @@ public class ProfileService
         db.SaveChanges();
     }
 
-    
-    //should this go in Profile service?
-    public void SetProfileRole(User user, Profile profile, Role role)
-    {
-        var userRole = user.UserRoles.Find(ur => ur.Profile == profile);
-        if (userRole == null)
-            throw new Exception("Event not found");
-
-        userRole.Role = role;
-
-        db.SaveChanges();
-    }
 }

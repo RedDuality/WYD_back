@@ -12,12 +12,6 @@ public class EventService
         db = context;
     }
 
-    public bool MethodForTesting()
-    {
-        db = new WydDbContext();
-        return db.Database.CanConnect();
-    }
-
     public Event Retrieve(int eventId)
     {
         Event ev;
@@ -51,7 +45,7 @@ public class EventService
     }
 
     
-    public void ConfirmEvent(Event ev, Profile profile)
+    public void Confirm(Event ev, Profile profile)
     {
         var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (profileEvent == null)
@@ -62,9 +56,9 @@ public class EventService
         db.SaveChanges();
     }
 
-    public void Decline(int eventId, Profile profile)
+    public void Decline(Event ev, Profile profile)
     {
-        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == eventId);
+        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (profileEvent == null)
             throw new Exception("Event not found");
 
@@ -75,17 +69,18 @@ public class EventService
 
 
 
-    public Event Share(int eventId, List<int> profileIds)
+    public Event Share(int eventId, List<Profile> profiles)
     {
-
         //TODO check user has the event he wants to share
         Event ev = Retrieve(eventId);
-        ev.Profiles.UnionWith(db.Profiles.Where(p => profileIds.Contains(p.Id)));
+        ev.Profiles.UnionWith(profiles);
         //TODO check groups 
         db.SaveChanges();
         return ev;
 
     }
+
+
 
     public Event ConfirmFromHash(User user, string eventHash, bool confirm)
     {

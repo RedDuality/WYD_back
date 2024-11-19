@@ -11,8 +11,8 @@ public class AuthService
 {
 
 
-    private UserService _userService;
-    private AccountService _accountService;
+    private readonly UserService _userService;
+    private readonly AccountService _accountService;
 
     public AuthService(UserService userService, AccountService accountService)
     {
@@ -42,25 +42,25 @@ public class AuthService
         }
     }
 
-    public async Task<UserRecord> RetrieveFirebaseUser(String uid)
+    public static async Task<UserRecord> RetrieveFirebaseUser(string uid)
     {
         UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
         return userRecord;
     }
 
-    private async Task<String> CheckFirebaseTokenAsync(String token)
+    private static async Task<string> CheckFirebaseTokenAsync(string token)
     {
         FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
         string uid = decodedToken.Uid;
         return uid;
     }
 
-    public async Task<User> VerifyTokenAsync(String token)
+    public async Task<User> VerifyTokenAsync(string token)
     {
         String uid = "";
         try
         {
-            uid = await this.CheckFirebaseTokenAsync(token);
+            uid = await CheckFirebaseTokenAsync(token);
         }
         catch (Exception)
         {
@@ -74,7 +74,7 @@ public class AuthService
             UserRecord? UR = null;
             try
             {
-                UR = await this.RetrieveFirebaseUser(uid);
+                UR = await RetrieveFirebaseUser(uid);
             }
             catch (Exception)
             {
@@ -104,8 +104,8 @@ public class AuthService
 
         try
         {
-            string uid = await this.CheckFirebaseTokenAsync(token);
-            return _userService.RetrieveFromAccountUid(uid);
+            string uid = await CheckFirebaseTokenAsync(token);
+            return _userService.Get(uid);
         }
         catch (Exception)
         {

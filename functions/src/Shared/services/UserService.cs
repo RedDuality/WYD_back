@@ -29,15 +29,13 @@ public class UserService
 
     }
 
-    public User RetrieveFromAccountUid(String uid)
+    public User Get(string uid)
     {
         Account account = db.Accounts.Single(a => a.Uid == uid);
         if (account.User == null)
             throw new Exception("No User linked to this profile!");
         return account.User;
     }
-
-
 
     public User Create(UserRecord UR)
     {
@@ -91,15 +89,6 @@ public class UserService
         return u;
     }
 
-
-    //TODO make private
-    public User Retrieve(User user)
-    {
-        db.Users.Add(user);
-        db.SaveChanges();
-        return user;
-    }
-
     public async Task<List<EventDto>> RetrieveEventsAsync(User user)
     {
         var tasks = user.Profiles.Select(async profile =>
@@ -130,6 +119,17 @@ public class UserService
         return results.SelectMany(result => result).ToList();
     }
 
+
+    public void SetProfileRole(User user, Profile profile, Role role)
+    {
+        var userRole = user.UserRoles.Find(ur => ur.Profile == profile);
+        if (userRole == null)
+            throw new Exception("Event not found");
+
+        userRole.Role = role;
+
+        db.SaveChanges();
+    }
     /*
         public string Delete(int id)
         {

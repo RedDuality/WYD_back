@@ -17,7 +17,7 @@ public class AccountService
         return db.Accounts.Single(a => a.Id == id);
 
     }
-    public Account? Get(String uid)
+    public Account? Get(string uid)
     {
         return db.Accounts.SingleOrDefault(a => a.Uid == uid);
 

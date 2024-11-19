@@ -3,12 +3,12 @@ using Database;
 
 namespace unit_tests;
 
-public class DbTest
+public class AccountTest
 {
     readonly WydDbContext db;
 
-    public DbTest(){
-       db = DbContextSingleton.Instance;
+    public AccountTest(){
+        db = new WydDbContext();
     }
 
     [Fact]
