@@ -4,6 +4,9 @@ using Model;
 namespace Database;
 public class WydDbContext : DbContext
 {
+
+    public WydDbContext(DbContextOptions<WydDbContext> options) : base(options) { }
+
     //Main Entity
     public DbSet<Account> Accounts { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
@@ -19,12 +22,14 @@ public class WydDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
-//          Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wyddb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
-//TEST        
-//            Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wydtestdb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
-
-
-        optionsBuilder.UseLazyLoadingProxies().UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString"));
+        //Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wyddb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder
+                .UseLazyLoadingProxies()
+                .UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString")!);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,7 +62,6 @@ public class WydDbContext : DbContext
                 entity.UpdatedAt = DateTime.Now;
             }
         }
-
         return base.SaveChanges();
     }
 

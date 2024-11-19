@@ -80,7 +80,7 @@ public class AuthService
             {
                 throw new SecurityTokenValidationException("No Firebase user found");
             }
-            return _userService.Create(UR);
+            return _userService.Create(UR.Email, UR.Uid);
         }
 
         if (account.User != null) //login

@@ -12,7 +12,7 @@ namespace Functions
     {
         private readonly ILogger<ListEvents> _logger;
         private readonly AuthService _authController;
-        private readonly UserService _userController;
+        private readonly UserService _userService;
 
         public ListEvents(ILogger<ListEvents> logger, AuthService authService, UserService userService)
         {
@@ -20,7 +20,7 @@ namespace Functions
 
             _authController = authService;
 
-            _userController = userService;
+            _userService = userService;
         }
 
         [Function("ListEvents")]
@@ -32,7 +32,7 @@ namespace Functions
                 user = await _authController.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
-            List<EventDto> eventi = await _userController.RetrieveEventsAsync(user);
+            List<EventDto> eventi = await _userService.RetrieveEventsAsync(user);
             return new OkObjectResult(eventi);
         }
     }
