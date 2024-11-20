@@ -3,6 +3,7 @@
 using System.Text;
 using System.Text.Json;
 using Controller;
+using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -46,7 +47,7 @@ namespace Functions
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var myevent = JsonSerializer.Deserialize<Event>(requestBody, _jsonSerializerOptions);
+            var myevent = JsonSerializer.Deserialize<EventDto>(requestBody, _jsonSerializerOptions);
 
 
             if (myevent != null)

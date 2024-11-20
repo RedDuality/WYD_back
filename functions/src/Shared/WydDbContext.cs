@@ -19,19 +19,6 @@ public class WydDbContext : DbContext
     public DbSet<UserGroup> UserGroups { get; set; } = null!;
     public DbSet<ProfileEvent> ProfileEvents { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-
-        //Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wyddb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
-        
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder
-                .UseLazyLoadingProxies()
-                .UseSqlServer(Environment.GetEnvironmentVariable("SqlConnectionString")!);
-        }
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //modelBuilder.Entity<User>().HasMany(u => u.Accounts);

@@ -10,7 +10,6 @@ namespace Controller;
 public class AuthService
 {
 
-
     private readonly UserService _userService;
     private readonly AccountService _accountService;
 

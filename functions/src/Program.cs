@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Controller;
 using Database;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -13,7 +14,19 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddLogging();
-        services.AddScoped<WydDbContext>();
+
+        services.AddDbContext<WydDbContext>(options =>
+        {
+            var connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Database connection string is not set.");
+            }
+
+            options.UseSqlServer(connectionString)
+                   .UseLazyLoadingProxies();
+        });
+
         services.AddScoped<AuthService>();
         services.AddTransient<EventService>();
         services.AddTransient<AccountService>();

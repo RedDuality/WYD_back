@@ -1,9 +1,6 @@
 using Model;
 using Database;
-using FirebaseAdmin.Auth;
-using System.Linq.Expressions;
 using Dto;
-using System.ComponentModel;
 
 namespace Controller;
 public class UserService
