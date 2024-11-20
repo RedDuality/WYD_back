@@ -1,6 +1,7 @@
 
 
 using Controller;
+using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -36,7 +37,7 @@ namespace Functions
 
             Event? e = _eventController.RetrieveFromHash(eventHash);
 
-            return e == null ? new NotFoundObjectResult("") : new OkObjectResult(e);
+            return e == null ? new NotFoundObjectResult("") : new OkObjectResult(new EventDto(e));
 
         }
     }

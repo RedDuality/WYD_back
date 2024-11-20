@@ -1,8 +1,11 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Dto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Model;
 
@@ -12,7 +15,9 @@ public class Event : BaseEntity
 {
     [ForeignKey("ParentId")]
     public virtual Event? Parent { get; set; } = null;
-    public string Hash { get; set; } = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
+
+
+    public string Hash { get; set; } = CreateHashCode();
     public string? Title { get; set; }
     public string? Description { get; set; }
     required public DateTimeOffset StartTime { get; set; }
@@ -26,6 +31,17 @@ public class Event : BaseEntity
     public virtual List<ProfileEvent> ProfileEvents { get; set; } = [];
 
 
+    private static string CreateHashCode()
+    {
+        byte[] randomBytes = new byte[16];
+        RandomNumberGenerator.Create().GetNonZeroBytes(randomBytes);
+        string result = Convert.ToBase64String(randomBytes)
+            .Replace('+', '-')
+            .Replace('/', '_') 
+            .Replace("=", "");
+        return result;
+    }
+    
     static public Event FromDto(EventDto dto)
     {
         return new Event
