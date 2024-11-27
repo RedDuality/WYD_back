@@ -1,11 +1,9 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Dto;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Model;
 
@@ -28,7 +26,7 @@ public class Event : BaseEntity
     [JsonIgnore]
     public virtual HashSet<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
-    public virtual List<ProfileEvent> ProfileEvents { get; set; } = [];
+    public virtual ICollection<ProfileEvent> ProfileEvents { get; set; } = [];
 
 
     private static string CreateHashCode()
@@ -53,5 +51,13 @@ public class Event : BaseEntity
             EndTime = dto.EndTime,
         };
     }
+
+    public void Update(EventDto dto){
+        Title = dto.Title ?? Title;
+        Description = dto.Description ?? Description;
+        StartTime = dto.StartTime;
+        EndTime = dto.EndTime;
+    }
+
 
 }

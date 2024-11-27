@@ -2,6 +2,7 @@
 
 using Controller;
 using Database;
+using Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Model;
@@ -57,14 +58,14 @@ public class EventServiceTest
         var dbContext = GetInMemoryDbContext();
         var eventService = new EventService(dbContext);
         var profile = new Profile { };
-        var ev = new Event { Hash = "hash2", StartTime = DateTimeOffset.Now, EndTime = DateTimeOffset.Now.AddHours(2) };
+        var ev = new EventDto { Hash = "hash2", StartTime = DateTimeOffset.Now, EndTime = DateTimeOffset.Now.AddHours(2) };
 
         // Act
         var result = eventService.Create(ev, profile);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("hash2", result.Hash);
+        Assert.NotEqual("hash2", result.Hash);
     }
 
     [Fact]
@@ -79,7 +80,110 @@ public class EventServiceTest
         var exception = Assert.Throws<ArgumentNullException>(() => eventService.Create(null, new Profile()));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
-        Assert.Equal("Event cannot be null. (Parameter 'ev')", exception.Message);
+        Assert.Equal("Event cannot be null. (Parameter 'dto')", exception.Message);
+    }
+
+    [Fact]
+    public void UpdateField_ValidDto_UpdatesFields()
+    {
+        // Arrange
+        var dbContext = GetInMemoryDbContext();
+
+        // Add an initial Event to the database
+        var initialEvent = new Event
+        {
+            Id = 1,
+            Title = "Old Title",
+            Description = "Old Description",
+            StartTime = DateTimeOffset.UtcNow,
+            EndTime = DateTimeOffset.UtcNow.AddHours(1)
+        };
+        dbContext.Events.Add(initialEvent);
+        dbContext.SaveChanges();
+
+        var dto = new EventDto
+        {
+            Id = 1,
+            Title = "Updated Title",
+            Description = "Updated Description",
+            StartTime = DateTimeOffset.UtcNow.AddDays(1),
+            EndTime = DateTimeOffset.UtcNow.AddDays(2)
+        };
+
+        var eventService = new EventService(dbContext);
+
+        // Act
+        eventService.UpdateField(dto);
+
+        // Assert
+        var updatedEvent = dbContext.Events.First(e => e.Id == 1);
+
+        Assert.Equal("Updated Title", updatedEvent.Title);
+        Assert.Equal("Updated Description", updatedEvent.Description);
+        Assert.Equal(dto.StartTime, updatedEvent.StartTime);
+        Assert.Equal(dto.EndTime, updatedEvent.EndTime);
+    }
+
+    [Fact]
+    public void UpdateField_NullDto_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var dbContext = GetInMemoryDbContext();
+        var eventService = new EventService(dbContext);
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => eventService.UpdateField(null));
+        Assert.Equal("Event cannot be null. (Parameter 'dto')", exception.Message);
+    }
+
+    [Fact]
+    public void UpdateField_NonExistentEvent_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var dbContext = GetInMemoryDbContext();
+        var dto = new EventDto
+        {
+            Id = -999, // Non-existent ID
+            Title = "Updated Title",
+            Description = "Updated Description",
+            StartTime = DateTimeOffset.UtcNow.AddDays(1),
+            EndTime = DateTimeOffset.UtcNow.AddDays(2)
+        };
+
+        var eventService = new EventService(dbContext);
+
+
+        var exception = Assert.Throws<InvalidOperationException>(() => eventService.UpdateField(dto));
+
+        // Assert
+        var eventCount = dbContext.Events.Count();
+        Assert.Equal(0, eventCount); // No events should exist
+    }
+
+    [Fact]
+    public void UpdateField_DbSaveThrowsException_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var dbContext = GetInMemoryDbContext();
+
+        var dto = new EventDto
+        {
+            Id = 1,
+            Title = "Updated Title",
+            Description = "Updated Description",
+            StartTime = DateTimeOffset.UtcNow.AddDays(1),
+            EndTime = DateTimeOffset.UtcNow.AddDays(2)
+        };
+
+        var eventService = new EventService(dbContext);
+
+        // Simulate a save exception by overriding SaveChanges behavior
+        dbContext.Database.EnsureDeleted(); // Break the in-memory DB
+        dbContext.Dispose();
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => eventService.UpdateField(dto));
+        Assert.Contains("Error updating event", exception.Message);
     }
 
     [Fact]
@@ -97,4 +201,10 @@ public class EventServiceTest
         var exception = Assert.Throws<KeyNotFoundException>(() => eventService.Confirm(event1, new Profile())); // Profile doesn't have event
         Assert.Contains("Event with ID", exception.Message);
     }
+
+
+
+
+
+
 }

@@ -15,6 +15,8 @@ public class RetrieveUserDto
     public List<Account> Accounts { get; set; } = [];
     public List<UserRoleDto> UserRoles { get; set; } = [];
 
+    public List<CommunityDto> Communities {get; set;} = [];
+
     public RetrieveUserDto(User user)
     {
         Id = (int)user.Id;
@@ -25,6 +27,7 @@ public class RetrieveUserDto
         Accounts = user.Accounts;
         UserRoles = user.UserRoles.Select(ur => new UserRoleDto(ur)).ToList();
         MainProfileId = user.MainProfile!.Id;
+        Communities = user.Communities.Select(c => new CommunityDto(c)).ToList();
     }
 
 }

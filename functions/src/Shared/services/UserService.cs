@@ -46,7 +46,7 @@ public class UserService
 
     public User Create(string Email, string Uid)
     {
-        var transaction = db.Database.BeginTransaction();
+        using var transaction = db.Database.BeginTransaction();
         try
         {
             // Create a new user
@@ -80,6 +80,7 @@ public class UserService
             transaction.Rollback();
             throw new InvalidOperationException("Error creating user and related entities. Transaction rolled back.", ex);
         }
+
     }
 
     public User AddProfile(User user, Profile profile)
@@ -128,7 +129,7 @@ public class UserService
             {
                 return await Task.FromResult(ProfileService.RetrieveEvents(profile));
             }
-             catch (Exception ex)
+            catch (Exception ex)
             {
                 // In case of an error, return a single EventDto with an error message
                 return [

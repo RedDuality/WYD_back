@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20241114103907_InitialCreate")]
+    [Migration("20241126163130_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace functions.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -66,6 +66,32 @@ namespace functions.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("Model.Community", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Communities");
+                });
+
             modelBuilder.Entity("Model.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -80,8 +106,8 @@ namespace functions.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("EndTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("GroupId")
                         .HasColumnType("int");
@@ -93,8 +119,8 @@ namespace functions.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("StartTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -122,11 +148,25 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CommunityId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("GeneralForCommunity")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CommunityId");
 
                     b.ToTable("Groups");
                 });
@@ -224,36 +264,37 @@ namespace functions.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Model.UserGroup", b =>
+            modelBuilder.Entity("Model.UserCommunity", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("CommunityId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommunityId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("User_Community");
+                });
+
+            modelBuilder.Entity("Model.UserGroup", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Trusted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
+                    b.HasKey("GroupId", "UserId");
 
                     b.HasIndex("UserId");
 
@@ -322,6 +363,17 @@ namespace functions.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Model.Group", b =>
+                {
+                    b.HasOne("Model.Community", "Community")
+                        .WithMany("Groups")
+                        .HasForeignKey("CommunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Community");
+                });
+
             modelBuilder.Entity("Model.ProfileEvent", b =>
                 {
                     b.HasOne("Model.Event", "Event")
@@ -350,16 +402,35 @@ namespace functions.Migrations
                     b.Navigation("MainProfile");
                 });
 
+            modelBuilder.Entity("Model.UserCommunity", b =>
+                {
+                    b.HasOne("Model.Community", "Community")
+                        .WithMany("UserCommunities")
+                        .HasForeignKey("CommunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.User", "User")
+                        .WithMany("UserCommunities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Community");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Model.UserGroup", b =>
                 {
                     b.HasOne("Model.Group", "Group")
-                        .WithMany()
+                        .WithMany("UserGroups")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Model.User", "User")
-                        .WithMany()
+                        .WithMany("UserGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -388,9 +459,21 @@ namespace functions.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Model.Community", b =>
+                {
+                    b.Navigation("Groups");
+
+                    b.Navigation("UserCommunities");
+                });
+
             modelBuilder.Entity("Model.Event", b =>
                 {
                     b.Navigation("ProfileEvents");
+                });
+
+            modelBuilder.Entity("Model.Group", b =>
+                {
+                    b.Navigation("UserGroups");
                 });
 
             modelBuilder.Entity("Model.Profile", b =>
@@ -403,6 +486,10 @@ namespace functions.Migrations
             modelBuilder.Entity("Model.User", b =>
                 {
                     b.Navigation("Accounts");
+
+                    b.Navigation("UserCommunities");
+
+                    b.Navigation("UserGroups");
 
                     b.Navigation("UserRoles");
                 });

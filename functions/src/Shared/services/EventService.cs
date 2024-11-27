@@ -88,6 +88,51 @@ public class EventService
         }
     }
 
+    public Event UpdateField(EventDto dto)
+    {
+        if (dto == null)
+        {
+            throw new ArgumentNullException(nameof(dto), "Event cannot be null.");
+        }
+
+        try
+        {
+            Event eventToUpdate = Retrieve(dto.Id);
+            eventToUpdate.Update(dto);
+            db.SaveChanges();
+            return eventToUpdate;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error updating event", ex);
+        }
+
+    }
+    
+    public Event Share(int eventId, List<Profile> profiles)
+    {
+        if (profiles == null || profiles.Count == 0)
+        {
+            throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
+        }
+
+        // Retrieve event and check if it exists
+        var ev = Retrieve(eventId);
+
+        // Add the profiles to the event
+        ev.Profiles.UnionWith(profiles);
+
+        try
+        {
+            db.SaveChanges();
+            return ev;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error sharing event with profiles.", ex);
+        }
+    }
+
     public void Confirm(Event ev, Profile profile)
     {
         if (ev == null)
@@ -148,53 +193,6 @@ public class EventService
         }
     }
 
-    public Event Share(int eventId, List<Profile> profiles)
-    {
-        if (profiles == null || profiles.Count == 0)
-        {
-            throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
-        }
-
-        // Retrieve event and check if it exists
-        var ev = Retrieve(eventId);
-
-        // Add the profiles to the event
-        ev.Profiles.UnionWith(profiles);
-
-        try
-        {
-            db.SaveChanges();
-            return ev;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Error sharing event with profiles.", ex);
-        }
-    }
-
-    public Event ConfirmFromHash(User user, string eventHash, bool confirm)
-    {
-
-        Event ev;
-        try
-        {
-            ev = db.Events.Single(e => e.Hash == eventHash);
-        }
-        catch (InvalidOperationException)
-        {
-            throw new Exception("Evento non trovato");
-        }
-        var transaction = db.Database.BeginTransaction();
-        //ev.Users.Add(user);
-        db.SaveChanges();
-        if (confirm)
-            //ConfirmEvent(ev, user);
-
-            transaction.Commit();
-
-        return ev;
-
-    }
 
     /*
         public bool DeleteForUser(int eventId, int userId)

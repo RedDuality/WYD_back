@@ -1,11 +1,7 @@
 
 using Controller;
 using Database;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Model;
-using Moq;
 namespace unit_tests.services;
 
 public class AuthServiceTests
@@ -18,13 +14,6 @@ public class AuthServiceTests
             .Options;
 
         return new WydDbContext(options);
-    }
-
-    private AuthService GetAuthService(WydDbContext dbContext)
-    {
-        var userService = new UserService(dbContext, new AccountService(dbContext), new ProfileService(dbContext));
-        var accountService = new AccountService(dbContext);
-        return new AuthService(userService, accountService);
     }
 
     [Fact]

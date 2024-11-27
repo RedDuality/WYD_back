@@ -17,6 +17,7 @@ var host = new HostBuilder()
 
         services.AddDbContext<WydDbContext>(options =>
         {
+            Environment.SetEnvironmentVariable("SqlConnectionString", "Server=tcp:wyddatabaseserver.database.windows.net,1433;Initial Catalog=wyddb;Persist Security Info=False;User ID=wydadmin;Password=password_1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             var connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
             if (string.IsNullOrEmpty(connectionString))
             {

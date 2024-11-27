@@ -12,10 +12,13 @@ public class WydDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Profile> Profiles { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
+
+    public DbSet<Group> Communities { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
 
     //joins
     public DbSet<UserRole> UserRoles { get; set; } = null!;
+    public DbSet<UserCommunity> UserCommunities { get; set; } = null!;
     public DbSet<UserGroup> UserGroups { get; set; } = null!;
     public DbSet<ProfileEvent> ProfileEvents { get; set; } = null!;
 
@@ -25,7 +28,11 @@ public class WydDbContext : DbContext
         modelBuilder.Entity<User>().HasIndex(u => u.Tag).IsUnique().HasFilter("Tag <> ''");
         modelBuilder.Entity<User>().HasOne(u => u.MainProfile);
         modelBuilder.Entity<User>().HasMany(u => u.Profiles).WithMany(p => p.Users).UsingEntity<UserRole>();
+        modelBuilder.Entity<User>().HasMany(u => u.Communities).WithMany(c => c.Users).UsingEntity<UserCommunity>();
         modelBuilder.Entity<User>().HasMany(u => u.Groups).WithMany(g => g.Users).UsingEntity<UserGroup>();
+
+        modelBuilder.Entity<Community>().HasMany(c => c.Groups). WithOne( g => g.Community);
+
         modelBuilder.Entity<Profile>().HasMany(p => p.Events).WithMany(e => e.Profiles).UsingEntity<ProfileEvent>();
 
     }

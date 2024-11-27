@@ -11,7 +11,7 @@ namespace Model;
 [Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not null
 public class User : BaseEntity
 {
-    public string Uid {get; set;} = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
+    public string Uid { get; set; } = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
     public string MainMail { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
@@ -22,8 +22,18 @@ public class User : BaseEntity
     public virtual List<Account> Accounts { get; set; } = [];
     [JsonIgnore]
     public virtual List<Profile> Profiles { get; set; } = [];
-    
+
     public virtual List<UserRole> UserRoles { get; set; } = [];
+
+
     [JsonIgnore]
-    public virtual List<Group> Groups { get; set; } = [];
+    public virtual HashSet<Community> Communities { get; set; } = [];
+    [JsonIgnore]
+    public virtual List<UserCommunity> UserCommunities { get; set; } = [];
+
+    [JsonIgnore]
+    public virtual HashSet<Group> Groups { get; set; } = [];
+    [JsonIgnore]
+    public virtual List<UserGroup> UserGroups { get; set; } = [];
+
 }

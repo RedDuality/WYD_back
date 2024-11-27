@@ -3,7 +3,6 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Model;
-using Moq;
 
 namespace unit_tests.services;
 

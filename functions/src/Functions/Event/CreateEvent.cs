@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Model;
 
 
@@ -18,17 +17,15 @@ namespace Functions
     public class CreateEvent
     {
         private readonly ILogger<CreateEvent> _logger;
-        private readonly EventService _eventController;
-        private readonly AuthService _authController;
-        private readonly UserService _userController;
+        private readonly EventService _eventService;
+        private readonly AuthService _authService;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         public CreateEvent(ILogger<CreateEvent> logger, AuthService authService, EventService eventService, UserService userService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
-            _authController = authService;
-            _eventController = eventService;
-            _userController = userService;
+            _authService = authService;
+            _eventService = eventService;
             _jsonSerializerOptions = jsonSerializerOptions;
         }
 
@@ -38,7 +35,7 @@ namespace Functions
             User user;
             try
             {
-                user = await _authController.VerifyRequestAsync(req);
+                user = await _authService.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
@@ -52,7 +49,7 @@ namespace Functions
 
             if (myevent != null)
             {
-                var newevent = _eventController.Create(myevent, user.MainProfile!);
+                var newevent = _eventService.Create(myevent, user.MainProfile!);
                 return new OkObjectResult(newevent);
             }
             return new BadRequestObjectResult("Bad Json Formatting");

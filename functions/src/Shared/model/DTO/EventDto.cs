@@ -13,7 +13,7 @@ public class EventDto
     public DateTimeOffset StartTime { get; set; }
     public DateTimeOffset EndTime { get; set; }
     public int? GroupId { get; set; } = 0;
-    public List<ProfileEventDto> ProfileEvents {get; set;}
+    public List<ProfileEventDto> ProfileEvents {get; set;} = [];
 
 
     // Parameterized constructor for custom use
@@ -23,8 +23,8 @@ public class EventDto
         Hash = ev.Hash;
         Title = ev.Title;
         Description = ev.Description;
-        StartTime = ev.StartTime;
-        EndTime = ev.EndTime;
+        StartTime = ev.StartTime.ToUniversalTime();
+        EndTime = ev.EndTime.ToUniversalTime();
         GroupId = ev.Group != null ? ev.Group.Id : -1;
         ProfileEvents = ev.ProfileEvents.Select(pe => new ProfileEventDto(pe)).ToList();
     }
