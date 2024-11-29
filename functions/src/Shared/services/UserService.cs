@@ -147,6 +147,15 @@ public class UserService
         return results.SelectMany(result => result).ToList();
     }
 
+    public List<UserDto> SearchByTag(string searchTag)
+    {
+        return db.Users
+                 .Where(u => u.Tag.StartsWith(searchTag))
+                 .Take(5)
+                 .Select(u => new UserDto(u))
+                 .ToList();
+    }
+
     public void SetProfileRole(User user, Profile profile, Role role)
     {
         if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null.");

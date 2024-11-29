@@ -14,13 +14,13 @@ namespace Functions
     public class DeclineEvent
     {
         private readonly ILogger<DeclineEvent> _logger;
-        private readonly EventService _eventController;
+        private readonly EventService _eventService;
         private readonly AuthService _authController;
 
         public DeclineEvent(ILogger<DeclineEvent> logger, EventService eventService, AuthService authService)
         {
             _logger = logger;
-            _eventController = eventService;
+            _eventService = eventService;
             _authController = authService;
         }
 
@@ -28,9 +28,11 @@ namespace Functions
         public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Decline/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
-            try{
+            try
+            {
                 user = await _authController.VerifyRequestAsync(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            }
+            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
             int id;
             try
@@ -42,7 +44,17 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            //_eventController.Decline(id, user);
+            Event ev;
+            try
+            {
+                ev = _eventService.Retrieve(id);
+            }
+            catch (Exception e)
+            {
+                return new NotFoundObjectResult(e.ToString());
+            }
+
+            _eventService.Decline(ev, user.MainProfile);
             return new OkObjectResult("");
 
 

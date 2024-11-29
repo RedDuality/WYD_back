@@ -133,39 +133,18 @@ public class EventService
         }
     }
 
-    public void Confirm(Event ev, Profile profile)
+    public void Confirm(Event ev, Profile? profile)
     {
-        if (ev == null)
-        {
-            throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
-        }
-
-        if (profile == null)
-        {
-            throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
-        }
-
-        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
-        if (profileEvent == null)
-        {
-            throw new KeyNotFoundException($"Event with ID {ev.Id} not found for the given profile.");
-        }
-
-        profileEvent.Confirmed = true;
-
-        try
-        {
-            db.SaveChanges();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Error confirming event for profile.", ex);
-        }
+        ChangeConfirmed(ev, profile, true);
     }
 
-    public void Decline(Event ev, Profile profile)
+    public void Decline(Event ev, Profile? profile)
     {
-        if (ev == null)
+        ChangeConfirmed(ev, profile, false);
+    }
+
+    private void ChangeConfirmed(Event ev, Profile? profile, bool confirmed){
+                if (ev == null)
         {
             throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
         }
@@ -178,10 +157,10 @@ public class EventService
         var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
         if (profileEvent == null)
         {
-            throw new KeyNotFoundException($"Event with ID {ev.Id} not found for the given profile.");
+            throw new KeyNotFoundException($"ProfileEvent with ID {ev.Id} not found for the given profile.");
         }
 
-        profileEvent.Confirmed = false;
+        profileEvent.Confirmed = confirmed;
 
         try
         {

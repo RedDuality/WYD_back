@@ -7,4 +7,5 @@ public class UserDto(User user)
     public int Id { get; set; } = user.Id;
     public string? Mail { get; set; } = user.MainMail;
     public string? UserName { get; set; } = user.UserName;
+    public string? Tag { get; set; } = user.Tag;
 }

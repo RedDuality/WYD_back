@@ -12,8 +12,7 @@ public class WydDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Profile> Profiles { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
-
-    public DbSet<Group> Communities { get; set; } = null!;
+    public DbSet<Community> Communities { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
 
     //joins

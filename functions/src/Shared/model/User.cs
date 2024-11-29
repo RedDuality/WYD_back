@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace Model;
 [Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not null
 public class User : BaseEntity
 {
-    public string Uid { get; set; } = Convert.ToBase64String(BitConverter.GetBytes(DateTime.Now.GetHashCode() * new Random().NextInt64()));
+    public string Uid { get; set; } = CreateHashCode();
     public string MainMail { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
@@ -35,5 +36,17 @@ public class User : BaseEntity
     public virtual HashSet<Group> Groups { get; set; } = [];
     [JsonIgnore]
     public virtual List<UserGroup> UserGroups { get; set; } = [];
+
+    private static string CreateHashCode()
+    {
+        byte[] randomBytes = new byte[16];
+        RandomNumberGenerator.Create().GetNonZeroBytes(randomBytes);
+        string result = Convert.ToBase64String(randomBytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .Replace("=", "");
+        return result;
+    }
+
 
 }

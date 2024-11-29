@@ -19,7 +19,7 @@ public class Profile : BaseEntity
     public ProfileType Type { get; set; } = ProfileType.Personal;
 
     [JsonIgnore]
-    public virtual List<User> Users { get; set; } = [];
+    public virtual HashSet<User> Users { get; set; } = [];
     [JsonIgnore]
     public virtual List<UserRole> UserRoles { get; set; } = [];
 

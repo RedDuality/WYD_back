@@ -11,12 +11,12 @@ namespace Functions
     {
         private readonly ILogger<Retrieve> _logger;
 
-        private readonly AuthService _authController;
+        private readonly AuthService _authService;
 
         public Retrieve(ILogger<Retrieve> logger, AuthService authService)
         {
             _logger = logger;
-            _authController = authService;
+            _authService = authService;
         }
 
         [Function("Retrieve")]
@@ -25,7 +25,7 @@ namespace Functions
             User user;
             try
             {
-                user = await _authController.VerifyRequestAsync(req);
+                user = await _authService.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 

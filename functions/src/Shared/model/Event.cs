@@ -14,7 +14,6 @@ public class Event : BaseEntity
     [ForeignKey("ParentId")]
     public virtual Event? Parent { get; set; } = null;
 
-
     public string Hash { get; set; } = CreateHashCode();
     public string? Title { get; set; }
     public string? Description { get; set; }

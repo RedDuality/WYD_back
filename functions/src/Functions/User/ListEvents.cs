@@ -32,6 +32,7 @@ namespace Functions
                 user = await _authController.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+            
             List<EventDto> eventi = await _userService.RetrieveEventsAsync(user);
             return new OkObjectResult(eventi);
         }
