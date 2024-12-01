@@ -52,7 +52,8 @@ namespace functions.Migrations
                     GeneralForCommunity = table.Column<bool>(type: "bit", nullable: false),
                     CommunityId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,13 +72,13 @@ namespace functions.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MainMail = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Tag = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MainProfileId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,14 +97,14 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ParentId = table.Column<int>(type: "int", nullable: true),
-                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     EndTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     GroupId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -289,6 +290,12 @@ namespace functions.Migrations
                 column: "CommunityId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Groups_Hash",
+                table: "Groups",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Profile_Event_ProfileId",
                 table: "Profile_Event",
                 column: "ProfileId");
@@ -312,6 +319,12 @@ namespace functions.Migrations
                 name: "IX_User_Role_UserId",
                 table: "User_Role",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Hash",
+                table: "Users",
+                column: "Hash",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_MainMail",

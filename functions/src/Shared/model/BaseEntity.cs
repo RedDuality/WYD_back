@@ -8,7 +8,7 @@ public class BaseEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     [JsonIgnore]
-    public DateTime CreatedAt { get; set; }
+    public virtual DateTime CreatedAt { get; set; }
     [JsonIgnore]
-    public DateTime UpdatedAt { get; set; }
+    public virtual DateTime UpdatedAt { get; set; }
 }

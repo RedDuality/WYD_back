@@ -10,8 +10,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
 
-
-
 namespace Functions
 {
     public class CreateCommunity
@@ -21,7 +19,7 @@ namespace Functions
         private readonly AuthService _authService;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public CreateCommunity(ILogger<CreateCommunity> logger, AuthService authService, CommunityService communityService, UserService userService, JsonSerializerOptions jsonSerializerOptions)
+        public CreateCommunity(ILogger<CreateCommunity> logger, AuthService authService, CommunityService communityService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _authService = authService;
@@ -40,18 +38,19 @@ namespace Functions
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
             string requestBody;
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            using (StreamReader reader = new(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            var communityDto = JsonSerializer.Deserialize<CreateCommunityDto>(requestBody, _jsonSerializerOptions);
+            var createCommunityDto = JsonSerializer.Deserialize<CreateCommunityDto>(requestBody, _jsonSerializerOptions);
 
 
-            if (communityDto != null)
+            if (createCommunityDto != null)
             {
-                communityDto.Users.Add(new UserDto(user));
-                var newCommunity = _communityService.Create(communityDto);
-                return new OkObjectResult(newCommunity);
+                createCommunityDto.Users.Add(new UserDto(user));
+                var community = _communityService.Create(createCommunityDto);
+
+                return new OkObjectResult(new CommunityDto(community, user.Id));
             }
             return new BadRequestObjectResult("Bad Json Formatting");
 

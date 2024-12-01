@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    partial class WydDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241201161756_IntGroupColor")]
+    partial class IntGroupColor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,8 +297,8 @@ namespace functions.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<long>("Color")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Color")
+                        .HasColumnType("int");
 
                     b.Property<bool>("Trusted")
                         .HasColumnType("bit");

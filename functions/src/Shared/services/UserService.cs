@@ -52,7 +52,9 @@ public class UserService
             // Create a new user
             var user = new User
             {
-                MainMail = Email
+                MainMail = Email,
+                UserName = Email,
+                Tag = Email
             };
             db.Users.Add(user);
             db.SaveChanges();

@@ -1,20 +1,15 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using Dto;
-using Microsoft.EntityFrameworkCore;
 
 namespace Model;
 
 [Table("Events")]
-[Index(nameof(Hash), IsUnique = true)]
-public class Event : BaseEntity
+public class Event : BaseHashEntity
 {
     [ForeignKey("ParentId")]
     public virtual Event? Parent { get; set; } = null;
-
-    public string Hash { get; set; } = CreateHashCode();
     public string? Title { get; set; }
     public string? Description { get; set; }
     required public DateTimeOffset StartTime { get; set; }
@@ -28,16 +23,7 @@ public class Event : BaseEntity
     public virtual ICollection<ProfileEvent> ProfileEvents { get; set; } = [];
 
 
-    private static string CreateHashCode()
-    {
-        byte[] randomBytes = new byte[16];
-        RandomNumberGenerator.Create().GetNonZeroBytes(randomBytes);
-        string result = Convert.ToBase64String(randomBytes)
-            .Replace('+', '-')
-            .Replace('/', '_') 
-            .Replace("=", "");
-        return result;
-    }
+
     
     static public Event FromDto(EventDto dto)
     {

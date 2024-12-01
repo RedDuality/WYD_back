@@ -10,5 +10,5 @@ public class UserGroup
     [ForeignKey("GroupId")]
     public required virtual Group Group {get; set;}
     public required bool Trusted { get; set; } = false; 
-    public required string Color { get; set; }
+    public required long Color { get; set; } = 4278190080;//black
 }

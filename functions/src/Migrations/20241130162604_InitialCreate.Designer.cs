@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20241126163130_InitialCreate")]
+    [Migration("20241130162604_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -157,6 +157,10 @@ namespace functions.Migrations
                     b.Property<bool>("GeneralForCommunity")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -167,6 +171,9 @@ namespace functions.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CommunityId");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
 
                     b.ToTable("Groups");
                 });
@@ -228,6 +235,10 @@ namespace functions.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("MainMail")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -239,10 +250,6 @@ namespace functions.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Uid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -251,6 +258,9 @@ namespace functions.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
 
                     b.HasIndex("MainMail")
                         .IsUnique();

@@ -1,7 +1,6 @@
 using Model;
 using Database;
 using Dto;
-using Microsoft.EntityFrameworkCore;
 
 namespace Controller;
 public class CommunityService
@@ -13,12 +12,12 @@ public class CommunityService
         db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
     }
 
-    public CommunityDto Retrieve(int communityId)
+    public CommunityDto Retrieve(int communityId, int userId)
     {
         try
         {
             // Retrieve community by Id
-            return new CommunityDto(db.Communities.Single(c => c.Id == communityId));
+            return new CommunityDto(db.Communities.Single(c => c.Id == communityId), userId);
         }
         catch (InvalidOperationException ex)
         {
@@ -27,7 +26,7 @@ public class CommunityService
         }
     }
 
-    public CommunityDto Create(CreateCommunityDto dto)
+    public Community Create(CreateCommunityDto dto)
     {
         if (dto == null)
         {
@@ -37,6 +36,7 @@ public class CommunityService
         using var transaction = db.Database.BeginTransaction();
         try
         {
+            dto.Id = 0;
             Community newCommunity = Community.FromCreateDto(dto);
 
             var userIds = dto.Users.Select(u => u.Id).ToList();
@@ -48,7 +48,8 @@ public class CommunityService
             db.SaveChanges();
 
 
-            Group group = new Group{
+            Group group = new Group
+            {
                 Name = dto.Name ?? "General",
                 GeneralForCommunity = true,
                 Community = newCommunity,
@@ -61,7 +62,7 @@ public class CommunityService
 
             transaction.Commit();
 
-            return new CommunityDto(newCommunity);
+            return newCommunity;
         }
         catch (Exception ex)
         {

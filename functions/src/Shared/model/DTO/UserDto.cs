@@ -2,10 +2,20 @@ using Model;
 
 namespace Dto;
 
-public class UserDto(User user)
+public class UserDto
 {
-    public int Id { get; set; } = user.Id;
-    public string? Mail { get; set; } = user.MainMail;
-    public string? UserName { get; set; } = user.UserName;
-    public string? Tag { get; set; } = user.Tag;
+    public int Id { get; set; }
+    public string? UserName { get; set; }
+    public string? Tag { get; set; }
+    public int MainProfileId {get; set;}
+
+    public UserDto(User user){
+        Id = user.Id;
+        UserName = user.UserName;
+        Tag = user.Tag;
+        MainProfileId = user.MainProfileId ?? 0;
+    }
+    public UserDto (){
+
+    }
 }

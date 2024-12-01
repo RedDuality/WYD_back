@@ -8,5 +8,5 @@ public class UserGroupDto(UserGroup ug)
 {
     public UserDto User { get; set; } = new UserDto(ug.User);
     public bool Trusted { get; set; } = ug.Trusted; 
-    public string Color { get; set; } = ug.Color;
+    public long Color { get; set; } = ug.Color;
 }

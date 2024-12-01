@@ -5,17 +5,30 @@ using Model;
 namespace Dto;
 
 
-public class GroupDto(Group group)
+public class GroupDto
 {
-    public int Id { get; set; } = group.Id;
-    public string Hash { get; set; } = group.Hash;
-
-    public string Name { get; set; } = group.Name;
-
-    public bool GeneralForCommunity { get; set; } = group.GeneralForCommunity;
-
-    public List<UserGroupDto> UserGroups { get; set; } = group.UserGroups.Select((ug) => new UserGroupDto(ug)).ToList();
-
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Hash { get; set; }
+    public long Color {get; set; } = 4278190080; //black
+    public bool Trusted {get; set; } = false;
+    public bool GeneralForCommunity { get; set; }
+    public HashSet<UserDto> Users {get; set; } 
 
 
+    public GroupDto(Group group, int currentUserId)
+    {
+        Id = group.Id;
+        Name = group.Name;
+        Hash = group.Hash;
+        GeneralForCommunity = group.GeneralForCommunity;
+        Users = group.UserGroups.Select((ug) => new UserDto(ug.User)).ToHashSet();
+
+        var userGroup = group.UserGroups.FirstOrDefault(ug => ug.User.Id == currentUserId);
+        if (userGroup != null)
+        {
+            Color = userGroup.Color;
+            Trusted = userGroup.Trusted;
+        }
+    }
 }

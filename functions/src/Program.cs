@@ -34,6 +34,7 @@ var host = new HostBuilder()
         services.AddTransient<UserService>();
         services.AddTransient<ProfileService>();
         services.AddTransient<UtilService>();
+        services.AddTransient<CommunityService>();
 
         services.AddSingleton(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     })
