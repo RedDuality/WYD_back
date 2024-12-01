@@ -2,7 +2,7 @@ using Model;
 using Database;
 using Dto;
 
-namespace Controller;
+namespace Service;
 public class CommunityService
 {
     private readonly WydDbContext db;
@@ -41,14 +41,16 @@ public class CommunityService
 
             var userIds = dto.Users.Select(u => u.Id).ToList();
             HashSet<User> users = db.Users.Where(u => userIds.Contains(u.Id)).ToHashSet();
-
+            if(users.Count < 2){
+                throw new Exception("Users must be at least 2");
+            }
             newCommunity.Users = users;
 
             db.Communities.Add(newCommunity);
             db.SaveChanges();
 
 
-            Group group = new Group
+            Group group = new()
             {
                 Name = dto.Name ?? "General",
                 GeneralForCommunity = true,

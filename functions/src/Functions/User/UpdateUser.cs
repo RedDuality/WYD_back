@@ -2,7 +2,7 @@
 
 using System.Text;
 using System.Text.Json;
-using Controller;
+using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

@@ -6,7 +6,7 @@ using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using System.Text;
 
-namespace Controller;
+namespace Service;
 public class AuthService
 {
 

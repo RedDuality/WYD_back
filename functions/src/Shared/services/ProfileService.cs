@@ -2,7 +2,7 @@ using Model;
 using Database;
 using Dto;
 
-namespace Controller;
+namespace Service;
 public class ProfileService
 {
 

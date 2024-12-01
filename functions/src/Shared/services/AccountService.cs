@@ -2,7 +2,7 @@ using Model;
 using Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Controller;
+namespace Service;
 public class AccountService
 {
 

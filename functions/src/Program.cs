@@ -1,7 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Controller;
+using Service;
 using Database;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;

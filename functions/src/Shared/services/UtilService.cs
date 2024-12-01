@@ -1,7 +1,7 @@
 
 using Database;
 
-namespace Controller;
+namespace Service;
 public class UtilService
 {
 
