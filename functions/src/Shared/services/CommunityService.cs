@@ -16,32 +16,11 @@ public class CommunityService
         this.userService = userService;
     }
 
-    public Community Retrieve(int communityId)
+    public Community? Retrieve(int id)
     {
-        try
-        {
-            return db.Communities.Single(c => c.Id == communityId);
-        }
-        catch (InvalidOperationException ex)
-        {
-
-            throw new KeyNotFoundException($"Community with ID {communityId} not found.", ex);
-        }
+        return db.Communities.Find(id);
     }
-    /*
-        public CommunityDto Retrieve(int communityId, int userId)
-        {
-            try
-            {
-                // Retrieve community by Id
-                return new CommunityDto(db.Communities.Single(c => c.Id == communityId), userId);
-            }
-            catch (InvalidOperationException ex)
-            {
 
-                throw new KeyNotFoundException($"Community with ID {communityId} not found.", ex);
-            }
-        }*/
 
     public Community Create(CreateCommunityDto dto, User user)
     {
@@ -115,7 +94,7 @@ public class CommunityService
 
     public Community CreateAndAddNewGroup(Community community, GroupDto dto, User user)
     {
-
+        //TODO check users are already in the commmunity
         Group group = new()
         {
             Name = dto.Name ?? "New Group",

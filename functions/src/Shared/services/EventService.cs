@@ -1,16 +1,14 @@
 using Model;
 using Database;
 using Dto;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Service;
-public class EventService
+public class EventService(WydDbContext context, GroupService groupService)
 {
-    private readonly WydDbContext db;
+    private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
 
-    public EventService(WydDbContext context)
-    {
-        db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
-    }
+    private readonly GroupService groupService = groupService ?? throw new ArgumentNullException(nameof(context), "GroupService cannot be null");
 
     public Event? Retrieve(int eventId)
     {
@@ -27,55 +25,48 @@ public class EventService
         return db.Events.FirstOrDefault(e => e.Hash == eventHash);
     }
 
-    public EventDto Create(EventDto dto, Profile profile)
+    public Event Create(EventDto dto, Profile profile)
     {
-        if (dto == null)
-        {
-            throw new ArgumentNullException(nameof(dto), "Event cannot be null.");
-        }
+        if (dto == null) throw new ArgumentNullException(nameof(dto), "Event cannot be null.");        
 
-        if (profile == null)
-        {
-            throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
-        }
+        if (profile == null) throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
 
-        using (var transaction = db.Database.BeginTransaction())
+
+        using var transaction = db.Database.BeginTransaction();
+        try
         {
-            try
+            // Clear Id to force an insert (if necessary)
+            dto.Id = 0;
+            Event newEvent = Event.FromDto(dto);
+            // Add the event to the database
+            db.Events.Add(newEvent);
+            db.SaveChanges();
+
+
+            // Add the profile to the event
+            newEvent.Profiles.Add(profile);
+
+            db.SaveChanges();
+            if (dto.ProfileEvents.Count != 0)
             {
-                // Clear Id to force an insert (if necessary)
-                dto.Id = 0;
-                Event newEvent = Event.FromDto(dto);
-                // Add the event to the database
-                db.Events.Add(newEvent);
-                db.SaveChanges();
-
-
-                // Add the profile to the event
-                newEvent.Profiles.Add(profile);
-
-                db.SaveChanges();
-                if (dto.ProfileEvents.Count != 0)
+                bool confirmed = dto.ProfileEvents.First().Confirmed;
+                if (confirmed)
                 {
-                    bool confirmed = dto.ProfileEvents.First().Confirmed;
-                    if (!confirmed)
-                    {
-                        newEvent.ProfileEvents.First().Confirmed = false;
-                        db.SaveChanges();
-                    }
+                    newEvent.ProfileEvents.First().Confirmed = true;
+                    db.SaveChanges();
                 }
-
-                // Commit transaction if everything is successful
-                transaction.Commit();
-
-                return new EventDto(newEvent);
             }
-            catch (Exception ex)
-            {
-                // If anything goes wrong, rollback the transaction
-                transaction.Rollback();
-                throw new InvalidOperationException("Error creating event. Transaction rolled back.", ex);
-            }
+
+            // Commit transaction if everything is successful
+            transaction.Commit();
+
+            return newEvent;
+        }
+        catch (Exception ex)
+        {
+            // If anything goes wrong, rollback the transaction
+            transaction.Rollback();
+            throw new InvalidOperationException("Error creating event. Transaction rolled back.", ex);
         }
     }
 
@@ -100,9 +91,22 @@ public class EventService
 
     }
 
+    internal Event ShareToGroups(int eventId, HashSet<int> groupIds)
+    {
+        Event ev = Retrieve(eventId) ?? throw new KeyNotFoundException("Event not found");
+
+        var groups = groupService.Retrieve(groupIds).ToList();
+        var users = groups.SelectMany(g => g.Users).Distinct().ToList();
+        var profiles = users.Where(u => u.MainProfile != null).Select(u => u.MainProfile).ToList();
+
+        if(profiles.IsNullOrEmpty()) throw new Exception("No User to add this event to!");
+        
+        return Share(ev, profiles!);
+    }
+
     public Event Share(int eventId, List<Profile> profiles)
     {
-        if (profiles == null || profiles.Count == 0)
+        if (profiles.IsNullOrEmpty())
         {
             throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
         }
@@ -110,6 +114,11 @@ public class EventService
         Event ev = Retrieve(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
 
         // Add the profiles to the event
+        return Share(ev, profiles);
+    }
+
+    private Event Share(Event ev, ICollection<Profile> profiles)
+    {
         ev.Profiles.UnionWith(profiles);
 
         try
@@ -154,6 +163,8 @@ public class EventService
             throw new InvalidOperationException("Error confirming or declining event for profile.", ex);
         }
     }
+
+
 
 
     /*

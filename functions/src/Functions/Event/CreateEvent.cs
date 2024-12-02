@@ -50,7 +50,7 @@ namespace Functions
             if (myevent != null)
             {
                 var newevent = _eventService.Create(myevent, user.MainProfile!);
-                return new OkObjectResult(newevent);
+                return new OkObjectResult(new EventDto(newevent));
             }
             return new BadRequestObjectResult("Bad Json Formatting");
 

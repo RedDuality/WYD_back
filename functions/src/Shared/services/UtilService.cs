@@ -8,22 +8,10 @@ using FirebaseAdmin.Auth;
 using Model;
 
 namespace Service;
-public class UtilService
+public class UtilService(UserService userService, CommunityService communityService)
 {
-
-    WydDbContext db;
-    AuthService authService;
-    UserService userService;
-    CommunityService communityService;
-
-    public UtilService(WydDbContext context, AuthService authService, UserService userService, CommunityService communityService)
-    {
-        db = context;
-
-        this.authService = authService;
-        this.userService = userService;
-        this.communityService = communityService;
-    }
+    readonly UserService userService = userService;
+    readonly CommunityService communityService = communityService;
 
     public async Task<bool> InitDb()
     {
@@ -46,7 +34,7 @@ public class UtilService
             {
                 Name = "Secondary Group",
                 GeneralForCommunity = false,
-                Users = [userDtos[0], userDtos[1], userDtos[2]]
+                Users = [userDtos[0], userDtos[1], userDtos[3]]
             };
 
             communityService.CreateAndAddNewGroup(multipleCommunities[1], group, users[0]);

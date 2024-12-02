@@ -8,19 +8,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
+using Microsoft.IdentityModel.Tokens;
+using Dto;
 
 
 namespace Functions
 {
-    public class ShareEvent
+    public class ShareToGroups
     {
-        private readonly ILogger<ShareEvent> _logger;
+        private readonly ILogger<ShareToGroups> _logger;
         private readonly EventService _eventController;
         private readonly AuthService _authController;
         private readonly ProfileService _profileService;
-
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-        public ShareEvent(ILogger<ShareEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
+        public ShareToGroups(ILogger<ShareToGroups> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
         {
             _logger = logger;
             _eventController = eventService;
@@ -29,13 +30,15 @@ namespace Functions
             _jsonSerializerOptions = jsonSerializerOptions;
         }
 
-        [Function("ShareEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Community/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        [Function("ShareToGroups")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Groups/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
-            try{
+            try
+            {
                 user = await _authController.VerifyRequestAsync(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            }
+            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
             int id;
             try
@@ -48,20 +51,18 @@ namespace Functions
             }
 
             string requestBody;
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            using (StreamReader reader = new(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-            
-            var profileIdList = JsonSerializer.Deserialize<List<int>>(requestBody, _jsonSerializerOptions); 
+            var groupIds = JsonSerializer.Deserialize<HashSet<int>>(requestBody, _jsonSerializerOptions);
+            if (groupIds.IsNullOrEmpty()) return new BadRequestObjectResult("Bad Json Formatting");
 
-            if (profileIdList != null)
-            {
-                 List<Profile> profiles = _profileService.GetProfiles(profileIdList);
-                var newevent = _eventController.Share(id, profiles);
-                return new OkObjectResult(newevent);
-            }
-            return new BadRequestObjectResult("Bad Json Formatting");
+
+            var newevent = _eventController.ShareToGroups(id, groupIds!);
+            return new OkObjectResult(new EventDto(newevent));
+
+
 
         }
     }
