@@ -89,7 +89,7 @@ public class AuthService
     }
 
 
-    public async Task<User?> VerifyRequestAsync(HttpRequest req)
+    public async Task<User> VerifyRequestAsync(HttpRequest req)
     {
 
         var authorization = req.Headers.Authorization;

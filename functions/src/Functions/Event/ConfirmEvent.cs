@@ -26,9 +26,11 @@ namespace Functions
         public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
             User user;
-            try{
+            try
+            {
                 user = await _authController.VerifyRequestAsync(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            }
+            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
             int id;
             try
@@ -39,17 +41,19 @@ namespace Functions
             {
                 return new BadRequestObjectResult("Id Format wrong");
             }
-            
-            Event ev;
-            try {
-                ev = _eventService.Retrieve(id);
-            } catch (Exception e) {
-                return new NotFoundObjectResult(e.ToString());
-            }
-            
-            _eventService.Confirm(ev, user.MainProfile);
-            return new OkObjectResult("");
 
+            Event? ev = _eventService.Retrieve(id);
+            if (ev == null)
+                return new NotFoundObjectResult("");
+            try
+            {
+                _eventService.Confirm(ev, user.MainProfile);
+                return new OkObjectResult("");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
         }
     }
 }

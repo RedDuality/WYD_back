@@ -33,15 +33,11 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            try
-            {
-                User user = _userController.Retrieve(userId);
+
+            User? user = _userController.Retrieve(userId);
+            if (user != null)
                 return new OkObjectResult(user);
-            }
-            catch (InvalidOperationException)
-            {
-                return new NotFoundObjectResult("User not found");
-            }
+            return new NotFoundObjectResult("User not found");
 
         }
     }

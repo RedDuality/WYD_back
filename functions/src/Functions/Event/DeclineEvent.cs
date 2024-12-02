@@ -44,19 +44,19 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            Event ev;
+            Event? ev = _eventService.Retrieve(id);
+            if (ev == null)
+                return new NotFoundObjectResult("");
+
             try
             {
-                ev = _eventService.Retrieve(id);
+                _eventService.Decline(ev, user.MainProfile);
+                return new OkObjectResult("");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return new NotFoundObjectResult(e.ToString());
+                return new BadRequestObjectResult(ex.Message);
             }
-
-            _eventService.Decline(ev, user.MainProfile);
-            return new OkObjectResult("");
-
 
         }
     }

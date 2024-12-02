@@ -125,15 +125,15 @@ public class EventService
 
     public void Confirm(Event ev, Profile? profile)
     {
-        ChangeConfirmed(ev, profile, true);
+        ChangeConfirmStatus(ev, profile, true);
     }
 
     public void Decline(Event ev, Profile? profile)
     {
-        ChangeConfirmed(ev, profile, false);
+        ChangeConfirmStatus(ev, profile, false);
     }
 
-    private void ChangeConfirmed(Event ev, Profile? profile, bool confirmed)
+    private void ChangeConfirmStatus(Event ev, Profile? profile, bool confirmed)
     {
         if (ev == null) throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
 
