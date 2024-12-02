@@ -7,13 +7,13 @@ namespace Dto;
 
 public class GroupDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Hash { get; set; }
+    public int? Id { get; set; }
+    public string? Name { get; set; }
+    public string? Hash { get; set; }
     public long Color {get; set; } = 4278190080; //black
-    public bool Trusted {get; set; } = false;
-    public bool GeneralForCommunity { get; set; }
-    public HashSet<UserDto> Users {get; set; } 
+    public bool? Trusted {get; set; } = false;
+    public bool? GeneralForCommunity { get; set; }
+    public HashSet<UserDto> Users {get; set; } =  [];
 
 
     public GroupDto(Group group, int currentUserId)
@@ -30,5 +30,8 @@ public class GroupDto
             Color = userGroup.Color;
             Trusted = userGroup.Trusted;
         }
+    }
+
+    public GroupDto(){
     }
 }

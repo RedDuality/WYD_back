@@ -8,7 +8,7 @@ namespace Model;
 
 [Table("Users")]
 [Index(nameof(MainMail), IsUnique = true)]
-[Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not null
+[Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not empty
 public class User : BaseHashEntity
 {
     public string MainMail { get; set; } = string.Empty;

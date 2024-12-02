@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace functions.Migrations
 {
     [DbContext(typeof(WydDbContext))]
-    [Migration("20241130162604_InitialCreate")]
+    [Migration("20241201203848_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -297,9 +297,8 @@ namespace functions.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("Color")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("Trusted")
                         .HasColumnType("bit");

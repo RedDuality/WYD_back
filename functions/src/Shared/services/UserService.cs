@@ -1,6 +1,7 @@
 using Model;
 using Database;
 using Dto;
+using FirebaseAdmin.Auth;
 
 namespace Service;
 public class UserService
@@ -16,35 +17,35 @@ public class UserService
         _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
     }
 
-    public User Get(int id)
+    public User? Retrieve(int id)
     {
-        try
-        {
-            return db.Users.Single(u => u.Id == id);
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new KeyNotFoundException($"User with ID {id} not found.", ex);
-        }
+        return db.Users.Find(id);
     }
 
-    public User Get(string uid)
+    public async Task<User> GetOrCreateAsync(string uid)
     {
-        try
-        {
-            var account = db.Accounts.Single(a => a.Uid == uid);
-            if (account.User == null)
-                throw new InvalidOperationException("No User linked to this account.");
+        Account? account = _accountService.Retrieve(uid);
 
-            return account.User;
-        }
-        catch (InvalidOperationException ex)
+        if (account == null) //registration
         {
-            throw new KeyNotFoundException($"Account with UID {uid} not found or user is not linked.", ex);
+            UserRecord UR = await AuthService.RetrieveFirebaseUser(uid);
+            return Create(UR.Email, UR.Uid);
         }
+        return account.User;
     }
 
-    public User Create(string Email, string Uid)
+    public HashSet<User> GetUsers(ICollection<UserDto> userDtos)
+    {
+        var userIds = userDtos.Select(u => u.Id).ToList();
+        return GetUsers(userIds);
+    }
+
+    public HashSet<User> GetUsers(ICollection<int> userIds)
+    {
+        return db.Users.Where(u => userIds.Contains(u.Id)).ToHashSet();
+    }
+
+    private User Create(string Email, string Uid)
     {
         using var transaction = db.Database.BeginTransaction();
         try

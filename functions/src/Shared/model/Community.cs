@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Dto;
+using Service;
 
 namespace Model;
 
@@ -26,12 +27,4 @@ public class Community : BaseEntity
     [JsonIgnore]
     public virtual ICollection<Group> Groups { get; set; } = [];
 
-    static public Community FromCreateDto(CreateCommunityDto dto)
-    {
-        return new Community
-        {
-            Name = dto.Name ?? "",
-            Type = dto.Type ?? CommunityType.Personal,
-        };
-    }
 }

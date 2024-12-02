@@ -7,26 +7,43 @@ public class CommunityService
 {
     private readonly WydDbContext db;
 
-    public CommunityService(WydDbContext context)
+    private readonly UserService userService;
+
+    public CommunityService(WydDbContext context, UserService userService)
     {
         db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
+
+        this.userService = userService;
     }
 
-    public CommunityDto Retrieve(int communityId, int userId)
+    public Community Retrieve(int communityId)
     {
         try
         {
-            // Retrieve community by Id
-            return new CommunityDto(db.Communities.Single(c => c.Id == communityId), userId);
+            return db.Communities.Single(c => c.Id == communityId);
         }
         catch (InvalidOperationException ex)
         {
 
-            throw new KeyNotFoundException($"Event with ID {communityId} not found.", ex);
+            throw new KeyNotFoundException($"Community with ID {communityId} not found.", ex);
         }
     }
+    /*
+        public CommunityDto Retrieve(int communityId, int userId)
+        {
+            try
+            {
+                // Retrieve community by Id
+                return new CommunityDto(db.Communities.Single(c => c.Id == communityId), userId);
+            }
+            catch (InvalidOperationException ex)
+            {
 
-    public Community Create(CreateCommunityDto dto)
+                throw new KeyNotFoundException($"Community with ID {communityId} not found.", ex);
+            }
+        }*/
+
+    public Community Create(CreateCommunityDto dto, User user)
     {
         if (dto == null)
         {
@@ -36,31 +53,21 @@ public class CommunityService
         using var transaction = db.Database.BeginTransaction();
         try
         {
-            dto.Id = 0;
-            Community newCommunity = Community.FromCreateDto(dto);
 
-            var userIds = dto.Users.Select(u => u.Id).ToList();
-            HashSet<User> users = db.Users.Where(u => userIds.Contains(u.Id)).ToHashSet();
-            if(users.Count < 2){
-                throw new Exception("Users must be at least 2");
-            }
-            newCommunity.Users = users;
+            Community newCommunity = FromDto(dto, user);
 
             db.Communities.Add(newCommunity);
             db.SaveChanges();
 
-
             Group group = new()
             {
-                Name = dto.Name ?? "General",
+                Name = "General",
                 GeneralForCommunity = true,
                 Community = newCommunity,
-                Users = users,
+                Users = newCommunity.Users,
             };
 
-            db.Groups.Add(group);
-
-            db.SaveChanges();
+            AddNewGroup(newCommunity, group);
 
             transaction.Commit();
 
@@ -68,10 +75,66 @@ public class CommunityService
         }
         catch (Exception ex)
         {
-            // If anything goes wrong, rollback the transaction
             transaction.Rollback();
             throw new InvalidOperationException("Error creating community. Transaction rolled back.", ex);
         }
+    }
+
+    private Community FromDto(CreateCommunityDto dto, User user)
+    {
+        Community community = new();
+
+        var users = GetUsers(dto.Users, user);
+
+        if (dto.Type == CommunityType.Personal && users.Count != 2)
+            throw new Exception("Users must be at least 2");
+
+        if (users.Count <= 0) throw new Exception("Users list must not be empty");
+
+        community.Type = dto.Type;
+        community.Name = dto.Name ?? "My Community";
+        community.Users = users;
+
+        return community;
+    }
+
+    private HashSet<User> GetUsers(ICollection<UserDto> userDtos, User user)
+    {
+        HashSet<User> users = userService.GetUsers(userDtos);
+        users.Add(user);
+        return users;
+    }
+
+    private Community AddNewGroup(Community community, Group group)
+    {
+        community.Groups.Add(group);
+        db.SaveChanges();
+
+        return community;
+    }
+
+    public Community CreateAndAddNewGroup(Community community, GroupDto dto, User user)
+    {
+
+        Group group = new()
+        {
+            Name = dto.Name ?? "New Group",
+            GeneralForCommunity = false,
+            Community = community,
+            Users = GetUsers(dto.Users, user),
+        };
+
+        return AddNewGroup(community, group);
+    }
+
+    public Community MakeMultiGroup(Community community)
+    {
+        if (community.Type == CommunityType.Personal)
+            throw new Exception("Cannot transform this chat into a community");
+
+        community.Type = CommunityType.Community;
+        db.SaveChanges();
+        return community;
     }
 
 }

@@ -12,18 +12,9 @@ public class EventService
         db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
     }
 
-    public Event Retrieve(int eventId)
+    public Event? Retrieve(int eventId)
     {
-        try
-        {
-            // Retrieve event by Id
-            return db.Events.Single(e => e.Id == eventId);
-        }
-        catch (InvalidOperationException ex)
-        {
-            // If no event is found or multiple events are found, throw a custom exception
-            throw new KeyNotFoundException($"Event with ID {eventId} not found.", ex);
-        }
+        return db.Events.Find(eventId);
     }
 
     public Event? RetrieveFromHash(string eventHash)
@@ -97,7 +88,7 @@ public class EventService
 
         try
         {
-            Event eventToUpdate = Retrieve(dto.Id);
+            Event eventToUpdate = Retrieve(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
             eventToUpdate.Update(dto);
             db.SaveChanges();
             return eventToUpdate;
@@ -108,7 +99,7 @@ public class EventService
         }
 
     }
-    
+
     public Event Share(int eventId, List<Profile> profiles)
     {
         if (profiles == null || profiles.Count == 0)
@@ -116,8 +107,7 @@ public class EventService
             throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
         }
 
-        // Retrieve event and check if it exists
-        var ev = Retrieve(eventId);
+        Event ev = Retrieve(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
 
         // Add the profiles to the event
         ev.Profiles.UnionWith(profiles);
@@ -143,22 +133,15 @@ public class EventService
         ChangeConfirmed(ev, profile, false);
     }
 
-    private void ChangeConfirmed(Event ev, Profile? profile, bool confirmed){
-                if (ev == null)
-        {
-            throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
-        }
+    private void ChangeConfirmed(Event ev, Profile? profile, bool confirmed)
+    {
+        if (ev == null) throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
 
-        if (profile == null)
-        {
-            throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
-        }
 
-        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id);
-        if (profileEvent == null)
-        {
-            throw new KeyNotFoundException($"ProfileEvent with ID {ev.Id} not found for the given profile.");
-        }
+        if (profile == null) throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
+
+
+        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id) ?? throw new KeyNotFoundException($"ProfileEvent with ID {ev.Id} not found for the given profile.");
 
         profileEvent.Confirmed = confirmed;
 
@@ -168,7 +151,7 @@ public class EventService
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Error declining event for profile.", ex);
+            throw new InvalidOperationException("Error confirming or declining event for profile.", ex);
         }
     }
 

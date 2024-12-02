@@ -47,8 +47,7 @@ namespace Functions
 
             if (createCommunityDto != null)
             {
-                createCommunityDto.Users.Add(new UserDto(user));
-                var community = _communityService.Create(createCommunityDto);
+                var community = _communityService.Create(createCommunityDto, user);
 
                 return new OkObjectResult(new CommunityDto(community, user.Id));
             }

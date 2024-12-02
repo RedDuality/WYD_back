@@ -35,7 +35,7 @@ namespace Functions
 
             try
             {
-                User user = _userController.Get(userId);
+                User user = _userController.Retrieve(userId);
                 return new OkObjectResult(user);
             }
             catch (InvalidOperationException)

@@ -43,8 +43,21 @@ public class AuthService
 
     public static async Task<UserRecord> RetrieveFirebaseUser(string uid)
     {
-        UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-        return userRecord;
+        try
+        {
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+            return userRecord;
+        }
+        catch (Exception)
+        {
+            throw new SecurityTokenValidationException("No Firebase user found");
+        }
+
+    }
+
+    public static async Task<UserRecord> CreateUserAsync(UserRecordArgs userRecordArgs)
+    {
+        return await FirebaseAuth.DefaultInstance.CreateUserAsync(userRecordArgs);
     }
 
     private static async Task<string> CheckFirebaseTokenAsync(string token)
@@ -54,9 +67,15 @@ public class AuthService
         return uid;
     }
 
+    public static async Task<UserRecord> RetrieveFirebaseUserFromMail(string mail)
+    {
+        return await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(mail);
+    }
+
+
     public async Task<User> VerifyTokenAsync(string token)
     {
-        String uid = "";
+        string uid;
         try
         {
             uid = await CheckFirebaseTokenAsync(token);
@@ -66,30 +85,11 @@ public class AuthService
             throw new SecurityTokenValidationException("Invalid Token");
         }
 
-        Account? account = _accountService.Get(uid);
-        
-        if (account == null) //registration
-        {
-            UserRecord? UR = null;
-            try
-            {
-                UR = await RetrieveFirebaseUser(uid);
-            }
-            catch (Exception)
-            {
-                throw new SecurityTokenValidationException("No Firebase user found");
-            }
-            return _userService.Create(UR.Email, UR.Uid);
-        }
-
-        if (account.User != null) //login
-            return account.User;
-        else //should prolly create a new user without too many questions
-            throw new Exception("No user linked to the account");
+        return await _userService.GetOrCreateAsync(uid);
     }
 
 
-    public async Task<User> VerifyRequestAsync(HttpRequest req)
+    public async Task<User?> VerifyRequestAsync(HttpRequest req)
     {
 
         var authorization = req.Headers.Authorization;
@@ -104,11 +104,12 @@ public class AuthService
         try
         {
             string uid = await CheckFirebaseTokenAsync(token);
-            return _userService.Get(uid);
+            return await _userService.GetOrCreateAsync(uid);
         }
         catch (Exception)
         {
             throw new SecurityTokenValidationException("Invalid Token");
         }
     }
+
 }

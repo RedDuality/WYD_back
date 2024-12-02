@@ -13,9 +13,9 @@ public class ProfileService
         db = wydDbContext;
     }
 
-    public Profile Get(int id)
+    public Profile? Get(int id)
     {
-        return db.Profiles.Single(p => p.Id == id);
+        return db.Profiles.Find(id);
 
     }
 

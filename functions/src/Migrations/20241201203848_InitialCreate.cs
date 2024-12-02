@@ -174,7 +174,7 @@ namespace functions.Migrations
                     GroupId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Trusted = table.Column<bool>(type: "bit", nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Color = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
