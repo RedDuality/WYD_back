@@ -4,9 +4,9 @@ using Model;
 namespace Dto;
 
 
-public class UserGroupDto(UserGroup ug)
+public class UserGroupDto(ProfileGroup ug)
 {
-    public UserDto User { get; set; } = new UserDto(ug.User);
+    public Profile Profile { get; set; } = ug.Profile;
     public bool Trusted { get; set; } = ug.Trusted; 
     public long Color { get; set; } = ug.Color;
 }

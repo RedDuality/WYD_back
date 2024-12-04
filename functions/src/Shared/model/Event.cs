@@ -22,9 +22,8 @@ public class Event : BaseHashEntity
     [JsonIgnore]
     public virtual ICollection<ProfileEvent> ProfileEvents { get; set; } = [];
 
+    public virtual ICollection<Image> Photos { get; set; } = [];
 
-
-    
     static public Event FromDto(EventDto dto)
     {
         return new Event

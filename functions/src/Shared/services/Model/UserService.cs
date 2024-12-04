@@ -4,20 +4,13 @@ using Dto;
 using FirebaseAdmin.Auth;
 
 namespace Service;
-public class UserService
+public class UserService(WydDbContext context, AccountService accountService, ProfileService profileService)
 {
-    private readonly WydDbContext db;
-    private readonly AccountService _accountService;
-    private readonly ProfileService _profileService;
+    private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null.");
+    private readonly AccountService _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService), "Account service cannot be null.");
+    private readonly ProfileService _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
 
-    public UserService(WydDbContext context, AccountService accountService, ProfileService profileService)
-    {
-        db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null.");
-        _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService), "Account service cannot be null.");
-        _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
-    }
-
-    public User? Retrieve(int id)
+    public User? RetrieveOrNull(int id)
     {
         return db.Users.Find(id);
     }
@@ -28,21 +21,10 @@ public class UserService
 
         if (account == null) //registration
         {
-            UserRecord UR = await AuthService.RetrieveFirebaseUser(uid);
+            UserRecord UR = await AuthenticationService.RetrieveFirebaseUser(uid);
             return Create(UR.Email, UR.Uid);
         }
         return account.User;
-    }
-
-    public HashSet<User> GetUsers(ICollection<UserDto> userDtos)
-    {
-        var userIds = userDtos.Select(u => u.Id).ToList();
-        return GetUsers(userIds);
-    }
-
-    public HashSet<User> GetUsers(ICollection<int> userIds)
-    {
-        return db.Users.Where(u => userIds.Contains(u.Id)).ToHashSet();
     }
 
     private User Create(string Email, string Uid)
@@ -51,12 +33,7 @@ public class UserService
         try
         {
             // Create a new user
-            var user = new User
-            {
-                MainMail = Email,
-                UserName = Email,
-                Tag = Email
-            };
+            var user = new User();
             db.Users.Add(user);
             db.SaveChanges();
 
@@ -71,8 +48,12 @@ public class UserService
             _accountService.Create(account);
 
             // Create associated profile
-            var profile = new Profile();
-            user.MainProfile = profile;
+            var profile = new Profile()
+            {
+                Name = Email,
+                Tag = Email
+            };
+
             AddProfile(user, profile);
 
             transaction.Commit();
@@ -94,6 +75,7 @@ public class UserService
         try
         {
             _profileService.Create(profile);
+            user.MainProfile = profile;
             user.Profiles.Add(profile);
             db.SaveChanges();
             return user;
@@ -104,28 +86,8 @@ public class UserService
         }
     }
 
-    public User Update(User existingUser, User updatedUser)
+    public static async Task<List<EventDto>> RetrieveEventsAsync(User user)
     {
-        if (existingUser == null) throw new ArgumentNullException(nameof(existingUser), "Existing user cannot be null.");
-        if (updatedUser == null) throw new ArgumentNullException(nameof(updatedUser), "Updated user cannot be null.");
-
-        try
-        {
-            existingUser.UserName = updatedUser.UserName;
-            existingUser.MainMail = updatedUser.MainMail;
-            db.SaveChanges();
-            return existingUser;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Error updating user.", ex);
-        }
-    }
-
-    public async Task<List<EventDto>> RetrieveEventsAsync(User user)
-    {
-        if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null.");
-
         var tasks = user.Profiles.Select(async profile =>
         {
             try
@@ -148,15 +110,6 @@ public class UserService
 
         var results = await Task.WhenAll(tasks);
         return results.SelectMany(result => result).ToList();
-    }
-
-    public List<UserDto> SearchByTag(string searchTag)
-    {
-        return db.Users
-                 .Where(u => u.Tag.StartsWith(searchTag))
-                 .Take(5)
-                 .Select(u => new UserDto(u))
-                 .ToList();
     }
 
     public void SetProfileRole(User user, Profile profile, Role role)

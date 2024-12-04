@@ -29,7 +29,7 @@ public class AccountServiceTest
         var service = new AccountService(dbContext);
 
         // Act
-        var result = service.Retrieve(newAccount.Entity.Id);
+        var result = service.RetrieveOrNull(newAccount.Entity.Id);
 
         // Assert
         Assert.NotNull(result);

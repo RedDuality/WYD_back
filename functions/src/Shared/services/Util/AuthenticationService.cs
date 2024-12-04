@@ -7,17 +7,18 @@ using Google.Apis.Auth.OAuth2;
 using System.Text;
 
 namespace Service;
-public class AuthService
+public class AuthenticationService
 {
 
     private readonly UserService _userService;
-    private readonly AccountService _accountService;
 
-    public AuthService(UserService userService, AccountService accountService)
+    public AuthenticationService(UserService userService)
     {
         _userService = userService;
-        _accountService = accountService;
+    }
 
+    private static FirebaseAuth GetInstance()
+    {
         if (FirebaseApp.DefaultInstance == null)
         {
             var googleCredentialsJson = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIALS");
@@ -39,13 +40,14 @@ public class AuthService
                 ProjectId = "wydaccounts",
             });
         }
+        return FirebaseAuth.DefaultInstance;
     }
 
     public static async Task<UserRecord> RetrieveFirebaseUser(string uid)
     {
         try
         {
-            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+            UserRecord userRecord = await GetInstance().GetUserAsync(uid);
             return userRecord;
         }
         catch (Exception)
@@ -57,19 +59,19 @@ public class AuthService
 
     public static async Task<UserRecord> CreateUserAsync(UserRecordArgs userRecordArgs)
     {
-        return await FirebaseAuth.DefaultInstance.CreateUserAsync(userRecordArgs);
+        return await GetInstance().CreateUserAsync(userRecordArgs);
     }
 
     private static async Task<string> CheckFirebaseTokenAsync(string token)
     {
-        FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+        FirebaseToken decodedToken = await GetInstance().VerifyIdTokenAsync(token);
         string uid = decodedToken.Uid;
         return uid;
     }
 
     public static async Task<UserRecord> RetrieveFirebaseUserFromMail(string mail)
     {
-        return await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(mail);
+        return await GetInstance().GetUserByEmailAsync(mail);
     }
 
 

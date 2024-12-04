@@ -10,7 +10,7 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     private readonly GroupService groupService = groupService ?? throw new ArgumentNullException(nameof(context), "GroupService cannot be null");
 
-    public Event? Retrieve(int eventId)
+    public Event? RetrieveOrNull(int eventId)
     {
         return db.Events.Find(eventId);
     }
@@ -27,7 +27,7 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     public Event Create(EventDto dto, Profile profile)
     {
-        if (dto == null) throw new ArgumentNullException(nameof(dto), "Event cannot be null.");        
+        if (dto == null) throw new ArgumentNullException(nameof(dto), "Event cannot be null.");
 
         if (profile == null) throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
 
@@ -79,7 +79,7 @@ public class EventService(WydDbContext context, GroupService groupService)
 
         try
         {
-            Event eventToUpdate = Retrieve(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
+            Event eventToUpdate = RetrieveOrNull(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
             eventToUpdate.Update(dto);
             db.SaveChanges();
             return eventToUpdate;
@@ -93,14 +93,13 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     internal Event ShareToGroups(int eventId, HashSet<int> groupIds)
     {
-        Event ev = Retrieve(eventId) ?? throw new KeyNotFoundException("Event not found");
+        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException("Event not found");
 
         var groups = groupService.Retrieve(groupIds).ToList();
-        var users = groups.SelectMany(g => g.Users).Distinct().ToList();
-        var profiles = users.Where(u => u.MainProfile != null).Select(u => u.MainProfile).ToList();
+        var profiles = groups.SelectMany(g => g.Profiles).Distinct().ToList();
 
-        if(profiles.IsNullOrEmpty()) throw new Exception("No User to add this event to!");
-        
+        if (profiles.IsNullOrEmpty()) throw new Exception("No Profile to add this event to!");
+
         return Share(ev, profiles!);
     }
 
@@ -111,7 +110,7 @@ public class EventService(WydDbContext context, GroupService groupService)
             throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
         }
 
-        Event ev = Retrieve(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
+        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
 
         // Add the profiles to the event
         return Share(ev, profiles);
@@ -165,6 +164,18 @@ public class EventService(WydDbContext context, GroupService groupService)
     }
 
 
+    public async Task AddImageAsync(int eventId)
+    {
+        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
+        Image newImage = new();
+        db.Images.Add(newImage);
+        db.SaveChanges();
+
+        string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../Images", "test.jpg");
+        byte[] imageBytesJpg = await File.ReadAllBytesAsync(imagePath);
+
+        await ImageService.UploadImageAsync(ev.Hash, newImage.Hash, imageBytesJpg);
+    }
 
 
     /*

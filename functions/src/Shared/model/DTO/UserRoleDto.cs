@@ -5,22 +5,11 @@ namespace Dto;
 
 
 
-public class UserRoleDto
+public class UserRoleDto(UserRole ur)
 {
 
-    public int Id;
-    public Profile? Profile {get; set;}
-       
-    public Role Role { get; set; }
+    public int Id = ur.Id;
+    public Profile Profile { get; set; } = ur.Profile;
+    public Role Role { get; set; } = ur.Role;
 
-    
-    //public DateTime? StartsAt {get; set;}
-    
-    //public DateTime? EndsAt {get; set;}
-    public UserRoleDto(UserRole ur)
-    {
-        Id = ur.Id;
-        Profile = ur.Profile;
-        Role = ur.Role;
-    }
 }

@@ -18,10 +18,10 @@ namespace Functions
     {
         private readonly ILogger<ShareToGroups> _logger;
         private readonly EventService _eventController;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
         private readonly ProfileService _profileService;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-        public ShareToGroups(ILogger<ShareToGroups> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
+        public ShareToGroups(ILogger<ShareToGroups> logger, EventService eventService, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
         {
             _logger = logger;
             _eventController = eventService;

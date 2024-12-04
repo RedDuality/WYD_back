@@ -13,15 +13,19 @@ public class AccountService
         db = wydDbContext;
     }
 
-    public Account? Retrieve(int id)
+    public Account? RetrieveOrNull(int id)
     {
         return db.Accounts.Find(id);
     }
     public Account? Retrieve(string uid)
-    {   try{
-        return db.Accounts.SingleOrDefault(a => a.Uid == uid);
-        } catch (InvalidOperationException e) {
-            throw new Exception("More than one account with the given Uid is present", e);
+    {
+        try
+        {
+            return db.Accounts.SingleOrDefault(a => a.Uid == uid);
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new Exception("More than one account with the given Uid is present" + e.Message);
         }
     }
 

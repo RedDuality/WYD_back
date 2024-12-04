@@ -1,7 +1,4 @@
 
-
-using System.Text;
-using System.Text.Json;
 using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
@@ -12,47 +9,34 @@ using Model;
 
 namespace Functions
 {
-    public class CreateCommunity
+    public class CreateCommunity(ILogger<CreateCommunity> logger, RequestService requestService, AuthorizationService authorizationService, CommunityService communityService, ProfileService profileService)
     {
-        private readonly ILogger<CreateCommunity> _logger;
-        private readonly CommunityService _communityService;
-        private readonly AuthService _authService;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly ILogger<CreateCommunity> _logger = logger;
+        private readonly CommunityService _communityService = communityService;
+        private readonly AuthorizationService _authorizationService = authorizationService;
+        private readonly RequestService _requestService = requestService;
+        private readonly ProfileService _ProfileService = profileService;
 
-        public CreateCommunity(ILogger<CreateCommunity> logger, AuthService authService, CommunityService communityService, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _logger = logger;
-            _authService = authService;
-            _communityService = communityService;
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
 
         [Function("CreateCommunity")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create/{ProfileId}")] HttpRequest req, string ProfileId, FunctionContext executionContext)
         {
-            User user;
             try
             {
-                user = await _authService.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 
-            string requestBody;
-            using (StreamReader reader = new(req.Body, Encoding.UTF8))
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, int.Parse(ProfileId), "CREATE_COMMUNITY");
+
+                var createCommunityDto = await _requestService.DeserializeRequestBodyAsync<CreateCommunityDto>(req);
+            
+                var community = _communityService.Create(createCommunityDto, currentProfile);
+
+                return new OkObjectResult(new CommunityDto(community, currentProfile));
+
+            }
+            catch (Exception ex)
             {
-                requestBody = await reader.ReadToEndAsync();
+                return RequestService.GetErrorResult(ex);
             }
-            var createCommunityDto = JsonSerializer.Deserialize<CreateCommunityDto>(requestBody, _jsonSerializerOptions);
-
-
-            if (createCommunityDto != null)
-            {
-                var community = _communityService.Create(createCommunityDto, user);
-
-                return new OkObjectResult(new CommunityDto(community, user.Id));
-            }
-            return new BadRequestObjectResult("Bad Json Formatting");
-
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Functions
             }
 
 
-            User? user = _userController.Retrieve(userId);
+            User? user = _userController.RetrieveOrNull(userId);
             if (user != null)
                 return new OkObjectResult(user);
             return new NotFoundObjectResult("User not found");

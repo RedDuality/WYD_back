@@ -16,13 +16,13 @@ public enum CommunityType
 public class Community : BaseEntity
 {
     public string Name { get; set; } = "";
-
+    public string? ImageHash { get; set; }
     public CommunityType Type { get; set; } = CommunityType.Personal;
 
     [JsonIgnore]
-    public virtual HashSet<User> Users { get; set; } = [];
+    public virtual HashSet<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
-    public virtual List<UserCommunity> UserCommunities { get; set; } = [];
+    public virtual List<ProfileCommunity> UserCommunities { get; set; } = [];
 
     [JsonIgnore]
     public virtual ICollection<Group> Groups { get; set; } = [];

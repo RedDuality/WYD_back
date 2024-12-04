@@ -17,9 +17,9 @@ namespace Functions
     {
         private readonly ILogger<DeleteEventForAll> _logger;
         private readonly EventService _eventController;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
 
-        public DeleteEventForAll(ILogger<DeleteEventForAll> logger, EventService eventService, AuthService authService)
+        public DeleteEventForAll(ILogger<DeleteEventForAll> logger, EventService eventService, AuthenticationService authService)
         {
             _logger = logger;
             _eventController = eventService;

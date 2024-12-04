@@ -2,37 +2,41 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 
 namespace Database;
-public class WydDbContext : DbContext
+public class WydDbContext(DbContextOptions<WydDbContext> options) : DbContext(options)
 {
-
-    public WydDbContext(DbContextOptions<WydDbContext> options) : base(options) { }
 
     //Main Entity
     public DbSet<Account> Accounts { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Profile> Profiles { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
+    public DbSet<Image> Images { get; set; } = null!;
     public DbSet<Community> Communities { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
 
     //joins
     public DbSet<UserRole> UserRoles { get; set; } = null!;
-    public DbSet<UserCommunity> UserCommunities { get; set; } = null!;
-    public DbSet<UserGroup> UserGroups { get; set; } = null!;
+    public DbSet<ProfileCommunity> UserCommunities { get; set; } = null!;
+    public DbSet<ProfileGroup> UserGroups { get; set; } = null!;
     public DbSet<ProfileEvent> ProfileEvents { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //modelBuilder.Entity<User>().HasMany(u => u.Accounts);
-        modelBuilder.Entity<User>().HasIndex(u => u.Tag).IsUnique().HasFilter("Tag <> ''");
+
         modelBuilder.Entity<User>().HasOne(u => u.MainProfile);
         modelBuilder.Entity<User>().HasMany(u => u.Profiles).WithMany(p => p.Users).UsingEntity<UserRole>();
-        modelBuilder.Entity<User>().HasMany(u => u.Communities).WithMany(c => c.Users).UsingEntity<UserCommunity>();
-        modelBuilder.Entity<User>().HasMany(u => u.Groups).WithMany(g => g.Users).UsingEntity<UserGroup>();
 
-        modelBuilder.Entity<Community>().HasMany(c => c.Groups). WithOne( g => g.Community);
-
+        modelBuilder.Entity<Profile>().HasIndex(u => u.Tag).IsUnique().HasFilter("Tag <> ''");
         modelBuilder.Entity<Profile>().HasMany(p => p.Events).WithMany(e => e.Profiles).UsingEntity<ProfileEvent>();
+        modelBuilder.Entity<Profile>().HasMany(u => u.Communities).WithMany(c => c.Profiles).UsingEntity<ProfileCommunity>();
+        modelBuilder.Entity<Profile>().HasMany(u => u.Groups).WithMany(g => g.Profiles).UsingEntity<ProfileGroup>();
+
+        modelBuilder.Entity<Event>().HasMany(e => e.Photos);
+
+        modelBuilder.Entity<Community>().HasMany(c => c.Groups).WithOne(g => g.Community);
+
+
 
     }
 

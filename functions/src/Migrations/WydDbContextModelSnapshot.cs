@@ -47,7 +47,7 @@ namespace functions.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -73,6 +73,9 @@ namespace functions.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -111,7 +114,7 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -128,9 +131,6 @@ namespace functions.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("Hash")
-                        .IsUnique();
 
                     b.HasIndex("ParentId");
 
@@ -156,7 +156,10 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -169,10 +172,32 @@ namespace functions.Migrations
 
                     b.HasIndex("CommunityId");
 
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Model.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
                     b.HasIndex("Hash")
                         .IsUnique();
 
-                    b.ToTable("Groups");
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Model.Profile", b =>
@@ -186,6 +211,25 @@ namespace functions.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tag")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -194,7 +238,26 @@ namespace functions.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Tag")
+                        .IsUnique()
+                        .HasFilter("Tag <> ''");
+
                     b.ToTable("Profiles");
+                });
+
+            modelBuilder.Entity("Model.ProfileCommunity", b =>
+                {
+                    b.Property<int>("CommunityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommunityId", "ProfileId");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("Profile_Community");
                 });
 
             modelBuilder.Entity("Model.ProfileEvent", b =>
@@ -221,6 +284,27 @@ namespace functions.Migrations
                     b.ToTable("Profile_Event");
                 });
 
+            modelBuilder.Entity("Model.ProfileGroup", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("Color")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Trusted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("GroupId", "ProfileId");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("Profile_Group");
+                });
+
             modelBuilder.Entity("Model.User", b =>
                 {
                     b.Property<int>("Id")
@@ -234,77 +318,19 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("MainMail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("MainProfileId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Tag")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Hash")
-                        .IsUnique();
-
-                    b.HasIndex("MainMail")
-                        .IsUnique();
 
                     b.HasIndex("MainProfileId");
 
-                    b.HasIndex("Tag")
-                        .IsUnique()
-                        .HasFilter("Tag <> ''");
-
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Model.UserCommunity", b =>
-                {
-                    b.Property<int>("CommunityId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommunityId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("User_Community");
-                });
-
-            modelBuilder.Entity("Model.UserGroup", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("Color")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("Trusted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("GroupId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("User_Group");
                 });
 
             modelBuilder.Entity("Model.UserRole", b =>
@@ -349,7 +375,9 @@ namespace functions.Migrations
                 {
                     b.HasOne("Model.User", "User")
                         .WithMany("Accounts")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -380,6 +408,32 @@ namespace functions.Migrations
                     b.Navigation("Community");
                 });
 
+            modelBuilder.Entity("Model.Image", b =>
+                {
+                    b.HasOne("Model.Event", null)
+                        .WithMany("Photos")
+                        .HasForeignKey("EventId");
+                });
+
+            modelBuilder.Entity("Model.ProfileCommunity", b =>
+                {
+                    b.HasOne("Model.Community", "Community")
+                        .WithMany("UserCommunities")
+                        .HasForeignKey("CommunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.Profile", "Profile")
+                        .WithMany("UserCommunities")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Community");
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("Model.ProfileEvent", b =>
                 {
                     b.HasOne("Model.Event", "Event")
@@ -399,6 +453,25 @@ namespace functions.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("Model.ProfileGroup", b =>
+                {
+                    b.HasOne("Model.Group", "Group")
+                        .WithMany("ProfileGroups")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.Profile", "Profile")
+                        .WithMany("UserGroups")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("Model.User", b =>
                 {
                     b.HasOne("Model.Profile", "MainProfile")
@@ -406,44 +479,6 @@ namespace functions.Migrations
                         .HasForeignKey("MainProfileId");
 
                     b.Navigation("MainProfile");
-                });
-
-            modelBuilder.Entity("Model.UserCommunity", b =>
-                {
-                    b.HasOne("Model.Community", "Community")
-                        .WithMany("UserCommunities")
-                        .HasForeignKey("CommunityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Model.User", "User")
-                        .WithMany("UserCommunities")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Community");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Model.UserGroup", b =>
-                {
-                    b.HasOne("Model.Group", "Group")
-                        .WithMany("UserGroups")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Model.User", "User")
-                        .WithMany("UserGroups")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Model.UserRole", b =>
@@ -474,17 +509,23 @@ namespace functions.Migrations
 
             modelBuilder.Entity("Model.Event", b =>
                 {
+                    b.Navigation("Photos");
+
                     b.Navigation("ProfileEvents");
                 });
 
             modelBuilder.Entity("Model.Group", b =>
                 {
-                    b.Navigation("UserGroups");
+                    b.Navigation("ProfileGroups");
                 });
 
             modelBuilder.Entity("Model.Profile", b =>
                 {
                     b.Navigation("ProfileEvents");
+
+                    b.Navigation("UserCommunities");
+
+                    b.Navigation("UserGroups");
 
                     b.Navigation("UserRoles");
                 });
@@ -492,10 +533,6 @@ namespace functions.Migrations
             modelBuilder.Entity("Model.User", b =>
                 {
                     b.Navigation("Accounts");
-
-                    b.Navigation("UserCommunities");
-
-                    b.Navigation("UserGroups");
 
                     b.Navigation("UserRoles");
                 });

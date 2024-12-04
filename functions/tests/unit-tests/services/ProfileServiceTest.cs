@@ -28,7 +28,7 @@ public class ProfileServiceTest
         var service = new ProfileService(dbContext);
 
         // Act
-        var result = service.Get(1);
+        var result = service.RetrieveOrNull(1);
 
         // Assert
         Assert.NotNull(result);
@@ -53,29 +53,7 @@ public class ProfileServiceTest
         var createdProfile = dbContext.Profiles.Find(2);
         Assert.NotNull(createdProfile);
     }
-
-    [Fact]
-    public void GetProfiles_ByIds_ReturnsMatchingProfiles()
-    {
-        // Arrange
-        var dbContext = GetInMemoryDbContext();
-        dbContext.Profiles.AddRange(
-            new Profile { Id = 1 },
-            new Profile { Id = 2 },
-            new Profile { Id = 3 }
-        );
-        dbContext.SaveChanges();
-
-        var service = new ProfileService(dbContext);
-
-        // Act
-        var result = service.GetProfiles(new List<int> { 1, 3 });
-
-        // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, p => p.Id == 1);
-        Assert.Contains(result, p => p.Id == 3);
-    }
+    
     [Fact]
     public void RetrieveEvents_ReturnsEventDtosForProfile()
     {

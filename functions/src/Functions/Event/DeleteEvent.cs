@@ -18,9 +18,9 @@ namespace Functions
         private readonly ILogger<DeleteEvent> _logger;
         private readonly EventService _eventController;
 
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
 
-        public DeleteEvent(ILogger<DeleteEvent> logger, EventService eventService, AuthService authService)
+        public DeleteEvent(ILogger<DeleteEvent> logger, EventService eventService, AuthenticationService authService)
         {
             _logger = logger;
             _eventController = eventService;

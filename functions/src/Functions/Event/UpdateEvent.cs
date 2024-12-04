@@ -18,10 +18,10 @@ namespace Functions
     {
         private readonly ILogger<UpdateEvent> _logger;
         private readonly EventService _eventService;
-        private readonly AuthService _authService;
+        private readonly AuthenticationService _authService;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
+        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _eventService = eventService;

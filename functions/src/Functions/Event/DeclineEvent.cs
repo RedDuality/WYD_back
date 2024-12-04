@@ -15,9 +15,9 @@ namespace Functions
     {
         private readonly ILogger<DeclineEvent> _logger;
         private readonly EventService _eventService;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
 
-        public DeclineEvent(ILogger<DeclineEvent> logger, EventService eventService, AuthService authService)
+        public DeclineEvent(ILogger<DeclineEvent> logger, EventService eventService, AuthenticationService authService)
         {
             _logger = logger;
             _eventService = eventService;
@@ -44,7 +44,7 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            Event? ev = _eventService.Retrieve(id);
+            Event? ev = _eventService.RetrieveOrNull(id);
             if (ev == null)
                 return new NotFoundObjectResult("");
 

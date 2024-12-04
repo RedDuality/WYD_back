@@ -1,20 +1,17 @@
 
+
 using System.Security.Cryptography;
-using Microsoft.EntityFrameworkCore;
 
-[Index(nameof(Hash), IsUnique = true)]
-public class BaseHashEntity : BaseEntity
+namespace Service;
+public class HashService()
 {
-
-    public string Hash { get; set; } = CreateHashCode();
-
-    private static string CreateHashCode()
+    internal static string CreateHashCode()
     {
         byte[] randomBytes = new byte[16];
         RandomNumberGenerator.Create().GetNonZeroBytes(randomBytes);
         string result = Convert.ToBase64String(randomBytes)
             .Replace('+', '-')
-            .Replace('/', '_') 
+            .Replace("/", "")
             .Replace("=", "");
         return result;
     }

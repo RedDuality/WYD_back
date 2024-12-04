@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Model;
 
-[Table("User_Group")]
-public class UserGroup
+[Table("Profile_Group")]
+public class ProfileGroup
 {
-    [ForeignKey("UserId")]
-    public required virtual User User {get; set;}
+    [ForeignKey("ProfileId")]
+    public required virtual Profile Profile {get; set;}
     [ForeignKey("GroupId")]
     public required virtual Group Group {get; set;}
     public required bool Trusted { get; set; } = false; 

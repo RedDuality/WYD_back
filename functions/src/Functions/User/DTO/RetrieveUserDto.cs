@@ -2,32 +2,13 @@ using Model;
 
 namespace Dto;
 
-public class RetrieveUserDto
+public class RetrieveUserDto(User user)
 {
-    public int Id { get; set; }
-    public string? Hash {get; set;}
-    public string? Tag { get; set; } = string.Empty;
-    public string? MainMail { get; set; }
-    public string? UserName { get; set; }
+    public int Id { get; set; } = user.Id;
+    public string? Hash { get; set; } = user.Hash;
+    public int MainProfileId { get; set; } = user.MainProfile!.Id;
 
-    public int MainProfileId { get; set; }
-
-    public List<AccountDto> Accounts { get; set; } = [];
-    public List<UserRoleDto> UserRoles { get; set; } = [];
-
-    public List<CommunityDto> Communities {get; set;} = [];
-
-    public RetrieveUserDto(User user)
-    {
-        Id = user.Id;
-        Hash = user.Hash;
-        MainMail = user.MainMail;
-        UserName = user.UserName;
-        Tag = user.Tag;
-        Accounts = user.Accounts.Select(account => new AccountDto(account)).ToList();
-        UserRoles = user.UserRoles.Select(ur => new UserRoleDto(ur)).ToList();
-        MainProfileId = user.MainProfile!.Id;
-        Communities = user.Communities.Select(c => new CommunityDto(c, user.Id)).ToList();
-    }
-
+    public List<AccountDto> Accounts { get; set; } = user.Accounts.Select(account => new AccountDto(account)).ToList();
+    public List<UserRoleDto> UserRoles { get; set; } = user.UserRoles.Select(ur => new UserRoleDto(ur)).ToList();
+    
 }

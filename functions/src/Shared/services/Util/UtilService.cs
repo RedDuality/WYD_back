@@ -1,52 +1,87 @@
 
-
-using System.Collections;
-using System.Runtime.CompilerServices;
-using Database;
 using Dto;
 using FirebaseAdmin.Auth;
 using Model;
 
 namespace Service;
-public class UtilService(UserService userService, CommunityService communityService)
+public class UtilService(AuthenticationService authService, UserService userService, EventService eventService, CommunityService communityService)
 {
+
+    readonly AuthenticationService authService = authService;
     readonly UserService userService = userService;
+    readonly EventService eventService = eventService;
     readonly CommunityService communityService = communityService;
 
     public async Task<bool> InitDb()
     {
+
         List<string> mails = ["prova", "prova1", "prova2", "prova3"];
 
         List<User> users = await CreateUsersAsync(mails);
-        List<UserDto> userDtos = users.Select(user => new UserDto(user)).ToList();
+        List<Profile> profiles = users.Select(user => user.MainProfile!).ToList();
 
-        List<Tuple<CreateCommunityDto, User>> normalPairs = GeneratePersonalAndSingleGroupCommunities(users, userDtos);
-        List<Tuple<CreateCommunityDto, User>> multiplePairs = GenerateMultipleGroupCommunities(users, userDtos);
+        GenerateCommunities(profiles);
+
+        GenerateEvents(profiles);
+
+        return true;
+    }
+
+    private void GenerateEvents(List<Profile> profiles)
+    {
+        List<Tuple<EventDto, Profile>> events = GenerateEventDtos(profiles);
+        events.Select(e =>
+            eventService.Create(e.Item1, e.Item2)
+        ).ToList();
+    }
+
+    private static List<Tuple<EventDto, Profile>> GenerateEventDtos(List<Profile> profiles)
+    {
+        List<Tuple<EventDto, Profile>> result = [];
+        DateTime now = DateTime.Now;
+        result.Add(
+            new Tuple<EventDto, Profile>(
+                new EventDto
+                {
+                    Title = "Evento prova",
+                    StartTime = now,
+                    EndTime = now.AddHours(1),
+                },
+                profiles[0]
+            )
+        );
+
+        return result;
+    }
+
+    private void GenerateCommunities(List<Profile> profiles)
+    {
+        List<Tuple<CreateCommunityDto, Profile>> normalPairs = GeneratePersonalAndSingleGroupCommunities(profiles);
+        List<Tuple<CreateCommunityDto, Profile>> multiplePairs = GenerateMultipleGroupCommunities(profiles);
 
         List<Community> normalCommunities = normalPairs.Select(pair => communityService.Create(pair.Item1, pair.Item2)).ToList();
         List<Community> multipleCommunities = multiplePairs.Select(pair => communityService.Create(pair.Item1, pair.Item2)).ToList();
 
         try
         {
-            multipleCommunities.ForEach(c => communityService.MakeMultiGroup(c));
+            multipleCommunities.Select(communityService.MakeMultiGroup).ToList();
 
             GroupDto group = new()
             {
                 Name = "Secondary Group",
                 GeneralForCommunity = false,
-                Users = [userDtos[0], userDtos[1], userDtos[3]]
+                Profiles = [profiles[0], profiles[1], profiles[3]]
             };
 
-            communityService.CreateAndAddNewGroup(multipleCommunities[1], group, users[0]);
+            communityService.CreateAndAddGroup(multipleCommunities[1], group, profiles[0]);
 
-            return true;
         }
         catch (Exception ex)
         {
             throw new InvalidOperationException("Error initializing database entities.", ex);
         }
     }
-
+    
     private async Task<List<User>> CreateUsersAsync(ICollection<string> mails)
     {
         List<User> users = [];
@@ -73,161 +108,164 @@ public class UtilService(UserService userService, CommunityService communityServ
     private static async Task<string> CreateOrRetrieveFirebaseUserUidWithEmailAndPassword(string email, string password)
     {
 
-        UserRecordArgs userRecordArgs = new()
-        {
-            Email = email,
-            EmailVerified = false,
-            Password = password,
-            DisplayName = "WydUser",
-            Disabled = false,
-        };
 
-        UserRecord userRecord;
         try
         {
-            userRecord = await AuthService.CreateUserAsync(userRecordArgs);
+            UserRecordArgs userRecordArgs = new()
+            {
+                Email = email,
+                EmailVerified = false,
+                Password = password,
+                DisplayName = "WydUser",
+                Disabled = false,
+            };
+            UserRecord userRecord = await AuthenticationService.CreateUserAsync(userRecordArgs);
+            return userRecord.Uid;
         }
         catch (Exception ex)
         {
             if (ex.Message.Contains("EMAIL_EXISTS"))
-                userRecord = await AuthService.RetrieveFirebaseUserFromMail(email);
+            {
+                UserRecord userRecord = await AuthenticationService.RetrieveFirebaseUserFromMail(email);
+                return userRecord.Uid;
+            }
             else
                 throw new Exception("Error creating Firebase user: " + ex.Message);
         }
-        return userRecord.Uid;
+
     }
 
-    private static List<Tuple<CreateCommunityDto, User>> GeneratePersonalAndSingleGroupCommunities(List<User> users, List<UserDto> userDtos)
+    private static List<Tuple<CreateCommunityDto, Profile>> GeneratePersonalAndSingleGroupCommunities(List<Profile> profiles)
     {
-        List<Tuple<CreateCommunityDto, User>> pairs = [];
+        List<Tuple<CreateCommunityDto, Profile>> pairs = [];
 
         // Personal Community
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Personal Community 1 2",
                     Type = CommunityType.Personal,
-                    Users = [userDtos[0], userDtos[1]]
+                    Profiles = [profiles[0], profiles[1]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Personal Community 1 3",
                     Type = CommunityType.Personal,
-                    Users = [userDtos[0], userDtos[2]]
+                    Profiles = [profiles[0], profiles[2]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Personal Community 1 4",
                     Type = CommunityType.Personal,
-                    Users = [userDtos[0], userDtos[3]]
+                    Profiles = [profiles[0], profiles[3]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Personal Community 2 4",
                     Type = CommunityType.Personal,
-                    Users = [userDtos[1], userDtos[3]]
+                    Profiles = [profiles[1], profiles[3]]
                 },
-                users[3]
+                profiles[3]
             )
         );
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Personal Community 3 4",
                     Type = CommunityType.Personal,
-                    Users = [userDtos[2], userDtos[3]]
+                    Profiles = [profiles[2], profiles[3]]
                 },
-                users[3]
+                profiles[3]
             )
         );
 
         // Single Group Community
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Single Group 1_2",
                     Type = CommunityType.SingleGroup,
-                    Users = [userDtos[0], userDtos[1]]
+                    Profiles = [profiles[0], profiles[1]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
 
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "Single Group 1_2_3_4",
                     Type = CommunityType.SingleGroup,
-                    Users = [userDtos[0], userDtos[1], userDtos[2], userDtos[3]]
+                    Profiles = [profiles[0], profiles[1], profiles[2], profiles[3]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
         return pairs;
     }
 
-    private static List<Tuple<CreateCommunityDto, User>> GenerateMultipleGroupCommunities(List<User> users, List<UserDto> userDtos)
+    private static List<Tuple<CreateCommunityDto, Profile>> GenerateMultipleGroupCommunities(List<Profile> profiles)
     {
-        List<Tuple<CreateCommunityDto, User>> pairs = [];
+        List<Tuple<CreateCommunityDto, Profile>> pairs = [];
 
         // General Community
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "General Community",
                     Type = CommunityType.SingleGroup,
-                    Users = [userDtos[0], userDtos[1], userDtos[2]]
+                    Profiles = [profiles[0], profiles[1], profiles[2]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
         pairs.Add(
-            new Tuple<CreateCommunityDto, User>(
+            new Tuple<CreateCommunityDto, Profile>(
                 new CreateCommunityDto()
                 {
                     Id = 0,
                     Name = "General Community 1",
                     Type = CommunityType.SingleGroup,
-                    Users = [userDtos[0], userDtos[1], userDtos[2], userDtos[3]]
+                    Profiles = [profiles[0], profiles[1], profiles[2], profiles[3]]
                 },
-                users[0]
+                profiles[0]
             )
         );
 
