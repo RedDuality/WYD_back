@@ -16,32 +16,23 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions)
         {
             requestBody = await reader.ReadToEndAsync();
         }
-        return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException();
+        return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException("");
     }
 
 
 
     public static IActionResult GetErrorResult(Exception e)
     {
-        switch (e)
+        return e switch
         {
-            case UnauthorizedAccessException unauthorizedEx:
-                return new StatusCodeResult(StatusCodes.Status403Forbidden);
-                
-            case KeyNotFoundException keyNotFoundEx:
-                return new BadRequestObjectResult(keyNotFoundEx.Message+" with given Id not found");
-
-            case ArgumentNullException argumentNullException:
-                return new BadRequestObjectResult("Expected a value but none was given");
-
-            case FormatException formatEx:
-                return new BadRequestObjectResult("Id Format wrong");
-
-            case OverflowException overflowEx:
-                return new BadRequestObjectResult("Id Format wrong");
-
-            default:
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        }
+            UnauthorizedAccessException unauthorizedEx => new StatusCodeResult(StatusCodes.Status403Forbidden),
+            KeyNotFoundException keyNotFoundEx => new BadRequestObjectResult(keyNotFoundEx.Message + " with given Id not found"),
+            ArgumentNullException argumentNullException => new BadRequestObjectResult("Expected a value but none was given"),
+            FormatException formatEx => new BadRequestObjectResult("Id Format wrong"),
+            OverflowException overflowEx => new BadRequestObjectResult("Id Format wrong"),
+            ArgumentException argumentException => new BadRequestObjectResult(argumentException.Message),
+            JsonException jsonException => new BadRequestObjectResult(jsonException.Message),
+            _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
+        };
     }
 }

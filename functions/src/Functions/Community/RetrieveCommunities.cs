@@ -22,7 +22,7 @@ namespace Functions
         {
             try
             {
-                Profile currentProfile = await _authorizationService.VerifyRequest(req, int.Parse(ProfileId), "READ_COMMUNITY");
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.READ_COMMUNITY);
 
                 return new OkObjectResult(currentProfile.Communities.Select(c => new CommunityDto(c, currentProfile)).ToList());
             }

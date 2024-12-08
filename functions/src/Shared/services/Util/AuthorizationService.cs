@@ -19,19 +19,7 @@ public class AuthorizationService(AuthenticationService authService, ProfileServ
         }
     }
 
-    public async Task<User> VerifyRequest(HttpRequest req, string requestedPermit)
-    {
-        try
-        {
-            return await _authService.VerifyRequestAsync(req);
-        }
-        catch (Exception)
-        {
-            throw new UnauthorizedAccessException();
-        }
-    }
-
-    public async Task<Profile> VerifyRequest(HttpRequest req, int profileId, string role)
+    public async Task<Profile> VerifyRequest(HttpRequest req, UserPermissionOnProfile permissionOnProfile)
     {
         try
         {
@@ -41,6 +29,7 @@ public class AuthorizationService(AuthenticationService authService, ProfileServ
         {
             throw new UnauthorizedAccessException();
         }
-        return _profileService.Retrieve(profileId);
+        //TODO check roles
+        return _profileService.RetrieveFromHeaders(req);
     }
 }

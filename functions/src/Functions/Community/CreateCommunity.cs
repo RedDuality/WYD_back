@@ -19,12 +19,12 @@ namespace Functions
 
 
         [Function("CreateCommunity")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create/{ProfileId}")] HttpRequest req, string ProfileId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Community/Create")] HttpRequest req, FunctionContext executionContext)
         {
             try
             {
 
-                Profile currentProfile = await _authorizationService.VerifyRequest(req, int.Parse(ProfileId), "CREATE_COMMUNITY");
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_COMMUNITY);
 
                 var createCommunityDto = await _requestService.DeserializeRequestBodyAsync<CreateCommunityDto>(req);
             

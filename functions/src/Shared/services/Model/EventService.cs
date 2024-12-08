@@ -14,6 +14,10 @@ public class EventService(WydDbContext context, GroupService groupService)
     {
         return db.Events.Find(eventId);
     }
+    public Event Retrieve(int eventId)
+    {
+        return db.Events.Find(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
+    }
 
     public Event? RetrieveFromHash(string eventHash)
     {
@@ -25,49 +29,40 @@ public class EventService(WydDbContext context, GroupService groupService)
         return db.Events.FirstOrDefault(e => e.Hash == eventHash);
     }
 
-    public Event Create(EventDto dto, Profile profile)
+    private Event CreateNewAndSave(EventDto eventDto)
     {
-        if (dto == null) throw new ArgumentNullException(nameof(dto), "Event cannot be null.");
+        // Clear Id to force an insert (if necessary)
+        eventDto.Id = 0;
+        Event newEvent = Event.FromDto(eventDto);
+        // Add the event to the database
+        db.Events.Add(newEvent);
+        db.SaveChanges();
+        return newEvent;
+    }
 
-        if (profile == null) throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
-
-
+    public async Task<Event> Create(EventDto dto, Profile profile)
+    {
+        Event newEvent;
         using var transaction = db.Database.BeginTransaction();
         try
         {
-            // Clear Id to force an insert (if necessary)
-            dto.Id = 0;
-            Event newEvent = Event.FromDto(dto);
-            // Add the event to the database
-            db.Events.Add(newEvent);
-            db.SaveChanges();
+            newEvent = CreateNewAndSave(dto);
+            Share(newEvent, [profile]);//add profile to event
 
+            if (dto.ProfileEvents.Count != 0 && dto.ProfileEvents.First().Confirmed)
+                ConfirmOrDecline(newEvent, profile, true);
 
-            // Add the profile to the event
-            newEvent.Profiles.Add(profile);
-
-            db.SaveChanges();
-            if (dto.ProfileEvents.Count != 0)
-            {
-                bool confirmed = dto.ProfileEvents.First().Confirmed;
-                if (confirmed)
-                {
-                    newEvent.ProfileEvents.First().Confirmed = true;
-                    db.SaveChanges();
-                }
-            }
-
-            // Commit transaction if everything is successful
             transaction.Commit();
-
-            return newEvent;
         }
         catch (Exception ex)
         {
-            // If anything goes wrong, rollback the transaction
             transaction.Rollback();
             throw new InvalidOperationException("Error creating event. Transaction rolled back.", ex);
         }
+
+        await AddMultipleBlobs(newEvent, dto.NewBlobData);
+
+        return newEvent;
     }
 
     public Event UpdateField(EventDto dto)
@@ -96,27 +91,14 @@ public class EventService(WydDbContext context, GroupService groupService)
         Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException("Event not found");
 
         var groups = groupService.Retrieve(groupIds).ToList();
-        var profiles = groups.SelectMany(g => g.Profiles).Distinct().ToList();
+        var profiles = groups.SelectMany(g => g.Profiles).ToHashSet();
 
         if (profiles.IsNullOrEmpty()) throw new Exception("No Profile to add this event to!");
 
         return Share(ev, profiles!);
     }
 
-    public Event Share(int eventId, List<Profile> profiles)
-    {
-        if (profiles.IsNullOrEmpty())
-        {
-            throw new ArgumentException("Profiles list cannot be null or empty.", nameof(profiles));
-        }
-
-        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
-
-        // Add the profiles to the event
-        return Share(ev, profiles);
-    }
-
-    private Event Share(Event ev, ICollection<Profile> profiles)
+    public Event Share(Event ev, HashSet<Profile> profiles)
     {
         ev.Profiles.UnionWith(profiles);
 
@@ -131,26 +113,15 @@ public class EventService(WydDbContext context, GroupService groupService)
         }
     }
 
-    public void Confirm(Event ev, Profile? profile)
+    public void ConfirmOrDecline(int eventId, Profile profile, bool confirmed)
     {
-        ChangeConfirmStatus(ev, profile, true);
+        Event ev = Retrieve(eventId);
+        ConfirmOrDecline(ev, profile, confirmed);
     }
 
-    public void Decline(Event ev, Profile? profile)
+    public void ConfirmOrDecline(Event ev, Profile profile, bool confirmed)
     {
-        ChangeConfirmStatus(ev, profile, false);
-    }
-
-    private void ChangeConfirmStatus(Event ev, Profile? profile, bool confirmed)
-    {
-        if (ev == null) throw new ArgumentNullException(nameof(ev), "Event cannot be null.");
-
-
-        if (profile == null) throw new ArgumentNullException(nameof(profile), "Profile cannot be null.");
-
-
-        var profileEvent = profile.ProfileEvents.Find(pe => pe.Event.Id == ev.Id) ?? throw new KeyNotFoundException($"ProfileEvent with ID {ev.Id} not found for the given profile.");
-
+        var profileEvent = ev.ProfileEvents.Find(pe => pe.Profile.Id == profile.Id) ?? throw new KeyNotFoundException($"ProfileEvent with Profile ID {profile.Id} not found for the given profile.");
         profileEvent.Confirmed = confirmed;
 
         try
@@ -164,17 +135,29 @@ public class EventService(WydDbContext context, GroupService groupService)
     }
 
 
-    public async Task AddImageAsync(int eventId)
+    private async Task AddMultipleBlobs(Event ev, HashSet<BlobData> blobDatas)
     {
-        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
-        Image newImage = new();
-        db.Images.Add(newImage);
+        if (!blobDatas.IsNullOrEmpty())
+        {
+            var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
+            await Task.WhenAll(tasks);
+        }
+    }
+
+    private async Task AddBlobAsync(Event ev, BlobData blobData)
+    {
+        Blob newBlob = new();
+        db.Blobs.Add(newBlob);
+        ev.Blobs.Add(newBlob);
+
+        await BlobService.UploadBlobAsync(ev.Hash, newBlob, blobData);
         db.SaveChanges();
+    }
 
-        string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../Images", "test.jpg");
-        byte[] imageBytesJpg = await File.ReadAllBytesAsync(imagePath);
-
-        await ImageService.UploadImageAsync(ev.Hash, newImage.Hash, imageBytesJpg);
+    public async Task AddBlobAsync(int eventId, BlobData blobData)
+    {
+        Event ev = Retrieve(eventId);
+        await AddBlobAsync(ev, blobData);
     }
 
 

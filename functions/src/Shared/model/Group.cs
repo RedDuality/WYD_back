@@ -10,7 +10,7 @@ public class Group : BaseHashEntity
 {
     public string Name { get; set; } = "";
 
-    public string? ImageHash { get; set;}
+    public string? BlobHash { get; set;}
 
     public bool GeneralForCommunity {get; set; } = true;
 

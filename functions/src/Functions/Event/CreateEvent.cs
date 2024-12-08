@@ -17,42 +17,36 @@ namespace Functions
     public class CreateEvent
     {
         private readonly ILogger<CreateEvent> _logger;
+        private readonly RequestService _requestService;
         private readonly EventService _eventService;
-        private readonly AuthenticationService _authService;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly AuthorizationService _authorizationService;
 
-        public CreateEvent(ILogger<CreateEvent> logger, AuthenticationService authService, EventService eventService, UserService userService, JsonSerializerOptions jsonSerializerOptions)
+        public CreateEvent(ILogger<CreateEvent> logger, AuthorizationService authorizationService,RequestService requestService, EventService eventService)
         {
             _logger = logger;
-            _authService = authService;
+            _authorizationService = authorizationService;
+            _requestService = requestService;
             _eventService = eventService;
-            _jsonSerializerOptions = jsonSerializerOptions;
         }
 
         [Function("CreateEvent")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Create")] HttpRequest req, FunctionContext executionContext)
         {
-            User user;
+
             try
             {
-                user = await _authService.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CONFIRM_EVENT);
 
-            string requestBody;
-            using (StreamReader reader = new(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-            }
-            var myevent = JsonSerializer.Deserialize<EventDto>(requestBody, _jsonSerializerOptions);
-
-
-            if (myevent != null)
-            {
-                var newevent = _eventService.Create(myevent, user.MainProfile!);
+                var myevent = await _requestService.DeserializeRequestBodyAsync<EventDto>(req);
+                var newevent = await _eventService.Create(myevent, currentProfile);
+                
                 return new OkObjectResult(new EventDto(newevent));
             }
-            return new BadRequestObjectResult("Bad Json Formatting");
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
+
 
         }
     }

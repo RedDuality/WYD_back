@@ -20,7 +20,7 @@ public class Profile : BaseHashEntity
     public ProfileType Type { get; set; } = ProfileType.Personal;
     public string Name { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
-    public string? ImageHash { get; set; }
+    public string? BlobHash { get; set; }
 
     [JsonIgnore]
     public virtual HashSet<User> Users { get; set; } = [];

@@ -63,6 +63,31 @@ namespace functions.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("Model.Blob", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
+
+                    b.ToTable("Blobs");
+                });
+
             modelBuilder.Entity("Model.Community", b =>
                 {
                     b.Property<int>("Id")
@@ -71,11 +96,11 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BlobHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageHash")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -114,7 +139,7 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
@@ -132,6 +157,9 @@ namespace functions.Migrations
 
                     b.HasIndex("GroupId");
 
+                    b.HasIndex("Hash")
+                        .IsUnique();
+
                     b.HasIndex("ParentId");
 
                     b.ToTable("Events");
@@ -145,6 +173,9 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BlobHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CommunityId")
                         .HasColumnType("int");
 
@@ -156,10 +187,7 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -172,32 +200,10 @@ namespace functions.Migrations
 
                     b.HasIndex("CommunityId");
 
-                    b.ToTable("Groups");
-                });
-
-            modelBuilder.Entity("Model.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Hash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
                     b.HasIndex("Hash")
                         .IsUnique();
 
-                    b.ToTable("Images");
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("Model.Profile", b =>
@@ -208,21 +214,17 @@ namespace functions.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BlobHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -237,6 +239,9 @@ namespace functions.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
 
                     b.HasIndex("Tag")
                         .IsUnique()
@@ -318,7 +323,7 @@ namespace functions.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("MainProfileId")
                         .HasColumnType("int");
@@ -327,6 +332,9 @@ namespace functions.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Hash")
+                        .IsUnique();
 
                     b.HasIndex("MainProfileId");
 
@@ -382,6 +390,13 @@ namespace functions.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Model.Blob", b =>
+                {
+                    b.HasOne("Model.Event", null)
+                        .WithMany("Blobs")
+                        .HasForeignKey("EventId");
+                });
+
             modelBuilder.Entity("Model.Event", b =>
                 {
                     b.HasOne("Model.Group", "Group")
@@ -406,13 +421,6 @@ namespace functions.Migrations
                         .IsRequired();
 
                     b.Navigation("Community");
-                });
-
-            modelBuilder.Entity("Model.Image", b =>
-                {
-                    b.HasOne("Model.Event", null)
-                        .WithMany("Photos")
-                        .HasForeignKey("EventId");
                 });
 
             modelBuilder.Entity("Model.ProfileCommunity", b =>
@@ -509,7 +517,7 @@ namespace functions.Migrations
 
             modelBuilder.Entity("Model.Event", b =>
                 {
-                    b.Navigation("Photos");
+                    b.Navigation("Blobs");
 
                     b.Navigation("ProfileEvents");
                 });

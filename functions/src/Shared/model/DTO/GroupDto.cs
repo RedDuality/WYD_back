@@ -9,7 +9,7 @@ public class GroupDto
     public int? Id { get; set; }
     public string? Name { get; set; }
     public string? Hash { get; set; }
-    public string? ImageHash { get; set; }
+    public string? BlobHash { get; set; }
     public long Color { get; set; } = 4278190080; //black
     public bool? Trusted { get; set; } = false;
     public bool? GeneralForCommunity { get; set; }
@@ -22,7 +22,7 @@ public class GroupDto
         Id = group.Id;
         Name = group.Name;
         Hash = group.Hash;
-        ImageHash = group.ImageHash;
+        BlobHash = group.BlobHash;
         GeneralForCommunity = group.GeneralForCommunity;
         Profiles = group.ProfileGroups.Select((pg) => pg.Profile).ToHashSet();
 

@@ -16,7 +16,7 @@ public enum CommunityType
 public class Community : BaseEntity
 {
     public string Name { get; set; } = "";
-    public string? ImageHash { get; set; }
+    public string? BlobHash { get; set; }
     public CommunityType Type { get; set; } = CommunityType.Personal;
 
     [JsonIgnore]

@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Model;
 
-[Table("Images")]
-public class Image : HashEntity
+[Table("Blobs")]
+public class Blob : HashEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

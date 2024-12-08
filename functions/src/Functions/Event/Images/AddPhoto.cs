@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
@@ -12,52 +11,29 @@ using Model;
 
 namespace Functions
 {
-    public class AddPhoto
+    public class AddPhoto(ILogger<CreateCommunity> logger, RequestService requestService, AuthorizationService authorizationService, EventService eventService)
     {
-        private readonly ILogger<AddPhoto> _logger;
-        private readonly EventService _eventService;
-        private readonly AuthenticationService _authService;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-        public AddPhoto(ILogger<AddPhoto> logger, AuthenticationService authService, EventService eventService, UserService userService, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _logger = logger;
-            _authService = authService;
-            _eventService = eventService;
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
+        private readonly ILogger<CreateCommunity> _logger = logger;
+        private readonly AuthorizationService _authorizationService = authorizationService;
+        private readonly RequestService _requestService = requestService;
+        private readonly EventService _eventService = eventService;
 
         [Function("AddPhoto")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Photo/Add/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
-            /*
-            User user;
             try
             {
-                user = await _authService.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
-*/
-            int id;
-            try
-            {
-                id = Int32.Parse(eventId);
-            }
-            catch (FormatException)
-            {
-                return new BadRequestObjectResult("Id Format wrong");
-            }
-            string requestBody;
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.ADD_PHOTO);
 
-            using (StreamReader reader = new(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
+                BlobData blobData = await _requestService.DeserializeRequestBodyAsync<BlobData>(req);
+                await _eventService.AddBlobAsync(int.Parse(eventId), blobData);
+
+                return new OkObjectResult("Blob saved with success");
             }
-            //var myevent = JsonSerializer.Deserialize<EventDto>(requestBody, _jsonSerializerOptions);
-
-
-            await _eventService.AddImageAsync(id);
-            return new OkObjectResult("");
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
 
         }
     }

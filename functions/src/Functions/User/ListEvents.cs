@@ -28,7 +28,7 @@ namespace Functions
         {
             try
             {
-                User user = await _authorizationService.VerifyRequest(req, "READ_EVENTS");
+                User user = await _authorizationService.VerifyRequest(req);
 
                 List<EventDto> eventi = await UserService.RetrieveEventsAsync(user);
 

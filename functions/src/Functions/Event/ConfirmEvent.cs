@@ -9,51 +9,28 @@ using Model;
 
 namespace Functions
 {
-    public class ConfirmEvent
+    public class ConfirmEvent(ILogger<ConfirmEvent> logger, EventService eventService, AuthorizationService authorizationService)
     {
-        private readonly ILogger<ConfirmEvent> _logger;
-        private readonly EventService _eventService;
-        private readonly AuthenticationService _authController;
+        private readonly ILogger<ConfirmEvent> _logger = logger;
+        private readonly EventService _eventService = eventService;
+        private readonly AuthorizationService _authorizationService = authorizationService;
 
-        public ConfirmEvent(ILogger<ConfirmEvent> logger, EventService eventService, AuthenticationService authService)
-        {
-            _logger = logger;
-            _eventService = eventService;
-            _authController = authService;
-        }
 
         [Function("ConfirmEvent")]
-        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
-            User user;
             try
             {
-                user = await _authController.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-            int id;
-            try
-            {
-                id = Int32.Parse(eventId);
-            }
-            catch (FormatException)
-            {
-                return new BadRequestObjectResult("Id Format wrong");
-            }
-
-            Event? ev = _eventService.RetrieveOrNull(id);
-            if (ev == null)
-                return new NotFoundObjectResult("");
-            try
-            {
-                _eventService.Confirm(ev, user.MainProfile);
+                _eventService.ConfirmOrDecline(int.Parse(eventId), currentProfile, true);
                 return new OkObjectResult("");
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                return RequestService.GetErrorResult(ex);
             }
+
         }
     }
 }

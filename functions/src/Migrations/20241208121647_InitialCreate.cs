@@ -18,7 +18,7 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -36,12 +36,11 @@ namespace functions.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProfileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Tag = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Hash = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,12 +54,12 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GeneralForCommunity = table.Column<bool>(type: "bit", nullable: false),
                     CommunityId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Hash = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,7 +105,7 @@ namespace functions.Migrations
                     MainProfileId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Hash = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -132,7 +131,7 @@ namespace functions.Migrations
                     GroupId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Hash = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -230,7 +229,7 @@ namespace functions.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Images",
+                name: "Blobs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -240,9 +239,9 @@ namespace functions.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.PrimaryKey("PK_Blobs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Images_Events_EventId",
+                        name: "FK_Blobs_Events_EventId",
                         column: x => x.EventId,
                         principalTable: "Events",
                         principalColumn: "Id");
@@ -293,9 +292,26 @@ namespace functions.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Blobs_EventId",
+                table: "Blobs",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Blobs_Hash",
+                table: "Blobs",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Events_GroupId",
                 table: "Events",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_Hash",
+                table: "Events",
+                column: "Hash",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_ParentId",
@@ -308,13 +324,8 @@ namespace functions.Migrations
                 column: "CommunityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Images_EventId",
-                table: "Images",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Images_Hash",
-                table: "Images",
+                name: "IX_Groups_Hash",
+                table: "Groups",
                 column: "Hash",
                 unique: true);
 
@@ -334,6 +345,12 @@ namespace functions.Migrations
                 column: "ProfileId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Profiles_Hash",
+                table: "Profiles",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Profiles_Tag",
                 table: "Profiles",
                 column: "Tag",
@@ -351,6 +368,12 @@ namespace functions.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Hash",
+                table: "Users",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_MainProfileId",
                 table: "Users",
                 column: "MainProfileId");
@@ -363,7 +386,7 @@ namespace functions.Migrations
                 name: "Accounts");
 
             migrationBuilder.DropTable(
-                name: "Images");
+                name: "Blobs");
 
             migrationBuilder.DropTable(
                 name: "Profile_Community");

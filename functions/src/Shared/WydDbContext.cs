@@ -10,7 +10,7 @@ public class WydDbContext(DbContextOptions<WydDbContext> options) : DbContext(op
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Profile> Profiles { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
-    public DbSet<Image> Images { get; set; } = null!;
+    public DbSet<Blob> Blobs { get; set; } = null!;
     public DbSet<Community> Communities { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
 
@@ -32,7 +32,7 @@ public class WydDbContext(DbContextOptions<WydDbContext> options) : DbContext(op
         modelBuilder.Entity<Profile>().HasMany(u => u.Communities).WithMany(c => c.Profiles).UsingEntity<ProfileCommunity>();
         modelBuilder.Entity<Profile>().HasMany(u => u.Groups).WithMany(g => g.Profiles).UsingEntity<ProfileGroup>();
 
-        modelBuilder.Entity<Event>().HasMany(e => e.Photos);
+        modelBuilder.Entity<Event>().HasMany(e => e.Blobs);
 
         modelBuilder.Entity<Community>().HasMany(c => c.Groups).WithOne(g => g.Community);
 

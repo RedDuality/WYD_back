@@ -1,6 +1,7 @@
 using Model;
 using Database;
 using Dto;
+using Microsoft.AspNetCore.Http;
 
 namespace Service;
 public class ProfileService(WydDbContext wydDbContext)
@@ -17,6 +18,21 @@ public class ProfileService(WydDbContext wydDbContext)
     public Profile Retrieve(int id)
     {
         return db.Profiles.Find(id) ?? throw new KeyNotFoundException("Profile");
+
+    }
+
+    public Profile RetrieveByHash(string hash)
+    {
+        return db.Profiles.Where(p => p.Hash.Equals(hash)).First() ?? throw new KeyNotFoundException("Profile");
+    }
+
+    public Profile RetrieveFromHeaders(HttpRequest req)
+    {
+
+        if (req.Headers.TryGetValue("Current-Profile", out var profileHash))
+            return RetrieveByHash(profileHash!);
+        else
+            throw new ArgumentException("Profile header not found or in the wrong format");
 
     }
 
