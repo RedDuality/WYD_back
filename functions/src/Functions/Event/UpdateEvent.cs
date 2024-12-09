@@ -1,7 +1,5 @@
 
 
-using System.Text;
-using System.Text.Json;
 using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
@@ -14,51 +12,33 @@ using Model;
 
 namespace Functions
 {
-    public class UpdateEvent
+    public class UpdateEvent(ILogger<UpdateEvent> logger, AuthorizationService authorizationService, RequestService requestService, EventService eventService)
     {
-        private readonly ILogger<UpdateEvent> _logger;
-        private readonly EventService _eventService;
-        private readonly AuthenticationService _authService;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly ILogger<UpdateEvent> _logger = logger;
+        private readonly RequestService _requestService = requestService;
+        private readonly EventService _eventService = eventService;
+        private readonly AuthorizationService _authorizationService = authorizationService;
 
-        public UpdateEvent(ILogger<UpdateEvent> logger, EventService eventService, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _logger = logger;
-            _eventService = eventService;
-            _authService = authService;
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
 
         [Function("UpdateEvent")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Update")] HttpRequest req, FunctionContext executionContext)
         {
-            User user;
+
             try
             {
-                user = await _authService.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.UPDATE_EVENT);
 
-            string requestBody;
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-            }
-            var myevent = JsonSerializer.Deserialize<EventDto>(requestBody, _jsonSerializerOptions);
+                var myevent = await _requestService.DeserializeRequestBodyAsync<EventDto>(req);
+                var newevent = await _eventService.UpdateAsync(myevent);
 
-            if (myevent != null)
-            {
-                try
-                {
-                    _eventService.UpdateField(myevent);
-                    return new OkObjectResult("");
-                }
-                catch (Exception ex)
-                {
-                    return new BadRequestObjectResult(ex.Message);
-                }
+                EventDto eventDto = new(newevent);
+
+                return new OkObjectResult(eventDto);
             }
-            return new BadRequestObjectResult("Bad Json Formatting");
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
 
         }
     }

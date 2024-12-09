@@ -16,7 +16,7 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions)
         {
             requestBody = await reader.ReadToEndAsync();
         }
-        return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException("");
+        return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException(nameof(T));
     }
 
 

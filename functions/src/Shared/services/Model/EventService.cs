@@ -34,7 +34,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         // Clear Id to force an insert (if necessary)
         eventDto.Id = 0;
         Event newEvent = Event.FromDto(eventDto);
-        // Add the event to the database
+
         db.Events.Add(newEvent);
         db.SaveChanges();
         return newEvent;
@@ -65,26 +65,56 @@ public class EventService(WydDbContext context, GroupService groupService)
         return newEvent;
     }
 
-    public Event UpdateField(EventDto dto)
+    public async Task<Event> UpdateAsync(EventDto dto)
     {
-        if (dto == null)
-        {
-            throw new ArgumentNullException(nameof(dto), "Event cannot be null.");
-        }
-
+        Event eventToUpdate;
         try
         {
-            Event eventToUpdate = RetrieveOrNull(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
+            eventToUpdate = RetrieveOrNull(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
             eventToUpdate.Update(dto);
             db.SaveChanges();
-            return eventToUpdate;
+
         }
         catch (Exception ex)
         {
             throw new InvalidOperationException("Error updating event", ex);
         }
 
+        //TODO check for removed images
+
+        await AddMultipleBlobs(eventToUpdate, dto.NewBlobData);
+
+        return eventToUpdate;
+
     }
+
+    private async Task AddMultipleBlobs(Event ev, HashSet<BlobData> blobDatas)
+    {
+        if (!blobDatas.IsNullOrEmpty())
+        {
+            var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
+            await Task.WhenAll(tasks);
+        }
+    }
+
+    public async Task AddBlobAsync(int eventId, BlobData blobData)
+    {
+        Event ev = Retrieve(eventId);
+        await AddBlobAsync(ev, blobData);
+    }
+
+    private async Task AddBlobAsync(Event ev, BlobData blobData)
+    {
+        Blob newBlob = new();
+        db.Blobs.Add(newBlob);
+        ev.Blobs.Add(newBlob);
+
+        await BlobService.UploadBlobAsync(ev.Hash, newBlob, blobData);
+        db.SaveChanges();
+    }
+
+
+
 
     internal Event ShareToGroups(int eventId, HashSet<int> groupIds)
     {
@@ -135,30 +165,6 @@ public class EventService(WydDbContext context, GroupService groupService)
     }
 
 
-    private async Task AddMultipleBlobs(Event ev, HashSet<BlobData> blobDatas)
-    {
-        if (!blobDatas.IsNullOrEmpty())
-        {
-            var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
-            await Task.WhenAll(tasks);
-        }
-    }
-
-    private async Task AddBlobAsync(Event ev, BlobData blobData)
-    {
-        Blob newBlob = new();
-        db.Blobs.Add(newBlob);
-        ev.Blobs.Add(newBlob);
-
-        await BlobService.UploadBlobAsync(ev.Hash, newBlob, blobData);
-        db.SaveChanges();
-    }
-
-    public async Task AddBlobAsync(int eventId, BlobData blobData)
-    {
-        Event ev = Retrieve(eventId);
-        await AddBlobAsync(ev, blobData);
-    }
 
 
     /*
