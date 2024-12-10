@@ -1,6 +1,5 @@
 
-using Controller;
-using Database;
+using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -24,10 +23,19 @@ namespace Functions.Test
         }
 
         [Function("PopulateDb")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "PopulateDb")] HttpRequest req, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "PopulateDb")] HttpRequest req, FunctionContext executionContext)
         {
-            return new OkObjectResult(utilService.PopulateDb());
+            try
+            {
+                bool result = await utilService.InitDb();
+                if (result)
+                    return new OkObjectResult("Database successfully initialized");
+                return new BadRequestObjectResult("");
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
         }
     }
 }
- 

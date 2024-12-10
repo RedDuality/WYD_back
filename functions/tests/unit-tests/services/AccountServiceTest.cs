@@ -1,4 +1,4 @@
-using Controller;
+using Service;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Model;
@@ -29,7 +29,7 @@ public class AccountServiceTest
         var service = new AccountService(dbContext);
 
         // Act
-        var result = service.Get(newAccount.Entity.Id);
+        var result = service.RetrieveOrNull(newAccount.Entity.Id);
 
         // Assert
         Assert.NotNull(result);
@@ -47,7 +47,7 @@ public class AccountServiceTest
         var service = new AccountService(dbContext);
 
         // Act
-        var result = service.Get("1234");
+        var result = service.Retrieve("1234");
 
         // Asser
         Assert.NotNull(result);

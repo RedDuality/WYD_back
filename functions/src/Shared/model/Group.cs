@@ -10,13 +10,16 @@ public class Group : BaseHashEntity
 {
     public string Name { get; set; } = "";
 
+    public string? BlobHash { get; set;}
+
     public bool GeneralForCommunity {get; set; } = true;
 
     [ForeignKey("CommunityId")]
     public virtual required Community Community { get; set; }
 
     [JsonIgnore]
-    public virtual HashSet<User> Users { get; set; } = [];
+    public virtual HashSet<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
-    public virtual List<UserGroup> UserGroups { get; set; } = [];
+    public virtual List<ProfileGroup> ProfileGroups { get; set; } = [];
+
 }

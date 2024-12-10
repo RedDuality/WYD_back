@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace Model;
@@ -22,7 +21,7 @@ public class ProfileEvent
 
     public required EventRole Role { get; set; } = EventRole.Owner;
 
-    public Boolean Confirmed { get ; set; } = true;
-    public Boolean Trusted {get; set; } = true;
+    public Boolean Confirmed { get ; set; } = false;
+    public Boolean Trusted {get; set; } = false;
 
 }

@@ -20,11 +20,10 @@ public class Event : BaseHashEntity
     [JsonIgnore]
     public virtual HashSet<Profile> Profiles { get; set; } = [];
     [JsonIgnore]
-    public virtual ICollection<ProfileEvent> ProfileEvents { get; set; } = [];
+    public virtual List<ProfileEvent> ProfileEvents { get; set; } = [];
 
+    public virtual ICollection<Blob> Blobs { get; set; } = [];
 
-
-    
     static public Event FromDto(EventDto dto)
     {
         return new Event

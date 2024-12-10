@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Controller;
+using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -33,15 +33,11 @@ namespace Functions
                 return new BadRequestObjectResult("Id Format wrong");
             }
 
-            try
-            {
-                User user = _userController.Get(userId);
+
+            User? user = _userController.RetrieveOrNull(userId);
+            if (user != null)
                 return new OkObjectResult(user);
-            }
-            catch (InvalidOperationException)
-            {
-                return new NotFoundObjectResult("User not found");
-            }
+            return new NotFoundObjectResult("User not found");
 
         }
     }

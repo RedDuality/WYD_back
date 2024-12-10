@@ -1,6 +1,6 @@
 
 
-using Controller;
+using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +16,9 @@ namespace Functions
     {
         private readonly ILogger<RetrieveFromHash> _logger;
         private readonly EventService _eventController;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
 
-        public RetrieveFromHash(ILogger<RetrieveFromHash> logger, EventService eventService, AuthService authService)
+        public RetrieveFromHash(ILogger<RetrieveFromHash> logger, EventService eventService, AuthenticationService authService)
         {
             _logger = logger;
             _eventController = eventService;

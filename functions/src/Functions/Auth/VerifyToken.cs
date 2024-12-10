@@ -1,7 +1,7 @@
 
 
 using System.Text.Json;
-using Controller;
+using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +16,10 @@ namespace Functions
     public class VerifyToken
     {
         private readonly ILogger<VerifyToken> _logger;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public VerifyToken(ILogger<VerifyToken> logger, AuthService authService, JsonSerializerOptions jsonSerializerOptions)
+        public VerifyToken(ILogger<VerifyToken> logger, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions)
         {
             _logger = logger;
             _authController = authService;

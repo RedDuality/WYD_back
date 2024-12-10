@@ -1,6 +1,6 @@
 
 
-using Controller;
+using Service;
 using Database;
 using Dto;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ public class EventServiceTest
         dbContext.SaveChanges();
 
         // Act
-        var result = eventService.Retrieve(event1.Id);
+        var result = eventService.RetrieveOrNull(event1.Id);
 
         // Assert
         Assert.NotNull(result);
@@ -47,7 +47,7 @@ public class EventServiceTest
         var eventService = new EventService(dbContext);
 
         // Act & Assert
-        var exception = Assert.Throws<KeyNotFoundException>(() => eventService.Retrieve(999)); // Non-existent event
+        var exception = Assert.Throws<KeyNotFoundException>(() => eventService.RetrieveOrNull(999)); // Non-existent event
         Assert.Contains("Event with ID 999 not found", exception.Message);
     }
 

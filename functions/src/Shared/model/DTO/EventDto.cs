@@ -13,8 +13,10 @@ public class EventDto
     public DateTimeOffset StartTime { get; set; }
     public DateTimeOffset EndTime { get; set; }
     public int? GroupId { get; set; } = 0;
-    public List<ProfileEventDto> ProfileEvents { get; set; } = [];
 
+    public List<string> BlobHashes {get; set;}  = [];
+    public List<ProfileEventDto> ProfileEvents { get; set; } = [];
+    public HashSet<BlobData> NewBlobData {get;set;} = [];
 
     // Parameterized constructor for custom use
     public EventDto(Event ev)
@@ -26,6 +28,7 @@ public class EventDto
         StartTime = ev.StartTime.ToUniversalTime();
         EndTime = ev.EndTime.ToUniversalTime();
         GroupId = ev.Group != null ? ev.Group.Id : -1;
+        BlobHashes = ev.Blobs.Select( i => i.Hash).ToList();
         ProfileEvents = ev.ProfileEvents.Select(pe => new ProfileEventDto(pe)).ToList();
     }
 

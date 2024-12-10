@@ -1,61 +1,39 @@
 using Model;
 using Database;
 using Dto;
+using FirebaseAdmin.Auth;
 
-namespace Controller;
-public class UserService
+namespace Service;
+public class UserService(WydDbContext context, AccountService accountService, ProfileService profileService)
 {
-    private readonly WydDbContext db;
-    private readonly AccountService _accountService;
-    private readonly ProfileService _profileService;
+    private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null.");
+    private readonly AccountService _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService), "Account service cannot be null.");
+    private readonly ProfileService _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
 
-    public UserService(WydDbContext context, AccountService accountService, ProfileService profileService)
+    public User? RetrieveOrNull(int id)
     {
-        db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null.");
-        _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService), "Account service cannot be null.");
-        _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
+        return db.Users.Find(id);
     }
 
-    public User Get(int id)
+    public async Task<User> GetOrCreateAsync(string uid)
     {
-        try
+        Account? account = _accountService.Retrieve(uid);
+
+        if (account == null) //registration
         {
-            return db.Users.Single(u => u.Id == id);
+            UserRecord UR = await AuthenticationService.RetrieveFirebaseUser(uid);
+            return Create(UR.Email, UR.Uid);
         }
-        catch (InvalidOperationException ex)
-        {
-            throw new KeyNotFoundException($"User with ID {id} not found.", ex);
-        }
+        return account.User;
     }
 
-    public User Get(string uid)
-    {
-        try
-        {
-            var account = db.Accounts.Single(a => a.Uid == uid);
-            if (account.User == null)
-                throw new InvalidOperationException("No User linked to this account.");
-
-            return account.User;
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new KeyNotFoundException($"Account with UID {uid} not found or user is not linked.", ex);
-        }
-    }
-
-    public User Create(string Email, string Uid)
+    private User Create(string Email, string Uid)
     {
         using var transaction = db.Database.BeginTransaction();
         try
         {
             // Create a new user
-            var user = new User
-            {
-                MainMail = Email,
-                UserName = Email,
-                Tag = Email
-            };
+            var user = new User();
             db.Users.Add(user);
             db.SaveChanges();
 
@@ -70,8 +48,12 @@ public class UserService
             _accountService.Create(account);
 
             // Create associated profile
-            var profile = new Profile();
-            user.MainProfile = profile;
+            var profile = new Profile()
+            {
+                Name = Email,
+                Tag = Email
+            };
+
             AddProfile(user, profile);
 
             transaction.Commit();
@@ -93,6 +75,7 @@ public class UserService
         try
         {
             _profileService.Create(profile);
+            user.MainProfile = profile;
             user.Profiles.Add(profile);
             db.SaveChanges();
             return user;
@@ -103,28 +86,8 @@ public class UserService
         }
     }
 
-    public User Update(User existingUser, User updatedUser)
+    public static async Task<List<EventDto>> RetrieveEventsAsync(User user)
     {
-        if (existingUser == null) throw new ArgumentNullException(nameof(existingUser), "Existing user cannot be null.");
-        if (updatedUser == null) throw new ArgumentNullException(nameof(updatedUser), "Updated user cannot be null.");
-
-        try
-        {
-            existingUser.UserName = updatedUser.UserName;
-            existingUser.MainMail = updatedUser.MainMail;
-            db.SaveChanges();
-            return existingUser;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Error updating user.", ex);
-        }
-    }
-
-    public async Task<List<EventDto>> RetrieveEventsAsync(User user)
-    {
-        if (user == null) throw new ArgumentNullException(nameof(user), "User cannot be null.");
-
         var tasks = user.Profiles.Select(async profile =>
         {
             try
@@ -147,15 +110,6 @@ public class UserService
 
         var results = await Task.WhenAll(tasks);
         return results.SelectMany(result => result).ToList();
-    }
-
-    public List<UserDto> SearchByTag(string searchTag)
-    {
-        return db.Users
-                 .Where(u => u.Tag.StartsWith(searchTag))
-                 .Take(5)
-                 .Select(u => new UserDto(u))
-                 .ToList();
     }
 
     public void SetProfileRole(User user, Profile profile, Role role)

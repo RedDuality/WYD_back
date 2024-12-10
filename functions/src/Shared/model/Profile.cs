@@ -1,27 +1,41 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Model;
 
-public enum ProfileType {
+public enum ProfileType
+{
     Personal,
-    Business
+    Shared
 }
 
 [Table("Profiles")]
-public class Profile : BaseEntity
+[Index(nameof(Tag), IsUnique = true)]//check onModelCreating, unique when not empty
+public class Profile : BaseHashEntity
 {
     [NotNull]
     public ProfileType Type { get; set; } = ProfileType.Personal;
+    public string Name { get; set; } = string.Empty;
+    public string Tag { get; set; } = string.Empty;
+    public string? BlobHash { get; set; }
 
     [JsonIgnore]
     public virtual HashSet<User> Users { get; set; } = [];
     [JsonIgnore]
     public virtual List<UserRole> UserRoles { get; set; } = [];
+
+    [JsonIgnore]
+    public virtual HashSet<Community> Communities { get; set; } = [];
+    [JsonIgnore]
+    public virtual List<ProfileCommunity> UserCommunities { get; set; } = [];
+
+    [JsonIgnore]
+    public virtual HashSet<Group> Groups { get; set; } = [];
+    [JsonIgnore]
+    public virtual List<ProfileGroup> UserGroups { get; set; } = [];
 
     [JsonIgnore]
     public virtual List<Event> Events { get; set; } = [];

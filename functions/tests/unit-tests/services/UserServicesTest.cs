@@ -1,4 +1,4 @@
-using Controller;
+using Service;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -29,7 +29,7 @@ public class UserServiceTest
         dbContext.SaveChanges();
 
         // Act
-        var result = userService.Get(user.Id);
+        var result = userService.RetrieveOrNull(user.Id);
 
         // Assert
         Assert.NotNull(result);
@@ -44,7 +44,7 @@ public class UserServiceTest
         var userService = new UserService(dbContext, new AccountService(dbContext), new ProfileService(dbContext));
 
         // Act & Assert
-        var exception = Assert.Throws<KeyNotFoundException>(() => userService.Get(999)); // Non-existent user
+        var exception = Assert.Throws<KeyNotFoundException>(() => userService.RetrieveOrNull(999)); // Non-existent user
         Assert.Contains("User with ID 999 not found", exception.Message);
     }
 

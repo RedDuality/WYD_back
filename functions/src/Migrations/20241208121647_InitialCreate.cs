@@ -18,6 +18,7 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -34,8 +35,12 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Type = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Tag = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,6 +54,7 @@ namespace functions.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BlobHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GeneralForCommunity = table.Column<bool>(type: "bit", nullable: false),
                     CommunityId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -67,14 +73,35 @@ namespace functions.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Profile_Community",
+                columns: table => new
+                {
+                    CommunityId = table.Column<int>(type: "int", nullable: false),
+                    ProfileId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Profile_Community", x => new { x.CommunityId, x.ProfileId });
+                    table.ForeignKey(
+                        name: "FK_Profile_Community_Communities_CommunityId",
+                        column: x => x.CommunityId,
+                        principalTable: "Communities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Profile_Community_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MainMail = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tag = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MainProfileId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -122,6 +149,32 @@ namespace functions.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Profile_Group",
+                columns: table => new
+                {
+                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    ProfileId = table.Column<int>(type: "int", nullable: false),
+                    Trusted = table.Column<bool>(type: "bit", nullable: false),
+                    Color = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Profile_Group", x => new { x.GroupId, x.ProfileId });
+                    table.ForeignKey(
+                        name: "FK_Profile_Group_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Profile_Group_Profiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "Profiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
                 {
@@ -129,7 +182,7 @@ namespace functions.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Mail = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Uid = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -138,55 +191,6 @@ namespace functions.Migrations
                     table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Accounts_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User_Community",
-                columns: table => new
-                {
-                    CommunityId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User_Community", x => new { x.CommunityId, x.UserId });
-                    table.ForeignKey(
-                        name: "FK_User_Community_Communities_CommunityId",
-                        column: x => x.CommunityId,
-                        principalTable: "Communities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_User_Community_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User_Group",
-                columns: table => new
-                {
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Trusted = table.Column<bool>(type: "bit", nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User_Group", x => new { x.GroupId, x.UserId });
-                    table.ForeignKey(
-                        name: "FK_User_Group_Groups_GroupId",
-                        column: x => x.GroupId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_User_Group_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -222,6 +226,25 @@ namespace functions.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Blobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: true),
+                    Hash = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Blobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Blobs_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -269,6 +292,17 @@ namespace functions.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Blobs_EventId",
+                table: "Blobs",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Blobs_Hash",
+                table: "Blobs",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Events_GroupId",
                 table: "Events",
                 column: "GroupId");
@@ -296,19 +330,32 @@ namespace functions.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Profile_Community_ProfileId",
+                table: "Profile_Community",
+                column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Profile_Event_ProfileId",
                 table: "Profile_Event",
                 column: "ProfileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_Community_UserId",
-                table: "User_Community",
-                column: "UserId");
+                name: "IX_Profile_Group_ProfileId",
+                table: "Profile_Group",
+                column: "ProfileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_Group_UserId",
-                table: "User_Group",
-                column: "UserId");
+                name: "IX_Profiles_Hash",
+                table: "Profiles",
+                column: "Hash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Profiles_Tag",
+                table: "Profiles",
+                column: "Tag",
+                unique: true,
+                filter: "Tag <> ''");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Role_ProfileId",
@@ -327,22 +374,9 @@ namespace functions.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_MainMail",
-                table: "Users",
-                column: "MainMail",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_MainProfileId",
                 table: "Users",
                 column: "MainProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Tag",
-                table: "Users",
-                column: "Tag",
-                unique: true,
-                filter: "Tag <> ''");
         }
 
         /// <inheritdoc />
@@ -352,13 +386,16 @@ namespace functions.Migrations
                 name: "Accounts");
 
             migrationBuilder.DropTable(
+                name: "Blobs");
+
+            migrationBuilder.DropTable(
+                name: "Profile_Community");
+
+            migrationBuilder.DropTable(
                 name: "Profile_Event");
 
             migrationBuilder.DropTable(
-                name: "User_Community");
-
-            migrationBuilder.DropTable(
-                name: "User_Group");
+                name: "Profile_Group");
 
             migrationBuilder.DropTable(
                 name: "User_Role");

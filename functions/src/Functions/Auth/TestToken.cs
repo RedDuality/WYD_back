@@ -1,5 +1,5 @@
 
-using Controller;
+using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -13,9 +13,9 @@ namespace Functions
     public class TestToken
     {
         private readonly ILogger<TestToken> _logger;
-        private readonly AuthService _authController;
+        private readonly AuthenticationService _authController;
 
-        public TestToken(ILogger<TestToken> logger, AuthService authService)
+        public TestToken(ILogger<TestToken> logger, AuthenticationService authService)
         {
             _logger = logger;
             _authController = authService;
@@ -27,7 +27,7 @@ namespace Functions
             User user;
             try
             {
-                user = await _authController.VerifyRequestAsync(req);
+                user =  await _authController.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 

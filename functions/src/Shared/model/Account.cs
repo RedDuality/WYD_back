@@ -11,10 +11,10 @@ namespace Model;
 [Index(nameof(Uid), IsUnique = true)]
 public class Account : BaseEntity
 {
-    public string Mail { get; set; } = string.Empty;
-    public string Uid { get; set; } = string.Empty;
+    public required string Mail { get; set; }
+    public required string Uid { get; set; }
 
     [ForeignKey("UserId")]
     [JsonIgnore]
-    public virtual User? User { get; set;}
+    public virtual required User User { get; set;}
 }

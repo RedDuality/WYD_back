@@ -2,7 +2,7 @@ using Model;
 using Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Controller;
+namespace Service;
 public class AccountService
 {
 
@@ -13,15 +13,20 @@ public class AccountService
         db = wydDbContext;
     }
 
-    public Account Get(int id)
+    public Account? RetrieveOrNull(int id)
     {
-        return db.Accounts.Single(a => a.Id == id);
-
+        return db.Accounts.Find(id);
     }
-    public Account? Get(string uid)
+    public Account? Retrieve(string uid)
     {
-        return db.Accounts.SingleOrDefault(a => a.Uid == uid);
-
+        try
+        {
+            return db.Accounts.SingleOrDefault(a => a.Uid == uid);
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new Exception("More than one account with the given Uid is present" + e.Message);
+        }
     }
 
     public Account Create(Account account)

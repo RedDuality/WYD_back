@@ -1,4 +1,4 @@
-using Controller;
+using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -11,9 +11,9 @@ namespace Functions
     {
         private readonly ILogger<Retrieve> _logger;
 
-        private readonly AuthService _authService;
+        private readonly AuthenticationService _authService;
 
-        public Retrieve(ILogger<Retrieve> logger, AuthService authService)
+        public Retrieve(ILogger<Retrieve> logger, AuthenticationService authService)
         {
             _logger = logger;
             _authService = authService;

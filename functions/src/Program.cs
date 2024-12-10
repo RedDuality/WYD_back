@@ -1,7 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Controller;
+using Service;
 using Database;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +28,18 @@ var host = new HostBuilder()
                    .UseLazyLoadingProxies();
         });
 
-        services.AddScoped<AuthService>();
-        services.AddTransient<EventService>();
+        services.AddScoped<AuthenticationService>();
+        services.AddTransient<AuthorizationService>();
+        services.AddTransient<RequestService>();
+
         services.AddTransient<AccountService>();
         services.AddTransient<UserService>();
         services.AddTransient<ProfileService>();
-        services.AddTransient<UtilService>();
         services.AddTransient<CommunityService>();
+        services.AddTransient<GroupService>();
+        services.AddTransient<EventService>();
+
+        services.AddTransient<UtilService>();
 
         services.AddSingleton(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     })

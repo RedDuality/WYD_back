@@ -6,18 +6,19 @@ using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using System.Text;
 
-namespace Controller;
-public class AuthService
+namespace Service;
+public class AuthenticationService
 {
 
     private readonly UserService _userService;
-    private readonly AccountService _accountService;
 
-    public AuthService(UserService userService, AccountService accountService)
+    public AuthenticationService(UserService userService)
     {
         _userService = userService;
-        _accountService = accountService;
+    }
 
+    private static FirebaseAuth GetInstance()
+    {
         if (FirebaseApp.DefaultInstance == null)
         {
             var googleCredentialsJson = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIALS");
@@ -39,24 +40,44 @@ public class AuthService
                 ProjectId = "wydaccounts",
             });
         }
+        return FirebaseAuth.DefaultInstance;
     }
 
     public static async Task<UserRecord> RetrieveFirebaseUser(string uid)
     {
-        UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-        return userRecord;
+        try
+        {
+            UserRecord userRecord = await GetInstance().GetUserAsync(uid);
+            return userRecord;
+        }
+        catch (Exception)
+        {
+            throw new SecurityTokenValidationException("No Firebase user found");
+        }
+
+    }
+
+    public static async Task<UserRecord> CreateUserAsync(UserRecordArgs userRecordArgs)
+    {
+        return await GetInstance().CreateUserAsync(userRecordArgs);
     }
 
     private static async Task<string> CheckFirebaseTokenAsync(string token)
     {
-        FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+        FirebaseToken decodedToken = await GetInstance().VerifyIdTokenAsync(token);
         string uid = decodedToken.Uid;
         return uid;
     }
 
+    public static async Task<UserRecord> RetrieveFirebaseUserFromMail(string mail)
+    {
+        return await GetInstance().GetUserByEmailAsync(mail);
+    }
+
+
     public async Task<User> VerifyTokenAsync(string token)
     {
-        String uid = "";
+        string uid;
         try
         {
             uid = await CheckFirebaseTokenAsync(token);
@@ -66,26 +87,7 @@ public class AuthService
             throw new SecurityTokenValidationException("Invalid Token");
         }
 
-        Account? account = _accountService.Get(uid);
-        
-        if (account == null) //registration
-        {
-            UserRecord? UR = null;
-            try
-            {
-                UR = await RetrieveFirebaseUser(uid);
-            }
-            catch (Exception)
-            {
-                throw new SecurityTokenValidationException("No Firebase user found");
-            }
-            return _userService.Create(UR.Email, UR.Uid);
-        }
-
-        if (account.User != null) //login
-            return account.User;
-        else //should prolly create a new user without too many questions
-            throw new Exception("No user linked to the account");
+        return await _userService.GetOrCreateAsync(uid);
     }
 
 
@@ -104,11 +106,12 @@ public class AuthService
         try
         {
             string uid = await CheckFirebaseTokenAsync(token);
-            return _userService.Get(uid);
+            return await _userService.GetOrCreateAsync(uid);
         }
         catch (Exception)
         {
             throw new SecurityTokenValidationException("Invalid Token");
         }
     }
+
 }
