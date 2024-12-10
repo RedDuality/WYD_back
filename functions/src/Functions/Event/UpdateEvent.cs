@@ -8,8 +8,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
 
-
-
 namespace Functions
 {
     public class UpdateEvent(ILogger<UpdateEvent> logger, AuthorizationService authorizationService, RequestService requestService, EventService eventService)
