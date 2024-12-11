@@ -32,4 +32,5 @@ public class AuthorizationService(RequestService requestService, ProfileService 
         //TODO check roles
         return _profileService.RetrieveFromHeaders(req);
     }
+
 }

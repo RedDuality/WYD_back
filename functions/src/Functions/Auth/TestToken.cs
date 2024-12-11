@@ -13,12 +13,12 @@ namespace Functions
     public class TestToken
     {
         private readonly ILogger<TestToken> _logger;
-        private readonly AuthenticationService _authController;
+        private readonly RequestService _requestService;
 
-        public TestToken(ILogger<TestToken> logger, AuthenticationService authService)
+        public TestToken(ILogger<TestToken> logger, RequestService requestService)
         {
             _logger = logger;
-            _authController = authService;
+            _requestService = requestService;
         }
 
         [Function("TestToken")]
@@ -27,7 +27,7 @@ namespace Functions
             User user;
             try
             {
-                user =  await _authController.VerifyRequestAsync(req);
+                user =  await _requestService.VerifyRequestAsync(req);
             }
             catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
 

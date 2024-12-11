@@ -19,14 +19,14 @@ public class EventService(WydDbContext context, GroupService groupService)
         return db.Events.Find(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
     }
 
-    public Event? RetrieveFromHash(string eventHash)
+    public Event RetrieveFromHash(string eventHash)
     {
         if (string.IsNullOrEmpty(eventHash))
         {
             throw new ArgumentException("Event hash cannot be null or empty.", nameof(eventHash));
         }
 
-        return db.Events.FirstOrDefault(e => e.Hash == eventHash);
+        return db.Events.FirstOrDefault(e => e.Hash == eventHash) ?? throw new KeyNotFoundException($"Event with ID {eventHash} not found.");
     }
 
     private Event CreateNewAndSave(EventDto eventDto)

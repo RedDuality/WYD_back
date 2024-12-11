@@ -5,7 +5,7 @@ using Service;
 using Database;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Functions.Services;
+using Functions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -28,7 +28,8 @@ var host = new HostBuilder()
             options.UseSqlServer(connectionString)
                    .UseLazyLoadingProxies();
         });
-        services.AddTransient<SignalRService>();
+        services.AddServerlessHub<UpdatesHub>();
+//        services.AddTransient<UpdatesHub>();
 
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddTransient<AuthorizationService>();

@@ -15,29 +15,30 @@ namespace Functions
     public class RetrieveFromHash
     {
         private readonly ILogger<RetrieveFromHash> _logger;
-        private readonly EventService _eventController;
-        private readonly AuthenticationService _authController;
+        private readonly EventService _eventService;
+        private readonly AuthorizationService _authorizationService;
 
-        public RetrieveFromHash(ILogger<RetrieveFromHash> logger, EventService eventService, AuthenticationService authService)
+        public RetrieveFromHash(ILogger<RetrieveFromHash> logger, EventService eventService, AuthorizationService authService)
         {
             _logger = logger;
-            _eventController = eventService;
-            _authController = authService;
+            _eventService = eventService;
+            _authorizationService = authService;
         }
 
         [Function("RetrieveFromHash")]
-        public async Task<ActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Retrieve/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Retrieve/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
-            User user;
-            try{
-                user = await _authController.VerifyRequestAsync(req);
-            }catch(Exception){return new StatusCodeResult(StatusCodes.Status403Forbidden);} 
+            try
+            {
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-
-
-            Event? e = _eventController.RetrieveFromHash(eventHash);
-
-            return e == null ? new NotFoundObjectResult("") : new OkObjectResult(new EventDto(e));
+                Event e = _eventService.RetrieveFromHash(eventHash);
+                return new OkObjectResult(new EventDto(e));
+            }
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
 
         }
     }

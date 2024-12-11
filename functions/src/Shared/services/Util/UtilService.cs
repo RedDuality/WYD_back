@@ -119,14 +119,14 @@ public class UtilService(AuthenticationService authService, UserService userServ
                 DisplayName = "WydUser",
                 Disabled = false,
             };
-            UserRecord userRecord = await AuthenticationService.CreateUserAsync(userRecordArgs);
+            UserRecord userRecord = await AuthenticationService.CreateAccountAsync(userRecordArgs);
             return userRecord.Uid;
         }
         catch (Exception ex)
         {
             if (ex.Message.Contains("EMAIL_EXISTS"))
             {
-                UserRecord userRecord = await AuthenticationService.RetrieveFirebaseUserFromMail(email);
+                UserRecord userRecord = await AuthenticationService.RetrieveAccountFromMail(email);
                 return userRecord.Uid;
             }
             else

@@ -14,56 +14,31 @@ using Dto;
 
 namespace Functions
 {
-    public class ShareToGroups
+    public class ShareToGroups(ILogger<ShareToGroups> logger, EventService eventService, AuthorizationService authorizationService, RequestService requestService)
     {
-        private readonly ILogger<ShareToGroups> _logger;
-        private readonly EventService _eventController;
-        private readonly AuthenticationService _authController;
-        private readonly ProfileService _profileService;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
-        public ShareToGroups(ILogger<ShareToGroups> logger, EventService eventService, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions, ProfileService profileService)
-        {
-            _logger = logger;
-            _eventController = eventService;
-            _authController = authService;
-            _profileService = profileService;
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
+        private readonly ILogger<ShareToGroups> _logger = logger;
+        private readonly EventService _eventService = eventService;
+        private readonly AuthorizationService _authorizationService = authorizationService;
+        private readonly RequestService _requestService = requestService;
 
         [Function("ShareToGroups")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Groups/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
         {
-            User user;
+
             try
             {
-                user = await _authController.VerifyRequestAsync(req);
-            }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-            int id;
-            try
+                var groupIds = await _requestService.DeserializeRequestBodyAsync<HashSet<int>>(req);
+
+                //TODO check logic
+                var newevent = _eventService.ShareToGroups(int.Parse(eventId), groupIds!);
+                return new OkObjectResult(new EventDto(newevent));
+            }
+            catch (Exception ex)
             {
-                id = Int32.Parse(eventId);
+                return RequestService.GetErrorResult(ex);
             }
-            catch (FormatException)
-            {
-                return new BadRequestObjectResult("Id Format wrong");
-            }
-
-            string requestBody;
-            using (StreamReader reader = new(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-            }
-            var groupIds = JsonSerializer.Deserialize<HashSet<int>>(requestBody, _jsonSerializerOptions);
-            if (groupIds.IsNullOrEmpty()) return new BadRequestObjectResult("Bad Json Formatting");
-
-
-            var newevent = _eventController.ShareToGroups(id, groupIds!);
-            return new OkObjectResult(new EventDto(newevent));
-
-
-
         }
     }
 }

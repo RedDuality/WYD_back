@@ -1,18 +1,33 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.SignalRService;
-
+using Service;
+using Model;
+/*
 namespace Functions
 {
-    public static class Negotiate
+    public class Negotiate(UpdatesHub updatesHub, RequestService requestService)
     {
-        [FunctionName("negotiate")]
-        public static SignalRConnectionInfo Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "RTUpdates/Negotiate")] HttpRequest req,
-            [SignalRConnectionInfo(HubName = "yourHub")] SignalRConnectionInfo connectionInfo)
+        private readonly UpdatesHub _updatesHub = updatesHub;
+
+        private readonly RequestService _requestService = requestService;
+
+        //[Function("Negotiate")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "RTUpdates/negotiate/v1")] HttpRequest req,
+            FunctionContext executionContext)
         {
-            return connectionInfo;
+            try
+            {
+                User user = await _requestService.VerifyRequestAsync(req);
+                var connectionInfo = await _updatesHub.Negotiate(user.Hash);
+                return new JsonResult(connectionInfo);
+            }
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
+
         }
     }
-}
+}*/

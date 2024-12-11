@@ -1,16 +1,12 @@
-using Model;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Http;
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 namespace Service;
-public class AuthenticationService(UserService userService) : IAuthenticationService
+public class AuthenticationService() : IAuthenticationService
 {
-
-    private readonly UserService _userService = userService;
 
     private static FirebaseAuth GetInstance()
     {
@@ -45,16 +41,35 @@ public class AuthenticationService(UserService userService) : IAuthenticationSer
         return uid;
     }
 
-
-    //Util
-    public static async Task<UserRecord> CreateUserAsync(UserRecordArgs userRecordArgs)
+    public async Task<UserRecord> RetrieveAccount(string uid)
     {
-        return await GetInstance().CreateUserAsync(userRecordArgs);
+        try
+        {
+            var userRecord = await GetInstance().GetUserAsync(uid);
+            return GetUserRecord(userRecord);
+        }
+        catch (Exception)
+        {
+            throw new SecurityTokenValidationException("No Firebase user found");
+        }
+
+    }
+    //Util
+    public static async Task<UserRecord> CreateAccountAsync(UserRecordArgs userRecordArgs)
+    {
+        var userRecord = await GetInstance().CreateUserAsync(userRecordArgs);
+        return GetUserRecord(userRecord);
     }
 
-    public static async Task<UserRecord> RetrieveFirebaseUserFromMail(string mail)
+    public static async Task<UserRecord> RetrieveAccountFromMail(string mail)
     {
-        return await GetInstance().GetUserByEmailAsync(mail);
+        var userRecord = await GetInstance().GetUserByEmailAsync(mail);
+        return GetUserRecord(userRecord);
+    }
+
+    private static UserRecord GetUserRecord(FirebaseAdmin.Auth.UserRecord userRecord)
+    {
+        return new UserRecord(userRecord.Email, userRecord.Uid);
     }
 
 }
