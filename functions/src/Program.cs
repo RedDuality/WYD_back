@@ -30,7 +30,7 @@ var host = new HostBuilder()
         });
         services.AddTransient<SignalRService>();
 
-        services.AddScoped<AuthenticationService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddTransient<AuthorizationService>();
         services.AddTransient<RequestService>();
 

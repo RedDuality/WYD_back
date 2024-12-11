@@ -3,11 +3,45 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Model;
 
 namespace Service;
-public class RequestService(JsonSerializerOptions jsonSerializerOptions)
+public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserService userService, IAuthenticationService authenticationService)
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = jsonSerializerOptions;
+
+    private readonly UserService _userService = userService;
+
+    private readonly IAuthenticationService _authenticationService = authenticationService;
+
+
+    public async Task<User> VerifyRequestAsync(HttpRequest req)
+    {
+
+        var authorization = req.Headers.Authorization;
+
+        if (string.IsNullOrEmpty(authorization) || !authorization.ToString().StartsWith("Bearer "))
+        {
+            throw new NullReferenceException("No token in the request");
+        }
+
+        string token = authorization.ToString()["Bearer ".Length..].Trim();
+        
+        string uid;
+        try
+        {
+            uid = await _authenticationService.CheckTokenAsync(token);
+        }
+        catch (Exception)
+        {
+            throw new SecurityTokenValidationException("Invalid Token");
+        }
+        //TODO check on maximum users from different domains
+        return await _userService.GetOrCreateAsync(uid);
+    }
+
+
 
     public async Task<T> DeserializeRequestBodyAsync<T>(HttpRequest req)
     {
@@ -18,8 +52,6 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions)
         }
         return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException(nameof(T));
     }
-
-
 
     public static IActionResult GetErrorResult(Exception e)
     {
@@ -35,4 +67,5 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions)
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError),
         };
     }
+
 }
