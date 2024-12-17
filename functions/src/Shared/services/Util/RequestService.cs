@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.IdentityModel.Tokens;
 using Model;
 
@@ -28,39 +27,13 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
         }
 
         string token = authorization.ToString()["Bearer ".Length..].Trim();
-        
-        string uid;
-        try
-        {
-            uid = await _authenticationService.CheckTokenAsync(token);
-        }
-        catch (Exception)
-        {
-            throw new SecurityTokenValidationException("Invalid Token");
-        }
-        //TODO check on maximum users from different domains
-        return await _userService.GetOrCreateAsync(uid);
+
+        return await CheckTokenAsync(token);
     }
 
-    public async Task<User> VerifyRequestAsync(HttpRequestData req)
+
+    public async Task<User> CheckTokenAsync(string token)
     {
-
-        string authorization;// = req.Headers.FirstOrDefault(h => h.Value.Contains("Bearer")).Value.First();
-        // Retrieve the Authorization header
-        if (req.Headers.TryGetValues("Authorization", out var authHeaderValues))
-        {
-            authorization = authHeaderValues.FirstOrDefault()!;
-            
-            // Use the authorizationHeader as needed
-        }else{throw new NullReferenceException("No token in the request");}
-
-        if (string.IsNullOrEmpty(authorization) || !authorization.ToString().StartsWith("Bearer "))
-        {
-            throw new NullReferenceException("No token in the request");
-        }
-
-        string token = authorization.ToString()["Bearer ".Length..].Trim();
-        
         string uid;
         try
         {
@@ -89,7 +62,9 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
     {
         return e switch
         {
+            InvalidOperationException invalidOperationException => new BadRequestObjectResult(invalidOperationException.Message),
             UnauthorizedAccessException unauthorizedEx => new StatusCodeResult(StatusCodes.Status403Forbidden),
+            SecurityTokenValidationException securityTokenValidationException => new UnauthorizedObjectResult(securityTokenValidationException.Message),
             NullReferenceException nullReferenceException => new BadRequestObjectResult(nullReferenceException.Message),
             KeyNotFoundException keyNotFoundEx => new BadRequestObjectResult(keyNotFoundEx.Message + " with given Id not found"),
             ArgumentNullException argumentNullException => new BadRequestObjectResult("Expected a value but none was given"),
