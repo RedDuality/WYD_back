@@ -42,6 +42,7 @@ var host = new HostBuilder()
         services.AddTransient<EventService>();
 
         services.AddTransient<UtilService>();
+        services.AddTransient<NotificationService>();
 
         services.AddSingleton(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     })
