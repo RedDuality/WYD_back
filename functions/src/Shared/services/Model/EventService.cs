@@ -1,7 +1,6 @@
 using Model;
 using Database;
 using Dto;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Service;
 public class EventService(WydDbContext context, GroupService groupService)
@@ -19,14 +18,14 @@ public class EventService(WydDbContext context, GroupService groupService)
         return db.Events.Find(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
     }
 
-    public Event? RetrieveFromHash(string eventHash)
+    public Event RetrieveFromHash(string eventHash)
     {
         if (string.IsNullOrEmpty(eventHash))
         {
             throw new ArgumentException("Event hash cannot be null or empty.", nameof(eventHash));
         }
 
-        return db.Events.FirstOrDefault(e => e.Hash == eventHash);
+        return db.Events.FirstOrDefault(e => e.Hash == eventHash) ?? throw new KeyNotFoundException($"Event with ID {eventHash} not found.");
     }
 
     private Event CreateNewAndSave(EventDto eventDto)
@@ -90,9 +89,9 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     private async Task AddMultipleBlobs(Event ev, HashSet<BlobData> blobDatas)
     {
-        if (!blobDatas.IsNullOrEmpty())
+        if (blobDatas.Count > 0)
         {
-            var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
+            List<Task> tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
             await Task.WhenAll(tasks);
         }
     }
@@ -123,7 +122,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         var groups = groupService.Retrieve(groupIds).ToList();
         var profiles = groups.SelectMany(g => g.Profiles).ToHashSet();
 
-        if (profiles.IsNullOrEmpty()) throw new Exception("No Profile to add this event to!");
+        if (profiles.Count == 0) throw new Exception("No Profile to add this event to!");
 
         return Share(ev, profiles!);
     }

@@ -2,16 +2,16 @@ using Microsoft.AspNetCore.Http;
 using Model;
 
 namespace Service;
-public class AuthorizationService(AuthenticationService authService, ProfileService profileService)
+public class AuthorizationService(RequestService requestService, ProfileService profileService)
 {
-    private readonly AuthenticationService _authService = authService;
+    private readonly RequestService _requestService = requestService;
     private readonly ProfileService _profileService = profileService;
 
     public async Task<User> VerifyRequest(HttpRequest req)
     {
         try
         {
-            return await _authService.VerifyRequestAsync(req);
+            return await _requestService.VerifyRequestAsync(req);
         }
         catch (Exception)
         {
@@ -23,7 +23,7 @@ public class AuthorizationService(AuthenticationService authService, ProfileServ
     {
         try
         {
-            await _authService.VerifyRequestAsync(req);
+            await _requestService.VerifyRequestAsync(req);
         }
         catch (Exception)
         {
@@ -32,4 +32,5 @@ public class AuthorizationService(AuthenticationService authService, ProfileServ
         //TODO check roles
         return _profileService.RetrieveFromHeaders(req);
     }
+
 }

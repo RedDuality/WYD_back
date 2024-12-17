@@ -11,26 +11,26 @@ namespace Functions
     {
         private readonly ILogger<Retrieve> _logger;
 
-        private readonly AuthenticationService _authService;
+        private readonly RequestService _requestService;
 
-        public Retrieve(ILogger<Retrieve> logger, AuthenticationService authService)
+        public Retrieve(ILogger<Retrieve> logger, RequestService requestService)
         {
             _logger = logger;
-            _authService = authService;
+            _requestService = requestService;
         }
 
         [Function("Retrieve")]
         public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "User/Retrieve")] HttpRequest req, FunctionContext executionContext)
         {
-            User user;
             try
             {
-                user = await _authService.VerifyRequestAsync(req);
+                User user = await _requestService.VerifyRequestAsync(req);
+                return new OkObjectResult(user);
             }
-            catch (Exception) { return new StatusCodeResult(StatusCodes.Status403Forbidden); }
-
-            return new OkObjectResult(user);
-
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
         }
     }
 }

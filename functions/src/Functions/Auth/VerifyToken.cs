@@ -1,6 +1,4 @@
 
-
-using System.Text.Json;
 using Service;
 using Dto;
 using Microsoft.AspNetCore.Http;
@@ -13,35 +11,24 @@ using Model;
 
 namespace Functions
 {
-    public class VerifyToken
+    public class VerifyToken(ILogger<VerifyToken> logger, RequestService requestService)
     {
-        private readonly ILogger<VerifyToken> _logger;
-        private readonly AuthenticationService _authController;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
+        private readonly ILogger<VerifyToken> _logger = logger;
 
-        public VerifyToken(ILogger<VerifyToken> logger, AuthenticationService authService, JsonSerializerOptions jsonSerializerOptions)
-        {
-            _logger = logger;
-            _authController = authService;
-            _jsonSerializerOptions = jsonSerializerOptions;
-        }
+        private readonly RequestService _requestService = requestService;
 
         [Function("VerifyToken")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Auth/VerifyToken")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Auth/VerifyToken")] HttpRequest req)
         {
-            TokenRequest? TR = await JsonSerializer.DeserializeAsync<TokenRequest>(req.Body, _jsonSerializerOptions);
-            if (TR != null && TR.Token != null)
+            try
             {
-                try
-                {
-                    User user = await _authController.VerifyTokenAsync(TR.Token);
-                    return new OkObjectResult(new RetrieveUserDto(user));
-                }
-                catch (Exception e) { return new BadRequestObjectResult(e.Message); }
-
+                User user = await _requestService.VerifyRequestAsync(req);
+                return new OkObjectResult(new RetrieveUserDto(user));
             }
-            else return new BadRequestObjectResult("Bad Json Formatting");
-
+            catch (Exception ex)
+            {
+                return RequestService.GetErrorResult(ex);
+            }
         }
     }
 

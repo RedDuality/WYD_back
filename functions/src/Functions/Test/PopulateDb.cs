@@ -32,10 +32,11 @@ namespace Functions.Test
                     return new OkObjectResult("Database successfully initialized");
                 return new BadRequestObjectResult("");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return new BadRequestObjectResult(e.Message);
+                return RequestService.GetErrorResult(ex);
             }
+
         }
     }
 }

@@ -1,15 +1,17 @@
 using Model;
 using Database;
 using Dto;
-using FirebaseAdmin.Auth;
 
 namespace Service;
-public class UserService(WydDbContext context, AccountService accountService, ProfileService profileService)
+
+
+public class UserService(WydDbContext context, AccountService accountService, ProfileService profileService, IAuthenticationService authenticationService)
 {
     private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null.");
     private readonly AccountService _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService), "Account service cannot be null.");
     private readonly ProfileService _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
 
+    private readonly IAuthenticationService _authenticationService = authenticationService;
     public User? RetrieveOrNull(int id)
     {
         return db.Users.Find(id);
@@ -21,7 +23,7 @@ public class UserService(WydDbContext context, AccountService accountService, Pr
 
         if (account == null) //registration
         {
-            UserRecord UR = await AuthenticationService.RetrieveFirebaseUser(uid);
+            UserRecord UR = await _authenticationService.RetrieveAccount(uid);
             return Create(UR.Email, UR.Uid);
         }
         return account.User;

@@ -8,5 +8,6 @@ public enum UserPermissionOnProfile
     READ_EVENTS = 1 << 3,   // 8
     CREATE_EVENT = 1 << 4,  // 16
     CONFIRM_EVENT = 1 << 5, // 32
-    UPDATE_EVENT = 1 << 6  // 64
+    UPDATE_EVENT = 1 << 6, // 64
+    DELETE_EVENT = 1 << 7, //128
 }
