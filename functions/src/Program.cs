@@ -5,7 +5,6 @@ using Service;
 using Database;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Functions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(b => b.Services
