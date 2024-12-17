@@ -3,9 +3,10 @@ using Database;
 using Dto;
 
 namespace Service;
-public class CommunityService(WydDbContext context)
+public class CommunityService(WydDbContext context, ProfileService profileService)
 {
     private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
+    private readonly ProfileService profileService = profileService;
 
     public Community? RetrieveOrNull(int id)
     {
@@ -48,20 +49,24 @@ public class CommunityService(WydDbContext context)
         }
     }
 
-    private static Community FromDto(CreateCommunityDto dto, Profile profile)
+    private Community FromDto(CreateCommunityDto dto, Profile profile)
     {
         Community community = new();
 
-        dto.Profiles.Add(profile);
 
-        if (dto.Type == CommunityType.Personal && dto.Profiles.Count != 2)
+
+        if (dto.Type == CommunityType.Personal && dto.Profiles.Count != 1)
             throw new Exception("Profiles must be at least 2");
 
-        if (dto.Profiles.Count <= 0) throw new Exception("Profiles list must not be empty");
+        HashSet<Profile> profiles = [profile];
+        foreach (int id in dto.Profiles)
+        {
+            profiles.Add(profileService.Retrieve(id));
+        }
 
         community.Type = dto.Type;
         community.Name = dto.Name ?? "My Community";
-        community.Profiles = dto.Profiles;
+        community.Profiles = profiles;
 
         return community;
     }

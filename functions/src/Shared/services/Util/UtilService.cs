@@ -4,10 +4,8 @@ using FirebaseAdmin.Auth;
 using Model;
 
 namespace Service;
-public class UtilService(AuthenticationService authService, UserService userService, EventService eventService, CommunityService communityService)
+public class UtilService( UserService userService, EventService eventService, CommunityService communityService)
 {
-
-    readonly AuthenticationService authService = authService;
     readonly UserService userService = userService;
     readonly EventService eventService = eventService;
     readonly CommunityService communityService = communityService;
@@ -148,7 +146,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Personal Community 1 2",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0], profiles[1]]
+                    Profiles = [profiles[0].Id, profiles[1].Id]
                 },
                 profiles[0]
             )
@@ -161,7 +159,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Personal Community 1 3",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0], profiles[2]]
+                    Profiles = [profiles[0].Id, profiles[2].Id]
                 },
                 profiles[0]
             )
@@ -174,7 +172,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Personal Community 1 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0], profiles[3]]
+                    Profiles = [profiles[0].Id, profiles[3].Id]
                 },
                 profiles[0]
             )
@@ -187,7 +185,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Personal Community 2 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[1], profiles[3]]
+                    Profiles = [profiles[1].Id, profiles[3].Id]
                 },
                 profiles[3]
             )
@@ -200,7 +198,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Personal Community 3 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[2], profiles[3]]
+                    Profiles = [profiles[2].Id, profiles[3].Id]
                 },
                 profiles[3]
             )
@@ -214,7 +212,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Single Group 1_2",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0], profiles[1]]
+                    Profiles = [profiles[0].Id, profiles[1].Id]
                 },
                 profiles[0]
             )
@@ -229,7 +227,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "Single Group 1_2_3_4",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0], profiles[1], profiles[2], profiles[3]]
+                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id, profiles[3].Id]
                 },
                 profiles[0]
             )
@@ -250,7 +248,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "General Community",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0], profiles[1], profiles[2]]
+                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id]
                 },
                 profiles[0]
             )
@@ -263,7 +261,7 @@ public class UtilService(AuthenticationService authService, UserService userServ
                     Id = 0,
                     Name = "General Community 1",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0], profiles[1], profiles[2], profiles[3]]
+                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id, profiles[3].Id]
                 },
                 profiles[0]
             )
