@@ -32,7 +32,7 @@ namespace Functions
             {
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-                Event e = _eventService.RetrieveFromHash(eventHash);
+                Event e = _eventService.RetrieveFromHash(eventHash, currentProfile);
                 return new OkObjectResult(new EventDto(e));
             }
             catch (Exception ex)
