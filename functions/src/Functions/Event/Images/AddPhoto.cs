@@ -19,14 +19,14 @@ namespace Functions
         private readonly EventService _eventService = eventService;
 
         [Function("AddPhoto")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Photo/Add/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Photo/Add/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
             try
             {
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.ADD_PHOTO);
 
                 BlobData blobData = await _requestService.DeserializeRequestBodyAsync<BlobData>(req);
-                await _eventService.AddBlobAsync(int.Parse(eventId), blobData);
+                await _eventService.AddBlobAsync(eventHash, blobData);
 
                 return new OkObjectResult("Blob saved with success");
             }

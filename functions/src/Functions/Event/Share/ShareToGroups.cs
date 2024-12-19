@@ -22,7 +22,7 @@ namespace Functions
         private readonly RequestService _requestService = requestService;
 
         [Function("ShareToGroups")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Groups/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Event/Share/Groups/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
 
             try
@@ -32,7 +32,7 @@ namespace Functions
                 var groupIds = await _requestService.DeserializeRequestBodyAsync<HashSet<int>>(req);
 
                 //TODO check logic
-                var newevent = _eventService.ShareToGroups(int.Parse(eventId), groupIds!);
+                var newevent = _eventService.ShareToGroups(eventHash, groupIds!);
                 return new OkObjectResult(new EventDto(newevent));
             }
             catch (Exception ex)

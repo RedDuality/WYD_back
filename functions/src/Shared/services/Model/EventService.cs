@@ -103,9 +103,9 @@ public class EventService(WydDbContext context, GroupService groupService)
         }
     }
 
-    public async Task AddBlobAsync(int eventId, BlobData blobData)
+    public async Task AddBlobAsync(string eventHash, BlobData blobData)
     {
-        Event ev = Retrieve(eventId);
+        Event ev = RetrieveByHash(eventHash);
         await AddBlobAsync(ev, blobData);
     }
 
@@ -119,9 +119,9 @@ public class EventService(WydDbContext context, GroupService groupService)
         db.SaveChanges();
     }
 
-    internal Event ShareToGroups(int eventId, HashSet<int> groupIds)
+    internal Event ShareToGroups(string eventHash, HashSet<int> groupIds)
     {
-        Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException("Event not found");
+        Event ev = RetrieveByHash(eventHash);
 
         var groups = groupService.Retrieve(groupIds).ToList();
         var profiles = groups.SelectMany(g => g.Profiles).ToHashSet();
