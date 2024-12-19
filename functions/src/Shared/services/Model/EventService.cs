@@ -9,15 +9,6 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     private readonly GroupService groupService = groupService ?? throw new ArgumentNullException(nameof(context), "GroupService cannot be null");
 
-    public Event? RetrieveOrNull(int eventId)
-    {
-        return db.Events.Find(eventId);
-    }
-    public Event Retrieve(int eventId)
-    {
-        return db.Events.Find(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
-    }
-
     public Event RetrieveByHash(string eventHash){
         return db.Events.FirstOrDefault(e => e.Hash == eventHash) ?? throw new KeyNotFoundException($"Event with ID {eventHash} not found.");
     }
@@ -98,15 +89,9 @@ public class EventService(WydDbContext context, GroupService groupService)
     {
         if (blobDatas.Count > 0)
         {
-            List<Task> tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
+            var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
             await Task.WhenAll(tasks);
         }
-    }
-
-    public async Task AddBlobAsync(string eventHash, BlobData blobData)
-    {
-        Event ev = RetrieveByHash(eventHash);
-        await AddBlobAsync(ev, blobData);
     }
 
     private async Task AddBlobAsync(Event ev, BlobData blobData)
@@ -146,13 +131,13 @@ public class EventService(WydDbContext context, GroupService groupService)
         }
     }
 
-    public void ConfirmOrDecline(string eventHash, Profile profile, bool confirmed)
+    public Event ConfirmOrDecline(string eventHash, Profile profile, bool confirmed)
     {
         Event ev = RetrieveByHash(eventHash);
-        ConfirmOrDecline(ev, profile, confirmed);
+        return ConfirmOrDecline(ev, profile, confirmed);
     }
 
-    public void ConfirmOrDecline(Event ev, Profile profile, bool confirmed)
+    public Event ConfirmOrDecline(Event ev, Profile profile, bool confirmed)
     {
         var profileEvent = ev.ProfileEvents.Find(pe => pe.Profile.Id == profile.Id) ?? throw new KeyNotFoundException($"ProfileEvent with Profile ID {profile.Id} not found for the given profile.");
         profileEvent.Confirmed = confirmed;
@@ -165,6 +150,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         {
             throw new InvalidOperationException("Error confirming or declining event for profile.", ex);
         }
+        return ev;
     }
 
 

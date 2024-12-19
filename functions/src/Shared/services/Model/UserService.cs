@@ -12,6 +12,7 @@ public class UserService(WydDbContext context, AccountService accountService, Pr
     private readonly ProfileService _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService), "Profile service cannot be null.");
 
     private readonly IAuthenticationService _authenticationService = authenticationService;
+
     public User? RetrieveOrNull(int id)
     {
         return db.Users.Find(id);
@@ -29,13 +30,15 @@ public class UserService(WydDbContext context, AccountService accountService, Pr
         return account.User;
     }
 
+
     private User Create(string Email, string Uid)
     {
+        User user;
         using var transaction = db.Database.BeginTransaction();
         try
         {
             // Create a new user
-            var user = new User();
+            user = new User();
             db.Users.Add(user);
             db.SaveChanges();
 
@@ -59,14 +62,13 @@ public class UserService(WydDbContext context, AccountService accountService, Pr
             AddProfile(user, profile);
 
             transaction.Commit();
-            return user;
         }
         catch (Exception ex)
         {
             transaction.Rollback();
-            throw new InvalidOperationException("Error creating user and related entities. Transaction rolled back.", ex);
+            throw new InvalidOperationException("Error creating user " + ex.Message);
         }
-
+        return user;
     }
 
     public User AddProfile(User user, Profile profile)

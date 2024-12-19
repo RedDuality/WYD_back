@@ -23,7 +23,7 @@ namespace Functions
         {
             try
             {
-                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
+                Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.READ_EVENTS);
 
                 Event e = _eventService.RetrieveByHash(eventHash);
                 return new OkObjectResult(new EventDto(e));

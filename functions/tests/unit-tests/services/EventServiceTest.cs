@@ -22,36 +22,6 @@ public class EventServiceTest
     }
 
     [Fact]
-    public void Retrieve_ValidEvent_ReturnsEvent()
-    {
-        // Arrange
-        var dbContext = GetInMemoryDbContext();
-        var eventService = new EventService(dbContext);
-        var event1 = new Event { Hash = "hash1", StartTime = DateTimeOffset.Now, EndTime = DateTimeOffset.Now.AddHours(2) };
-        dbContext.Events.Add(event1);
-        dbContext.SaveChanges();
-
-        // Act
-        var result = eventService.RetrieveOrNull(event1.Id);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(event1.Id, result.Id);
-    }
-
-    [Fact]
-    public void Retrieve_EventNotFound_ThrowsKeyNotFoundException()
-    {
-        // Arrange
-        var dbContext = GetInMemoryDbContext();
-        var eventService = new EventService(dbContext);
-
-        // Act & Assert
-        var exception = Assert.Throws<KeyNotFoundException>(() => eventService.RetrieveOrNull(999)); // Non-existent event
-        Assert.Contains("Event with ID 999 not found", exception.Message);
-    }
-
-    [Fact]
     public void Create_ValidEventAndProfile_CreatesEvent()
     {
         // Arrange

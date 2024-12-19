@@ -1,5 +1,6 @@
 
 using Google.Cloud.Firestore;
+using Model;
 
 namespace Service;
 
@@ -37,7 +38,19 @@ public class NotificationService
         }.Build();
     }
 
-    public async Task SendUpdateNotifications(List<string> userHashes, UdpateType type, string objectHash, string? deviceId)
+
+    public async Task SendEventNotifications(Event ev, Profile currentProfile, UdpateType type, string deviceId)
+    {
+        //TODO add control over roles
+        HashSet<string> profileUserHashes = currentProfile.Users.Select(user => user.Hash).ToHashSet();
+        HashSet<string> userHashes = ev.Profiles.SelectMany(profile => profile.Users.Select(user => user.Hash)).Where(hash => !profileUserHashes.Contains(hash)).ToHashSet();
+
+        await Send(userHashes, (type == UdpateType.ConfirmEvent || type == UdpateType.DeleteEvent) ? UdpateType.UpdateEvent : type, ev.Hash, null);
+        await Send(profileUserHashes, type, ev.Hash, deviceId);
+
+    }
+
+    private async Task Send(IEnumerable<string> userHashes, UdpateType type, string objectHash, string? deviceId)
     {
         Dictionary<string, object> update = new()
         {
@@ -52,9 +65,11 @@ public class NotificationService
         {
             await firestoreDb.Collection(hash).AddAsync(update);
         }
-
     }
 
-
+    public async Task SendMockNotification()
+    {
+        await Send(["NDjmfkkUXxzINlM47MycQ"], UdpateType.UpdateEvent, "prova", null);
+    }
 
 }

@@ -12,18 +12,14 @@ using Model;
 
 namespace Functions
 {
-    public class SharedWithHash
+    public class SharedWithHash(ILogger<SharedWithHash> logger, EventService eventService, AuthorizationService authService, RequestService requestService)
     {
-        private readonly ILogger<SharedWithHash> _logger;
-        private readonly EventService _eventService;
-        private readonly AuthorizationService _authorizationService;
+        private readonly ILogger<SharedWithHash> _logger = logger;
+        private readonly EventService _eventService = eventService;
+        private readonly AuthorizationService _authorizationService = authService;
 
-        public SharedWithHash(ILogger<SharedWithHash> logger, EventService eventService, AuthorizationService authService)
-        {
-            _logger = logger;
-            _eventService = eventService;
-            _authorizationService = authService;
-        }
+        private readonly RequestService requestService = requestService;
+
 
         [Function("SharedWithHash")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Shared/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
@@ -33,6 +29,7 @@ namespace Functions
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
                 Event e = _eventService.SharedWithHash(eventHash, currentProfile);
+                await requestService.NotifyAsync(e, UdpateType.NewEvent, currentProfile, req);
                 return new OkObjectResult(new EventDto(e));
             }
             catch (Exception ex)

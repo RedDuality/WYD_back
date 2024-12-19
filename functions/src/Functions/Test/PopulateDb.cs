@@ -27,10 +27,8 @@ namespace Functions.Test
         {
             try
             {
-                bool result = await utilService.InitDb();
-                if (result)
-                    return new OkObjectResult("Database successfully initialized");
-                return new BadRequestObjectResult("");
+                await utilService.InitDb();
+                return new OkObjectResult("Database successfully initialized");
             }
             catch (Exception ex)
             {

@@ -28,6 +28,7 @@ namespace Functions
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.DELETE_EVENT);
 
                 //var result = _eventService.DeleteForUser(int.Parse(eventId), user.Id);
+                //Notify
                 return new OkObjectResult("");
             }
             catch (Exception ex)

@@ -5,11 +5,12 @@ using Service;
 
 namespace Functions
 {
-    public class SendUpdateNotification(NotificationService rtservice, RequestService requestService)
+    public class SendUpdateNotification(NotificationService rtservice, RequestService requestService, EventService eventService)
     {
         private readonly NotificationService rTService = rtservice;
 
         private readonly RequestService _requestService = requestService;
+        private readonly EventService _eventService = eventService;
 
         [Function("SendUpdateNotification")]
         public async Task<IActionResult> Run(
@@ -18,8 +19,7 @@ namespace Functions
         {
             try
             {
-                string deviceId = RequestService.RetrieveFromHeaders(req, "deviceId");
-                await rTService.SendUpdateNotifications(["NDjmfkkUXxzINlM47MycQ"], UdpateType.UpdateEvent, "hash", deviceId);
+                await rTService.SendMockNotification();
                 return new OkObjectResult("");
             }
             catch (Exception ex)

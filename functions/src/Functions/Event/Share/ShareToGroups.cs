@@ -33,6 +33,7 @@ namespace Functions
 
                 //TODO check logic
                 var newevent = _eventService.ShareToGroups(eventHash, groupIds!);
+                //Notify
                 return new OkObjectResult(new EventDto(newevent));
             }
             catch (Exception ex)

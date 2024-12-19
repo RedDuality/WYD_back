@@ -8,14 +8,14 @@ using Microsoft.IdentityModel.Tokens;
 using Model;
 
 namespace Service;
-public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserService userService, IAuthenticationService authenticationService)
+public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserService userService, IAuthenticationService authenticationService, NotificationService notificationService)
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = jsonSerializerOptions;
 
     private readonly UserService _userService = userService;
 
     private readonly IAuthenticationService _authenticationService = authenticationService;
-
+    private readonly NotificationService notificationService = notificationService;
 
     public async Task<User> VerifyRequestAsync(HttpRequest req)
     {
@@ -75,21 +75,34 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
     }
 
 
-    public async Task<User> GetDeviceId(HttpRequest req)
+    private static string GetDeviceId(HttpRequest req)
     {
 
-        var authorization = req.Headers.Authorization;
-
-        if (string.IsNullOrEmpty(authorization) || !authorization.ToString().StartsWith("Bearer "))
+        if (req.Headers.TryGetValue("deviceId", out var headerValue))
         {
-            throw new NullReferenceException("No token in the request");
+            if (StringValues.IsNullOrEmpty(headerValue))
+            {
+                throw new ArgumentException("Header value malformed");
+            }
+            return headerValue!;
         }
-
-        string token = authorization.ToString()["Bearer ".Length..].Trim();
-
-        return await CheckTokenAsync(token);
+        else
+            throw new ArgumentException("DeviceId header not found or in the wrong format");
     }
 
+    public async Task NotifyAsync(Event ev, UdpateType type, Profile currentProfile, HttpRequest req)
+    {
+        try
+        {
+            string deviceId = GetDeviceId(req);
+            //TODO check max time
+            await notificationService.SendEventNotifications(ev, currentProfile, type, deviceId);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
 
     public static IActionResult GetErrorResult(Exception e)
     {

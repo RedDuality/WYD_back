@@ -4,13 +4,13 @@ using FirebaseAdmin.Auth;
 using Model;
 
 namespace Service;
-public class UtilService( UserService userService, EventService eventService, CommunityService communityService)
+public class UtilService(UserService userService, EventService eventService, CommunityService communityService)
 {
     readonly UserService userService = userService;
     readonly EventService eventService = eventService;
     readonly CommunityService communityService = communityService;
 
-    public async Task<bool> InitDb()
+    public async Task InitDb()
     {
 
         List<string> mails = ["prova", "prova1", "prova2", "prova3"];
@@ -22,9 +22,9 @@ public class UtilService( UserService userService, EventService eventService, Co
 
         GenerateEvents(profiles);
 
-        return true;
     }
 
+    #region initDb
     private void GenerateEvents(List<Profile> profiles)
     {
         List<Tuple<EventDto, Profile>> events = GenerateEventDtos(profiles);
@@ -79,7 +79,7 @@ public class UtilService( UserService userService, EventService eventService, Co
             throw new InvalidOperationException("Error initializing database entities.", ex);
         }
     }
-    
+
     private async Task<List<User>> CreateUsersAsync(ICollection<string> mails)
     {
         List<User> users = [];
@@ -146,7 +146,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Personal Community 1 2",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0].Id, profiles[1].Id]
+                    Profiles = [profiles[1].Id]
                 },
                 profiles[0]
             )
@@ -159,7 +159,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Personal Community 1 3",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0].Id, profiles[2].Id]
+                    Profiles = [profiles[2].Id]
                 },
                 profiles[0]
             )
@@ -172,7 +172,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Personal Community 1 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[0].Id, profiles[3].Id]
+                    Profiles = [profiles[3].Id]
                 },
                 profiles[0]
             )
@@ -185,7 +185,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Personal Community 2 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[1].Id, profiles[3].Id]
+                    Profiles = [profiles[1].Id]
                 },
                 profiles[3]
             )
@@ -198,7 +198,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Personal Community 3 4",
                     Type = CommunityType.Personal,
-                    Profiles = [profiles[2].Id, profiles[3].Id]
+                    Profiles = [profiles[2].Id]
                 },
                 profiles[3]
             )
@@ -212,7 +212,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Single Group 1_2",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0].Id, profiles[1].Id]
+                    Profiles = [profiles[1].Id]
                 },
                 profiles[0]
             )
@@ -227,7 +227,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "Single Group 1_2_3_4",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id, profiles[3].Id]
+                    Profiles = [profiles[1].Id, profiles[2].Id, profiles[3].Id]
                 },
                 profiles[0]
             )
@@ -248,7 +248,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "General Community",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id]
+                    Profiles = [profiles[1].Id, profiles[2].Id]
                 },
                 profiles[0]
             )
@@ -261,7 +261,7 @@ public class UtilService( UserService userService, EventService eventService, Co
                     Id = 0,
                     Name = "General Community 1",
                     Type = CommunityType.SingleGroup,
-                    Profiles = [profiles[0].Id, profiles[1].Id, profiles[2].Id, profiles[3].Id]
+                    Profiles = [profiles[1].Id, profiles[2].Id, profiles[3].Id]
                 },
                 profiles[0]
             )
@@ -269,6 +269,8 @@ public class UtilService( UserService userService, EventService eventService, Co
 
         return pairs;
     }
+
+    #endregion
 
 
 }

@@ -29,9 +29,9 @@ namespace Functions
                 var myevent = await _requestService.DeserializeRequestBodyAsync<EventDto>(req);
                 var newevent = await _eventService.UpdateAsync(myevent);
 
-                EventDto eventDto = new(newevent);
+                await _requestService.NotifyAsync(newevent, UdpateType.UpdateEvent, currentProfile, req);
 
-                return new OkObjectResult(eventDto);
+                return new OkObjectResult(new EventDto(newevent));
             }
             catch (Exception ex)
             {
