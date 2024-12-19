@@ -26,16 +26,6 @@ public class ProfileService(WydDbContext wydDbContext)
         return db.Profiles.Where(p => p.Hash.Equals(hash)).First() ?? throw new KeyNotFoundException("Profile");
     }
 
-    public Profile RetrieveFromHeaders(HttpRequest req)
-    {
-
-        if (req.Headers.TryGetValue("Current-Profile", out var profileHash))
-            return RetrieveByHash(profileHash!);
-        else
-            throw new ArgumentException("Profile header not found or in the wrong format");
-
-    }
-
     public Profile Create(Profile profile)
     {
         db.Profiles.Add(profile);

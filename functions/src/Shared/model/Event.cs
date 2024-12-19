@@ -28,7 +28,6 @@ public class Event : BaseHashEntity
     {
         return new Event
         {
-            Id = dto.Id,
             Title = dto.Title,
             Description = dto.Description,
             StartTime = dto.StartTime,

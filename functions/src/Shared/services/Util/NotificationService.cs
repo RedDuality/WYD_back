@@ -5,9 +5,12 @@ namespace Service;
 
 public enum UdpateType
 {
-    Event,
-    Profile,
-    Confirm
+    NewEvent,
+    UpdateEvent,
+    ConfirmEvent,
+    DeclineEvent,
+    DeleteEvent,
+    ProfileDetails
 }
 
 
@@ -34,13 +37,14 @@ public class NotificationService
         }.Build();
     }
 
-    public async Task SendUpdateNotifications(List<string> userHashes, UdpateType type, int id)
+    public async Task SendUpdateNotifications(List<string> userHashes, UdpateType type, string objectHash, string? deviceId)
     {
         Dictionary<string, object> update = new()
         {
             { "timestamp",  Timestamp.GetCurrentTimestamp()},
             { "type",  type},
-            { "id", id}
+            { "hash", objectHash},
+            {"deviceId", deviceId ?? ""}
         };
 
 

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Model;
 
@@ -48,6 +49,21 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
     }
 
 
+
+    public static string RetrieveFromHeaders(HttpRequest req, string headerKey)
+    {
+        if (req.Headers.TryGetValue(headerKey, out var headerValue))
+        {
+            if (StringValues.IsNullOrEmpty(headerValue))
+            {
+                throw new ArgumentException("Header value malformed");
+            }
+            return headerValue!;
+        }
+        else
+            throw new ArgumentException(headerKey + " header not found or in the wrong format");
+    }
+
     public async Task<T> DeserializeRequestBodyAsync<T>(HttpRequest req)
     {
         string requestBody;
@@ -57,6 +73,23 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
         }
         return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException(nameof(T));
     }
+
+
+    public async Task<User> GetDeviceId(HttpRequest req)
+    {
+
+        var authorization = req.Headers.Authorization;
+
+        if (string.IsNullOrEmpty(authorization) || !authorization.ToString().StartsWith("Bearer "))
+        {
+            throw new NullReferenceException("No token in the request");
+        }
+
+        string token = authorization.ToString()["Bearer ".Length..].Trim();
+
+        return await CheckTokenAsync(token);
+    }
+
 
     public static IActionResult GetErrorResult(Exception e)
     {

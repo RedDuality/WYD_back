@@ -18,7 +18,8 @@ namespace Functions
         {
             try
             {
-                await rTService.SendUpdateNotifications(["NDjmfkkUXxzINlM47MycQ"], UdpateType.Event, 2);
+                string deviceId = RequestService.RetrieveFromHeaders(req, "deviceId");
+                await rTService.SendUpdateNotifications(["NDjmfkkUXxzINlM47MycQ"], UdpateType.UpdateEvent, "hash", deviceId);
                 return new OkObjectResult("");
             }
             catch (Exception ex)

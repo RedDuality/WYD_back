@@ -12,27 +12,20 @@ using Model;
 
 namespace Functions
 {
-    public class RetrieveFromHash
+    public class RetrieveByHash(ILogger<RetrieveByHash> logger, EventService eventService, AuthorizationService authService)
     {
-        private readonly ILogger<RetrieveFromHash> _logger;
-        private readonly EventService _eventService;
-        private readonly AuthorizationService _authorizationService;
+        private readonly ILogger<RetrieveByHash> _logger = logger;
+        private readonly EventService _eventService = eventService;
+        private readonly AuthorizationService _authorizationService = authService;
 
-        public RetrieveFromHash(ILogger<RetrieveFromHash> logger, EventService eventService, AuthorizationService authService)
-        {
-            _logger = logger;
-            _eventService = eventService;
-            _authorizationService = authService;
-        }
-
-        [Function("RetrieveFromHash")]
+        [Function("RetrieveByHash")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Retrieve/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
             try
             {
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-                Event e = _eventService.RetrieveFromHash(eventHash, currentProfile);
+                Event e = _eventService.RetrieveByHash(eventHash);
                 return new OkObjectResult(new EventDto(e));
             }
             catch (Exception ex)

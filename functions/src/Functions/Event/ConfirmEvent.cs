@@ -17,13 +17,13 @@ namespace Functions
 
 
         [Function("ConfirmEvent")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventId}")] HttpRequest req, string eventId, FunctionContext executionContext)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Event/Confirm/{eventHash}")] HttpRequest req, string eventHash, FunctionContext executionContext)
         {
             try
             {
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
-                _eventService.ConfirmOrDecline(int.Parse(eventId), currentProfile, true);
+                _eventService.ConfirmOrDecline(eventHash, currentProfile, true);
                 return new OkObjectResult("");
             }
             catch (Exception ex)

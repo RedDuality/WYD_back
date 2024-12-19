@@ -18,10 +18,11 @@ public class EventService(WydDbContext context, GroupService groupService)
         return db.Events.Find(eventId) ?? throw new KeyNotFoundException($"Event with ID {eventId} not found.");
     }
 
-    private Event RetrieveByHash(string eventHash){
+    public Event RetrieveByHash(string eventHash){
         return db.Events.FirstOrDefault(e => e.Hash == eventHash) ?? throw new KeyNotFoundException($"Event with ID {eventHash} not found.");
     }
-    public Event RetrieveFromHash(string eventHash, Profile profile)
+
+    public Event SharedWithHash(string eventHash, Profile profile)
     {
         if (string.IsNullOrEmpty(eventHash))
         {
@@ -38,8 +39,6 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     private Event CreateNewAndSave(EventDto eventDto)
     {
-        // Clear Id to force an insert (if necessary)
-        eventDto.Id = 0;
         Event newEvent = Event.FromDto(eventDto);
 
         db.Events.Add(newEvent);
@@ -77,7 +76,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         Event eventToUpdate;
         try
         {
-            eventToUpdate = RetrieveOrNull(dto.Id) ?? throw new KeyNotFoundException($"Event with ID {dto.Id} not found.");
+            eventToUpdate = RetrieveByHash(dto.Hash!);
             eventToUpdate.Update(dto);
             db.SaveChanges();
 
@@ -120,9 +119,6 @@ public class EventService(WydDbContext context, GroupService groupService)
         db.SaveChanges();
     }
 
-
-
-
     internal Event ShareToGroups(int eventId, HashSet<int> groupIds)
     {
         Event ev = RetrieveOrNull(eventId) ?? throw new KeyNotFoundException("Event not found");
@@ -150,9 +146,9 @@ public class EventService(WydDbContext context, GroupService groupService)
         }
     }
 
-    public void ConfirmOrDecline(int eventId, Profile profile, bool confirmed)
+    public void ConfirmOrDecline(string eventHash, Profile profile, bool confirmed)
     {
-        Event ev = Retrieve(eventId);
+        Event ev = RetrieveByHash(eventHash);
         ConfirmOrDecline(ev, profile, confirmed);
     }
 

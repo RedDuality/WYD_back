@@ -30,7 +30,8 @@ public class AuthorizationService(RequestService requestService, ProfileService 
             throw new UnauthorizedAccessException();
         }
         //TODO check roles
-        return _profileService.RetrieveFromHeaders(req);
+        string profileHash = RequestService.RetrieveFromHeaders(req,"Current-Profile");
+        return _profileService.RetrieveByHash(profileHash);
     }
 
 }

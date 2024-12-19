@@ -6,7 +6,6 @@ namespace Dto;
 
 public class EventDto
 {
-    public int Id { get; set; }
     public string? Hash { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
@@ -21,7 +20,6 @@ public class EventDto
     // Parameterized constructor for custom use
     public EventDto(Event ev)
     {
-        Id = ev.Id;
         Hash = ev.Hash;
         Title = ev.Title;
         Description = ev.Description;
