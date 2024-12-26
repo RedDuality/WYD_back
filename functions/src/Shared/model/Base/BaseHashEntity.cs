@@ -1,22 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Model;
 
+//baseEntity is checked for automatic dates updates, check dbContext SaveState
 [Index(nameof(Hash), IsUnique = true)]
-public class BaseHashEntity
+public class BaseHashEntity : BaseEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    [JsonIgnore]
-    public virtual DateTime CreatedAt { get; set; }
-    [JsonIgnore]
-    public virtual DateTime UpdatedAt { get; set; }
-    
     public string Hash { get; set; } = CreateHashCode();
 
     private static string CreateHashCode()
