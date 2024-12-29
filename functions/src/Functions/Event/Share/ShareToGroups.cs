@@ -1,14 +1,12 @@
 
 
-using System.Text;
-using System.Text.Json;
+
 using Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Microsoft.IdentityModel.Tokens;
 using Dto;
 
 
@@ -33,7 +31,9 @@ namespace Functions
 
                 //TODO check logic
                 var newevent = _eventService.ShareToGroups(eventHash, groupIds!);
-                //Notify
+                
+
+                await _requestService.NotifyAsync(newevent, UpdateType.ShareEvent, currentProfile);
                 return new OkObjectResult(new EventDto(newevent));
             }
             catch (Exception ex)

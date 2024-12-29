@@ -9,7 +9,8 @@ public class EventService(WydDbContext context, GroupService groupService)
 
     private readonly GroupService groupService = groupService ?? throw new ArgumentNullException(nameof(context), "GroupService cannot be null");
 
-    public Event RetrieveByHash(string eventHash){
+    public Event RetrieveByHash(string eventHash)
+    {
         return db.Events.FirstOrDefault(e => e.Hash == eventHash) ?? throw new KeyNotFoundException($"Event with ID {eventHash} not found.");
     }
 
@@ -21,7 +22,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         }
 
         Event ev = RetrieveByHash(eventHash);
-        
+
         ev.Profiles.Add(profile);
         db.SaveChanges();
 
@@ -37,7 +38,7 @@ public class EventService(WydDbContext context, GroupService groupService)
         return newEvent;
     }
 
-    public async Task<Event> Create(EventDto dto, Profile profile)
+    public Event Create(EventDto dto, Profile profile)
     {
         Event newEvent;
         using var transaction = db.Database.BeginTransaction();
@@ -57,12 +58,10 @@ public class EventService(WydDbContext context, GroupService groupService)
             throw new InvalidOperationException("Error creating event. Transaction rolled back.", ex);
         }
 
-        await AddMultipleBlobs(newEvent, dto.NewBlobData);
-
         return newEvent;
     }
 
-    public async Task<Event> UpdateAsync(EventDto dto)
+    public Event UpdateAsync(EventDto dto)
     {
         Event eventToUpdate;
         try
@@ -79,10 +78,15 @@ public class EventService(WydDbContext context, GroupService groupService)
 
         //TODO check for removed images
 
-        await AddMultipleBlobs(eventToUpdate, dto.NewBlobData);
-
         return eventToUpdate;
 
+    }
+
+    public async Task<Event> AddMultipleBlobs(string eventHash, HashSet<BlobData> blobDatas)
+    {
+        Event ev = RetrieveByHash(eventHash);
+        await AddMultipleBlobs(ev, blobDatas);
+        return ev;
     }
 
     private async Task AddMultipleBlobs(Event ev, HashSet<BlobData> blobDatas)
@@ -91,17 +95,24 @@ public class EventService(WydDbContext context, GroupService groupService)
         {
             var tasks = blobDatas.Select(async bd => await AddBlobAsync(ev, bd)).ToList();
             await Task.WhenAll(tasks);
+            db.SaveChanges();
         }
     }
 
-    private async Task AddBlobAsync(Event ev, BlobData blobData)
+    private static async Task AddBlobAsync(Event ev, BlobData blobData)
     {
         Blob newBlob = new();
-        db.Blobs.Add(newBlob);
-        ev.Blobs.Add(newBlob);
-
-        await BlobService.UploadBlobAsync(ev.Hash, newBlob, blobData);
-        db.SaveChanges();
+        try
+        {
+            string extension = await BlobService.UploadBlobAsync(ev.Hash, newBlob, blobData);
+            newBlob.Hash += extension;
+            ev.Blobs.Add(newBlob);
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Error with concurrency:" + e.Message);
+        }
+        return;
     }
 
     internal Event ShareToGroups(string eventHash, HashSet<int> groupIds)

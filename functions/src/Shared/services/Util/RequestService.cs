@@ -74,29 +74,12 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
         return JsonSerializer.Deserialize<T>(requestBody, _jsonSerializerOptions) ?? throw new ArgumentNullException(nameof(T));
     }
 
-
-    private static string GetDeviceId(HttpRequest req)
-    {
-
-        if (req.Headers.TryGetValue("deviceId", out var headerValue))
-        {
-            if (StringValues.IsNullOrEmpty(headerValue))
-            {
-                throw new ArgumentException("Header value malformed");
-            }
-            return headerValue!;
-        }
-        else
-            throw new ArgumentException("DeviceId header not found or in the wrong format");
-    }
-
-    public async Task NotifyAsync(Event ev, UdpateType type, Profile currentProfile, HttpRequest req)
+    public async Task NotifyAsync(Event ev, UpdateType type, Profile currentProfile)
     {
         try
         {
-            string deviceId = GetDeviceId(req);
             //TODO check max time
-            await notificationService.SendEventNotifications(ev, currentProfile, type, deviceId);
+            await notificationService.SendEventNotifications(ev, currentProfile, type);
         }
         catch (Exception e)
         {

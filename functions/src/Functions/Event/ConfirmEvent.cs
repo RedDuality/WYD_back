@@ -26,7 +26,7 @@ namespace Functions
 
                 Event ev = _eventService.ConfirmOrDecline(eventHash, currentProfile, true);
                 
-                await requestService.NotifyAsync(ev, UdpateType.ConfirmEvent,currentProfile, req);
+                await requestService.NotifyAsync(ev, UpdateType.ConfirmEvent,currentProfile);
                 
                 return new OkObjectResult("");
             }

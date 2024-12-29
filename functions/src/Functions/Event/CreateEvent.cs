@@ -28,9 +28,9 @@ namespace Functions
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
                 var myevent = await _requestService.DeserializeRequestBodyAsync<EventDto>(req);
-                var newevent = await _eventService.Create(myevent, currentProfile);
+                var newevent = _eventService.Create(myevent, currentProfile);
 
-                await _requestService.NotifyAsync(newevent, UdpateType.NewEvent, currentProfile, req);
+                await _requestService.NotifyAsync(newevent, UpdateType.NewEvent, currentProfile);
                 return new OkObjectResult(new EventDto(newevent));
             }
             catch (Exception ex)

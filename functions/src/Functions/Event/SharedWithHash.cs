@@ -29,7 +29,7 @@ namespace Functions
                 Profile currentProfile = await _authorizationService.VerifyRequest(req, UserPermissionOnProfile.CREATE_EVENT);
 
                 Event e = _eventService.SharedWithHash(eventHash, currentProfile);
-                await requestService.NotifyAsync(e, UdpateType.NewEvent, currentProfile, req);
+                await requestService.NotifyAsync(e, UpdateType.NewEvent, currentProfile);
                 return new OkObjectResult(new EventDto(e));
             }
             catch (Exception ex)

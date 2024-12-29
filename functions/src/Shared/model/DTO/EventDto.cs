@@ -15,7 +15,6 @@ public class EventDto
 
     public List<string> BlobHashes {get; set;}  = [];
     public List<ProfileEventDto> ProfileEvents { get; set; } = [];
-    public HashSet<BlobData> NewBlobData {get;set;} = [];
 
     // Parameterized constructor for custom use
     public EventDto(Event ev)
@@ -32,6 +31,7 @@ public class EventDto
 
     public EventDto()
     {
+        
     }
 
 }

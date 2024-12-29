@@ -19,7 +19,7 @@ namespace Functions
         {
             try
             {
-                await rTService.SendMockNotification();
+                await rTService.SendMockNotification("NDjmfkkUXxzINlM47MycQ");
                 return new OkObjectResult("");
             }
             catch (Exception ex)

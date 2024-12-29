@@ -4,10 +4,12 @@ using Model;
 
 namespace Service;
 
-public enum UdpateType
+public enum UpdateType
 {
     NewEvent,
+    ShareEvent,
     UpdateEvent,
+    UpdatePhotos,
     ConfirmEvent,
     DeclineEvent,
     DeleteEvent,
@@ -39,26 +41,29 @@ public class NotificationService
     }
 
 
-    public async Task SendEventNotifications(Event ev, Profile currentProfile, UdpateType type, string deviceId)
+    public async Task SendEventNotifications(Event ev, Profile currentProfile, UpdateType type)
     {
         //TODO add control over roles
-        HashSet<string> profileUserHashes = currentProfile.Users.Select(user => user.Hash).ToHashSet();
-        HashSet<string> userHashes = ev.Profiles.SelectMany(profile => profile.Users.Select(user => user.Hash)).Where(hash => !profileUserHashes.Contains(hash)).ToHashSet();
+        HashSet<string> eventUserHashes = ev.Profiles.SelectMany(profile => profile.Users.Select(user => user.Hash)).ToHashSet();
 
-        await Send(userHashes, (type == UdpateType.ConfirmEvent || type == UdpateType.DeleteEvent) ? UdpateType.UpdateEvent : type, ev.Hash, null);
-        await Send(profileUserHashes, type, ev.Hash, deviceId);
+        await Send(eventUserHashes, type, ev.Hash, (type == UpdateType.ConfirmEvent || type == UpdateType.DeclineEvent) ? currentProfile : null);
 
     }
 
-    private async Task Send(IEnumerable<string> userHashes, UdpateType type, string objectHash, string? deviceId)
+    private async Task Send(IEnumerable<string> userHashes, UpdateType type, string objectHash, Profile? profile)
     {
         Dictionary<string, object> update = new()
         {
             { "timestamp",  Timestamp.GetCurrentTimestamp()},
             { "type",  type},
             { "hash", objectHash},
-            {"deviceId", deviceId ?? ""}
+            { "v", "1.0"},
         };
+
+        if (profile != null)
+        {
+            update.Add("phash", profile.Hash);
+        }
 
 
         foreach (string hash in userHashes)
@@ -67,9 +72,9 @@ public class NotificationService
         }
     }
 
-    public async Task SendMockNotification()
+    public async Task SendMockNotification(string hash)
     {
-        await Send(["NDjmfkkUXxzINlM47MycQ"], UdpateType.UpdateEvent, "prova", null);
+        await Send([hash], UpdateType.UpdateEvent, "prova", null);
     }
 
 }

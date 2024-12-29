@@ -4,7 +4,7 @@ namespace Dto;
 
 public class ProfileEventDto
 {
-    public int ProfileId { get; set; }
+    public string ProfileHash { get; set; }
     public EventRole Role { get; set; }
     public bool Confirmed { get; set; }
     public bool Trusted { get; set; }
@@ -12,7 +12,7 @@ public class ProfileEventDto
     // Parameterized constructor for custom initialization
     public ProfileEventDto(ProfileEvent pe)
     {
-        ProfileId = pe.Profile.Id;
+        ProfileHash = pe.Profile.Hash;
         Role = pe.Role;
         Confirmed = pe.Confirmed;
         Trusted = pe.Trusted;

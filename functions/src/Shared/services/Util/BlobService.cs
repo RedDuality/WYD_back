@@ -8,7 +8,7 @@ namespace Service;
 public class BlobService
 {
 
-    private static readonly Dictionary<string, string> MimeTypeToExtension = new Dictionary<string, string>
+    private static readonly Dictionary<string, string> MimeTypeToExtension = new()
     {
         { "image/jpeg", ".jpg" },
         { "image/png", ".png" },
@@ -63,10 +63,7 @@ public class BlobService
         {
             await blobClient.UploadAsync(ms, true);
         }
-
-        blob.Hash += extension; // add extension only after saving
-
-        return blobClient.Uri.ToString();
+        return extension;
     }
 
 }

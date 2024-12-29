@@ -25,7 +25,7 @@ public class DeclineEvent(ILogger<DeclineEvent> logger, EventService eventServic
 
             Event ev = _eventService.ConfirmOrDecline(eventHash, currentProfile, false);
 
-            await requestService.NotifyAsync(ev, UdpateType.DeclineEvent, currentProfile, req);
+            await requestService.NotifyAsync(ev, UpdateType.DeclineEvent, currentProfile);
             return new OkObjectResult("");
         }
         catch (Exception ex)
