@@ -13,6 +13,7 @@ public enum UpdateType
     ConfirmEvent,
     DeclineEvent,
     DeleteEvent,
+    DeleteForAll,
     ProfileDetails
 }
 
@@ -50,7 +51,21 @@ public class NotificationService
 
     }
 
-    private async Task Send(IEnumerable<string> userHashes, UpdateType type, string objectHash, Profile? profile)
+    public async Task SendEventNotifications(Event? ev, Profile currentProfile, UpdateType type, string hash)
+    {
+
+        //TODO add control over roles
+        HashSet<Profile> profiles = [currentProfile];
+        if (ev != null) profiles.UnionWith(ev.Profiles);
+
+        HashSet<string> eventUserHashes = profiles.SelectMany(profile => profile.Users.Select(user => user.Hash)).ToHashSet();
+
+        await Send(eventUserHashes, type, ev?.Hash ?? hash, (type == UpdateType.ConfirmEvent || type == UpdateType.DeclineEvent || type == UpdateType.DeleteEvent) ? currentProfile : null);
+
+    }
+
+
+    public async Task Send(IEnumerable<string> userHashes, UpdateType type, string objectHash, Profile? profile)
     {
         Dictionary<string, object> update = new()
         {

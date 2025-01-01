@@ -87,6 +87,19 @@ public class RequestService(JsonSerializerOptions jsonSerializerOptions, UserSer
         }
     }
 
+    public async Task NotifyAsync(Event? ev, UpdateType type, Profile currentProfile, string hash)
+    {
+        try
+        {
+            //TODO check max time
+            await notificationService.SendEventNotifications(ev, currentProfile, type, hash);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+
     public static IActionResult GetErrorResult(Exception e)
     {
         return e switch

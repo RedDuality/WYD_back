@@ -3,11 +3,13 @@ using Database;
 using Dto;
 
 namespace Service;
-public class EventService(WydDbContext context, GroupService groupService)
+public class EventService(WydDbContext context, GroupService groupService, ProfileService profileService)
 {
     private readonly WydDbContext db = context ?? throw new ArgumentNullException(nameof(context), "Database context cannot be null");
 
     private readonly GroupService groupService = groupService ?? throw new ArgumentNullException(nameof(context), "GroupService cannot be null");
+
+    private readonly ProfileService profileService = profileService;
 
     public Event RetrieveByHash(string eventHash)
     {
@@ -49,6 +51,8 @@ public class EventService(WydDbContext context, GroupService groupService)
 
             if (dto.ProfileEvents.Count != 0 && dto.ProfileEvents.First().Confirmed)
                 ConfirmOrDecline(newEvent, profile, true);
+
+            profileService.SetEventRole(newEvent, profile, EventRole.Owner);
 
             transaction.Commit();
         }
@@ -164,25 +168,22 @@ public class EventService(WydDbContext context, GroupService groupService)
         return ev;
     }
 
-
-
-
-    /*
-        public bool DeleteForUser(int eventId, int userId)
+    public Event? DeleteForProfile(string eventHash, Profile profile)
+    {
+        Event ev = RetrieveByHash(eventHash);
+        ev.Profiles.Remove(profile);
+        if (ev.Profiles.Count == 0)
         {
-
-            Event ev = db.Events.Include(e => e.Users).Single(e => e.Id == eventId);
-            User u = db.Users.Single(e => e.Id == userId);
-            ev.Users.Remove(u);
-            if (ev.Users.Count == 0)
-                db.Remove(ev);
+            db.Remove(ev);
             db.SaveChanges();
-            return true;
-
+            return null;
         }
-    */
+        db.SaveChanges();
+        return ev;
+    }
+
     /*
-        public bool Delete(int id, int userId)
+        public HashSet<Profile> Delete(int id, int userId)
         {
             Event ev = db.Events.Single(e => e.Id == id);
             if (ev.OwnerId != userId)
@@ -192,22 +193,5 @@ public class EventService(WydDbContext context, GroupService groupService)
             return true;
 
         }
-
-        public List<Event> AddMultiple(List<User> users, List<Event> ev)
-        {
-
-            var transaction = db.Database.BeginTransaction();
-
-            ev.ForEach(e => e.Id = null);
-
-            db.Events.AddRange(ev);
-            db.SaveChanges();
-            ev.ForEach(e => e.Users.UnionWith(users));
-            db.Events.UpdateRange(ev);
-            db.SaveChanges();
-
-            transaction.Commit();
-
-            return ev;
-        }*/
+*/
 }
